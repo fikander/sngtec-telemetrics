@@ -1,0 +1,9 @@
+#ignore binary object files
+*.o
+
+#don't care about shared libraries
+*.so
+*.so.*
+
+#ignore mocs
+moc_*.*
