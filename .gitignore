@@ -7,3 +7,6 @@
 
 #ignore mocs
 moc_*.*
+
+#ignore entire build directory
+/build/
