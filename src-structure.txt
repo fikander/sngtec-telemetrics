@@ -1,0 +1,11 @@
+src/
+   \--Cloud/
+      \--cloproxy.h
+      \--Mock/
+      \--Pachube/
+   \--Sensors/
+      \--devproxy.h
+      \--Mock/
+      \--SMG/
+      \--ModBus/
+    \--Trash/
