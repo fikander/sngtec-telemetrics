@@ -4,20 +4,20 @@
 #include <QObject>
 #include <QVector>
 
-#include "../message.h"
-#include "../configurator.h"
 
+class Message;
+class Configurator;
 
 // Interface for various connection types with cloud
 class CloConnection : public QObject {
     Q_OBJECT
 
 public:
-    virtual CloConnection* create(Configurator &config);
-    virtual CloConnection* clone(Configurator &config);
-    virtual ~CloConnection();
-    virtual void write(QVector<Message>);
-    virtual QVector<Message> readAll();
+    virtual CloConnection* create(Configurator &config) = 0;
+    virtual CloConnection* clone(Configurator &config) = 0;
+    virtual ~CloConnection() = 0;
+    virtual void write(QVector<Message>) = 0;
+    virtual QVector<Message> readAll() = 0;
 
 // Unused so far
 signals:

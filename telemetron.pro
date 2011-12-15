@@ -10,12 +10,11 @@ TEMPLATE = app
 SOURCES += src/main.cpp \
     src/Sensors/devproxy.cpp \
     src/Cloud/cloproxy.cpp \
-    src/configurator.cpp \
+    src/Configurator/configurator.cpp \
     src/Cloud/cloconnection.cpp \
-    src/message.cpp
+    src/Message/message.cpp
 HEADERS += src/Sensors/devproxy.h \
     src/Cloud/cloproxy.h \
-    configurator.h \
-    src/configurator.h \
+    src/Configurator/configurator.h \
     src/Cloud/cloconnection.h \
-    src/message.h
+    src/Message/message.h
