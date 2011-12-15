@@ -22,6 +22,7 @@ SOURCES += src/main.cpp \
     src/Cloud/cloconnection.cpp \
     src/Cloud/Mock/mockcloud.cpp \
     src/Cloud/Pachube/pachubexml.cpp \
+    src/Cloud/Pachube/pachubecloud.cpp \
     src/Configurator/configurator.cpp \
     src/Message/message.cpp
 HEADERS += src/Sensors/devproxy.h \
@@ -29,5 +30,6 @@ HEADERS += src/Sensors/devproxy.h \
     src/Cloud/cloproxy.h \
     src/Cloud/Mock/mockcloud.h \
     src/Cloud/Pachube/pachubexml.h \
+    src/Cloud/Pachube/pachubecloud.h \
     src/Configurator/configurator.h \
     src/Message/message.h

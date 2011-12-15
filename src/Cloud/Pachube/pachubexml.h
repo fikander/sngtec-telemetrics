@@ -10,6 +10,7 @@ class Message;
 class PachubeXml {
 public:
     PachubeXml(QString feed);
+    //PachubeXml(const PachubeXml &);
     QDomDocument getXml();
     void addData(const Message &);
 

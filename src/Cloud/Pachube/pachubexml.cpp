@@ -14,6 +14,10 @@ PachubeXml::PachubeXml(QString feed): feed(feed) {
     
 }
 
+//PachubeXml::PachubeXml(const PachubeXml &px): feed(px.feed), xml(px.xml), environment(px. environment){
+//}
+
+
 void PachubeXml::addData(const Message &message){
     environment.appendChild(messageToNode(message));
 }
