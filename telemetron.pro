@@ -1,7 +1,7 @@
 # -------------------------------------------------
 # Project created by QtCreator 2011-12-08T18:18:14
 # -------------------------------------------------
-QT += network
+QT += network xml
 QT -= gui
 TARGET = telemetron
 CONFIG += console
@@ -21,11 +21,13 @@ SOURCES += src/main.cpp \
     src/Cloud/cloproxy.cpp \
     src/Cloud/cloconnection.cpp \
     src/Cloud/Mock/mockcloud.cpp \
+    src/Cloud/Pachube/pachubexml.cpp \
     src/Configurator/configurator.cpp \
     src/Message/message.cpp
 HEADERS += src/Sensors/devproxy.h \
     src/Cloud/cloconnection.h \
     src/Cloud/cloproxy.h \
     src/Cloud/Mock/mockcloud.h \
+    src/Cloud/Pachube/pachubexml.h \
     src/Configurator/configurator.h \
     src/Message/message.h
