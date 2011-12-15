@@ -7,6 +7,15 @@ TARGET = telemetron
 CONFIG += console
 CONFIG -= app_bundle
 TEMPLATE = app
+DESTDIR = bin/
+
+DESTDIR = build
+OBJECTS_DIR = build/.obj
+MOC_DIR = build/.moc
+RCC_DIR = build/.rcc
+UI_DIR = build/.ui
+
+
 SOURCES += src/main.cpp \
     src/Sensors/devproxy.cpp \
     src/Cloud/cloproxy.cpp \
