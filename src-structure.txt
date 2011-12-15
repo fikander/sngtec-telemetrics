@@ -8,4 +8,6 @@ src/
       \--Mock/
       \--SMG/
       \--ModBus/
+    \--Message/
+    \--Configurator/
     \--Trash/
