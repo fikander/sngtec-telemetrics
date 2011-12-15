@@ -17,8 +17,6 @@ private:
     QQueue<QString> que;
 
 public:
-    const static int ENQUEUE = 1;
-    const static int DEQUEUE = 0;
     CloProxy();
 
     void connectDev(DevProxy *dv);
