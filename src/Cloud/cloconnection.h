@@ -13,6 +13,8 @@ class CloConnection : public QObject {
     Q_OBJECT
 
 public:
+    typedef QVector<Message> MessagesSet;
+
     virtual CloConnection* create(Configurator &config) = 0;
     virtual CloConnection* clone(Configurator &config) = 0;
     virtual ~CloConnection() = 0;

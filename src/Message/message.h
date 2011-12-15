@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QDateTime>
 
-class Message : public QObject {
+class Message {
 public:
     Message();
     QString key;
