@@ -8,7 +8,7 @@ CONFIG += console
 CONFIG -= app_bundle
 TEMPLATE = app
 SOURCES += src/main.cpp \
-    src/devproxy.cpp \
-    src/cloproxy.cpp
-HEADERS += src/devproxy.h \
-    src/cloproxy.h
+    src/Sensors/devproxy.cpp \
+    src/Cloud/cloproxy.cpp
+HEADERS += src/Sensors/devproxy.h \
+    src/Cloud/cloproxy.h
