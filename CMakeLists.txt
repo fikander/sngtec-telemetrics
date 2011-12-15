@@ -9,8 +9,8 @@ PROJECT( TelemetronProject )
 # note that we don't need  at the end of line
 SET( TELEMETRON_SRCS
 		src/main.cpp 
-    src/devproxy.cpp 
-    src/cloproxy.cpp
+    src/Sensors/devproxy.cpp 
+    src/Cloud/cloproxy.cpp
     )
 
 # another list, this time it includes all header files that should be treated with moc
@@ -18,8 +18,8 @@ SET( TELEMETRON_HEADERS
 	)
 
 SET( TELEMETRON_MOC_HDRS
-		src/devproxy.h 
-    src/cloproxy.h
+	src/Sensors/devproxy.h 
+    src/Cloud/cloproxy.h
 )
 
 # enable warnings

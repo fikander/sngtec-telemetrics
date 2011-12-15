@@ -4,7 +4,6 @@
 #include <QObject>
 #include <QTimer>
 #include <QDebug>
-#include "devproxy.h"
 #include <QQueue>
 
 class DevProxy;

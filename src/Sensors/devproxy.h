@@ -4,7 +4,6 @@
 #include <QDebug>
 #include <QObject>
 #include <QAbstractSocket>
-#include "cloproxy.h"
 
 class CloProxy;
 

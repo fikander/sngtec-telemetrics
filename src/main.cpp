@@ -1,6 +1,6 @@
 #include <QtCore/QCoreApplication>
-#include "devproxy.h"
-#include "cloproxy.h"
+#include "Sensors/devproxy.h"
+#include "Cloud/cloproxy.h"
 
 int main(int argc, char *argv[]) {
     QCoreApplication a(argc, argv);

@@ -2,21 +2,21 @@
 
 #include <QDebug>
 
-protocol::protocol()
+Protocol::Protocol()
 {
     test = 1;
 }
 
-int protocol::readTest(){
+int Protocol::readTest(){
     return test;
 }
 
-QString protocol::read(){
+QString Protocol::read(){
     QString p = QString("ProtocolRead");
     return p;
 }
 
-int protocol::write(QString string){
+int Protocol::write(QString string){
     qDebug() << string;
     return 0;
 }

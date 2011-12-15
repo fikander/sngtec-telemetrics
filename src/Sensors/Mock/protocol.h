@@ -6,13 +6,13 @@
 #include <QString>
 
 /* Test class! */
-class protocol  {
+class Protocol  {
 
 public:
     //virtual int connect();
     //virtual int send(QString mesg);
    // virtual QString getAns();
-    protocol();
+    Protocol();
     int readTest();
     QString read();
     int write(QString string);

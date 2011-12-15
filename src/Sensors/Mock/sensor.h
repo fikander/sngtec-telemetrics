@@ -6,15 +6,15 @@
 #include "protocol.h"
 #include "devproxy.h"
 
-class Czujnik : public QIODevice {
+class Sensor : public QIODevice {
     Q_OBJECT
 
  private:
-    protocol* myProtocol;
+    Protocol* myProtocol;
     DevProxy* myDevice;
 
 public:
-    Czujnik();
+    Sensor();
     int connectDevice(DevProxy* device);
     // Qstrings?
     int sendMesg(QString mesg);
