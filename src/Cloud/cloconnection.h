@@ -18,10 +18,12 @@ public:
     virtual ~CloConnection() = 0;
     virtual void write(QVector<Message>) = 0;
     virtual QVector<Message> readAll() = 0;
+    virtual bool isBusy() = 0;
 
 // Unused so far
 signals:
     void readyToRead();
+    void readyToWrite();
 };
 
 #endif // CLOCONNECTION_H
