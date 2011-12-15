@@ -6,3 +6,4 @@ CloConnection::~CloConnection() {};
 
 void CloConnection::write(QVector<Message>) {};
 QVector<Message> CloConnection::readAll() {};
+

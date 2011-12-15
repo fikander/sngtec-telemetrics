@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QVector>
+
 #include "../message.h"
 #include "../configurator.h"
 
