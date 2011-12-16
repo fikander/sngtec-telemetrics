@@ -14,6 +14,6 @@
 │   ├── Sensors
 │   │   ├── Mock
 │   │   ├── Modbus
-│   │   └── SMG
+│   │   └── SNG
 │   └── Trash
 │       └── Pachube

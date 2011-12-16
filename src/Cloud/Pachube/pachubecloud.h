@@ -10,7 +10,7 @@ class Configurator;
 //TODO: timeout
 //TODO: retry time
 class PachubeCloud: CloConnection{
-public: 
+public:
     virtual CloConnection* create(Configurator &);
     virtual CloConnection* clone(Configurator &);
     virtual ~PachubeCloud();

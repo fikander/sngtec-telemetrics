@@ -28,7 +28,7 @@ PachubeCloud::~PachubeCloud() {
 void PachubeCloud::write(QVector<Message> messages) {
     PachubeXml pxml(feed);
     for(MessagesSet::const_iterator it = messages.begin(); it != messages.end(); ++it) {
-        pxml.addData(*it); 
+        pxml.addData(*it);
     }
     currentPachubeXml = pxml;
     send();
