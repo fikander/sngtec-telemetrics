@@ -16,14 +16,14 @@ void CloProxy::connectDev(DevProxy *dv) {
 void CloProxy::askServer() {
    qDebug() << "Ask server";
    if (!que.isEmpty()) {
-    QString qs = que.dequeue();
-    qDebug() << "Odebrano od device" << qs;
+    Message qs = que.dequeue();
+    qDebug() << "Odebrano od device" << qs.value;
    }
    // Mozna cos popisac po dv
    QString msg = "ok";
    dev->ioDevice->write(msg.toAscii().data(), 2);
 }
 
-void CloProxy::queue(QString payload) {
+void CloProxy::queue(Message payload) {
     que.enqueue(payload);
 }

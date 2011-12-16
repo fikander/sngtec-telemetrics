@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QObject>
 #include <QAbstractSocket>
+#include "src/Message/message.h"
 
 class CloProxy;
 
@@ -15,7 +16,7 @@ private:
     CloProxy *clo;
 
 signals:
-    void enque(QString str);
+    void enque(Message msg);
 
 public:
     QAbstractSocket *ioDevice;
