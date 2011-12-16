@@ -1,5 +1,5 @@
 #include "cloproxy.h"
-#include "../Sensors/devproxy.h"
+#include "src/Sensors/devproxy.h"
 
 CloProxy::CloProxy() {
     timer = new QTimer(this);

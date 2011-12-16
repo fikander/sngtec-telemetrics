@@ -1,5 +1,5 @@
 #include "pachubexml.h"
-#include "../../Message/message.h"
+#include "src/Message/message.h"
 
 PachubeXml::PachubeXml(QString feed): feed(feed) {
     QDomElement eeml = xml.createElement("eeml");

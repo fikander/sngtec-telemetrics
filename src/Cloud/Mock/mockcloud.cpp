@@ -1,7 +1,7 @@
 #include "mockcloud.h"
 #include <QDebug>
 #include <QVector>
-#include "../../Message/message.h"
+#include "src/Message/message.h"
 
 CloConnection* MockCloud::create(Configurator &) {
     return new MockCloud();

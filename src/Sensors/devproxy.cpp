@@ -1,5 +1,5 @@
 #include "devproxy.h"
-#include "../Cloud/cloproxy.h"
+#include "src/Cloud/cloproxy.h"
 #include <QTcpSocket>
 
 //

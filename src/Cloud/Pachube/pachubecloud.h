@@ -1,7 +1,7 @@
 #ifndef MOCK_CLOUD_H
 #define MOCK_CLOUD_H
 
-#include "../cloconnection.h"
+#include "src/Cloud/cloconnection.h"
 #include "pachubexml.h"
 #include <QHttp>
 

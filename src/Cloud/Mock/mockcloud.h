@@ -1,7 +1,7 @@
 #ifndef MOCK_CLOUD_H
 #define MOCK_CLOUD_H
 
-#include "../cloconnection.h"
+#include "src/Cloud/cloconnection.h"
 
 class MockCloud: CloConnection{
 public: 
