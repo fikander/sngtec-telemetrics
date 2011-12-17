@@ -50,7 +50,21 @@ QVector<Message> SngConnection::readAll()
 
 void SngConnection::readFromSensor()
 {
+    qDebug() << "readFromSensor";
+    char msg[SNG_FRAME_SIZE];
+    commServer->read(msg, SNG_FRAME_SIZE);
 
+    int val = msg[9];
+    QString str;
+    str.append(val);
+    Message m("value", str);
+    msgQue.push_back(m);
+
+    QString s = "got value: ";
+    s.append(val);
+    qDebug() << s;
+
+    emit readyToRead();
 }
 
 void SngConnection::handleError(QAbstractSocket::SocketError error)
@@ -73,8 +87,6 @@ void SngConnection::sendFrame(SngPhysicalAddress &src, SngPhysicalAddress &dest,
     setSrcAddr(src, msg);
     setDestAddr(dest, msg);
     setValue(frameType, msg, value);
-
-    //TODO: parse value
 
     qint64 dataLength = commServer->write(msg, SNG_FRAME_SIZE);
     qDebug() << "sent " << dataLength << " bytes of data to sensor";
