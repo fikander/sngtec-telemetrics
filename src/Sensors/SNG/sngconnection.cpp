@@ -1,7 +1,8 @@
 #include "sngconnection.h"
 
-SNGconnection::SNGconnection(Configurator & config) :
-    commServerHostName("localhost"), port(8800)
+SngConnection::SngConnection(Configurator & config) :
+    commServerHostName("localhost"), port(8800),
+    physicalAddress("2.4.7"), defaultDest("1.2.3")
 {
     this->conf = &config;
     commServer = new QTcpSocket(this);
@@ -13,39 +14,58 @@ SNGconnection::SNGconnection(Configurator & config) :
     commServer->connectToHost(commServerHostName, port);
 }
 
-SNGconnection::~SNGconnection()
+SngConnection::~SngConnection()
 {
 }
 
-DevConnection* SNGconnection::create(Configurator &config)
+DevConnection* SngConnection::create(Configurator &config)
 {
-    return new SNGconnection(config);
+    return new SngConnection(config);
 }
 
-DevConnection* SNGconnection::clone(Configurator &config)
+DevConnection* SngConnection::clone(Configurator &config)
 {
-    return new SNGconnection(config);
+    return new SngConnection(config);
 }
 
-void SNGconnection::write(QVector<Message> messages)
+void SngConnection::write(QVector<Message> messages)
 {
-    //it = messages.constBegin();
+    for (int i = 0; i < messages.size(); i++)
+    {
+        sendMessage(messages[i]);
+    }
+
 }
 
-QVector<Message> SNGconnection::readAll()
+QVector<Message> SngConnection::readAll()
 {
-    QVector<Message> res;
+    QVector<Message> res = QVector<Message>(msgQue);
+    msgQue.clear();
     return res;
 }
 
-void SNGconnection::readFromSensor()
+void SngConnection::readFromSensor()
 {
+
 }
 
-void SNGconnection::handleError(QAbstractSocket::SocketError error)
+void SngConnection::handleError(QAbstractSocket::SocketError error)
 {
     qDebug() << "Error with CommServer: " << error;
 }
+
+void SngConnection::sendMessage(Message& msg)
+{
+    // TODO get settings from config
+    sendFrame(physicalAddress, defaultDest, Temp, msg.value);
+}
+
+void SngConnection::sendFrame(SngPhysicalAddress &src, SngPhysicalAddress &dest,
+                              SngFrameType frameType, QString &value)
+{
+}
+
+
 
 
 
