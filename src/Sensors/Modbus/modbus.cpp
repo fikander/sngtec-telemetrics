@@ -5,12 +5,12 @@
 #include <QDebug>
 #include <errno.h>
 
-Modbus* Modbus::create(Configurator &config){
+Modbus* Modbus::create(Configurator *config){
     // TODO
     return new Modbus("/dev/ttyS0", "normal");
 }
 
-Modbus* Modbus::clone(Configurator &config){
+Modbus* Modbus::clone(Configurator *config){
     // TODO
     return new Modbus("/dev/ttyS0", "normal");
 }

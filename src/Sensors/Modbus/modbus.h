@@ -24,8 +24,8 @@ class Modbus : public DevConnection
 {
 
   public:
-        Modbus* create(Configurator &config);
-        Modbus* clone(Configurator &config);
+        Modbus* create(Configurator *config);
+        Modbus* clone(Configurator *config);
         Modbus(std::string port, std::string connection);
         virtual ~Modbus();
         void write(QVector<Message> messages);

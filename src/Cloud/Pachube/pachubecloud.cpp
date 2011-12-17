@@ -6,7 +6,7 @@
 
 
 
-PachubeCloud::PachubeCloud(Configurator &)
+PachubeCloud::PachubeCloud(Configurator*)
     : currentPachubeXml("41613")
     { //: apiKey(config.getApiKey()), feed(config.getFeed())
     apiKey = "xEc6VTbLaHKgmXMB24UCCXROcXm_hr2FWCFarVhHGtg";
@@ -14,11 +14,11 @@ PachubeCloud::PachubeCloud(Configurator &)
 }
      
 
-CloConnection* PachubeCloud::create(Configurator &config) {
+CloConnection* PachubeCloud::create(Configurator* config) {
     return new PachubeCloud(config);
 }
 
-CloConnection* PachubeCloud::clone(Configurator &config) {
+CloConnection* PachubeCloud::clone(Configurator* config) {
     return new PachubeCloud(config);
 }
 

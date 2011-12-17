@@ -1,22 +1,23 @@
 #include "devproxy.h"
 #include "src/Cloud/cloproxy.h"
+#include "src/Sensors/devconnection.h"
+#include "src/Message/message.h"
 #include <QTcpSocket>
 
+
 //
-DevProxy::DevProxy() {
-    // Device
-    ioDevice = new QTcpSocket(this);
+DevProxy::DevProxy() {}
 
+DevProxy::DevProxy(Configurator &config) {
+    ioDevice = config.giveDevice();
     connect(ioDevice, SIGNAL(readyRead()), this, SLOT(readDevice()));
-    connect(ioDevice, SIGNAL(error(QAbstractSocket::SocketError)),
-            this, SLOT(displayError(QAbstractSocket::SocketError)));
 
-    ioDevice->connectToHost("localhost", 7171);
-
+//    connect(ioDevice, SIGNAL(error(QAbstractSocket::SocketError)),
+//            this, SLOT(displayError(QAbstractSocket::SocketError)));
 }
 
+
 void DevProxy::connectCloud(CloProxy *cl) {
-    // Proxy chmury
     clo = cl;
     connect(this, SIGNAL(enque(Message)),
             clo, SLOT(queue(Message)));
@@ -24,11 +25,9 @@ void DevProxy::connectCloud(CloProxy *cl) {
 }
 
 void DevProxy::readDevice() {
-    // czytaj z socketa
-    QString payload = ioDevice->readAll();
-    qDebug() << "Czytaj z socketa: " << payload;
-    Message msg;
-    msg.value = payload;
+    QVector<Message> payload = ioDevice->readAll();
+//    qDebug() << "Czytaj z socketa: " << payload;
+    Message msg = payload[0];
 
     emit enque(msg);
 

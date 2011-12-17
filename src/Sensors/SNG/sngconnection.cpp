@@ -1,10 +1,10 @@
 #include "sngconnection.h"
 
-SngConnection::SngConnection(Configurator & config) :
+SngConnection::SngConnection(Configurator *config) :
     commServerHostName("localhost"), port(8800),
     physicalAddress("2.4.7"), defaultDest("1.2.3")
 {
-    this->conf = &config;
+    this->conf = config;
     commServer = new QTcpSocket(this);
 
     connect(commServer, SIGNAL(readyRead()), this, SLOT(readFromSensor()));
@@ -18,12 +18,12 @@ SngConnection::~SngConnection()
 {
 }
 
-DevConnection* SngConnection::create(Configurator &config)
+DevConnection* SngConnection::create(Configurator *config)
 {
     return new SngConnection(config);
 }
 
-DevConnection* SngConnection::clone(Configurator &config)
+DevConnection* SngConnection::clone(Configurator *config)
 {
     return new SngConnection(config);
 }

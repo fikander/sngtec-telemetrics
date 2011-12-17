@@ -3,11 +3,11 @@
 #include <QVector>
 #include "src/Message/message.h"
 
-CloConnection* MockCloud::create(Configurator &) {
+CloConnection* MockCloud::create(Configurator*) {
     return new MockCloud();
 }
 
-CloConnection* MockCloud::clone(Configurator &) {
+CloConnection* MockCloud::clone(Configurator*) {
     return new MockCloud();
 }
 

@@ -13,8 +13,8 @@ class SngConnection : DevConnection
     Q_OBJECT
 
 public:
-    virtual DevConnection* create(Configurator &config);
-    virtual DevConnection* clone(Configurator &config);
+    virtual DevConnection* create(Configurator *config);
+    virtual DevConnection* clone(Configurator *config);
     virtual ~SngConnection();
 
     virtual void write(QVector<Message>);
@@ -34,7 +34,7 @@ private:
     };
 
 
-    SngConnection(Configurator&);
+    SngConnection(Configurator*);
 
     // methods used when sending a message to sensor
     void sendMessage(Message&);

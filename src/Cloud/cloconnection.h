@@ -15,8 +15,8 @@ class CloConnection : public QObject {
 public:
     typedef QVector<Message> MessagesSet;
 
-    virtual CloConnection* create(Configurator &config) = 0;
-    virtual CloConnection* clone(Configurator &config) = 0;
+    virtual CloConnection* create(Configurator *config) = 0;
+    virtual CloConnection* clone(Configurator *config) = 0;
     virtual ~CloConnection() = 0;
     virtual void write(QVector<Message>) = 0;
     virtual QVector<Message> readAll() = 0;

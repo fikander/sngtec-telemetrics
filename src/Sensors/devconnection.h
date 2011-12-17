@@ -12,8 +12,8 @@ class DevConnection : public QObject
     Q_OBJECT
 
 public:
-    virtual DevConnection* create(Configurator &config) = 0;
-    virtual DevConnection* clone(Configurator &config) = 0;
+    virtual DevConnection* create(Configurator *config) = 0;
+    virtual DevConnection* clone(Configurator *config) = 0;
     virtual ~DevConnection() = 0;
 
     virtual void write(QVector<Message>) = 0;

@@ -13,9 +13,9 @@ class PachubeCloud: public CloConnection{
     Q_OBJECT
     
 public:
-    PachubeCloud(Configurator &);
-    virtual CloConnection* create(Configurator &);
-    virtual CloConnection* clone(Configurator &);
+    PachubeCloud(Configurator*);
+    virtual CloConnection* create(Configurator*);
+    virtual CloConnection* clone(Configurator*);
     virtual ~PachubeCloud();
     virtual void write(QVector<Message>);
     virtual QVector<Message> readAll();

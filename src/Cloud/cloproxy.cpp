@@ -20,8 +20,10 @@ void CloProxy::askServer() {
     qDebug() << "Odebrano od device" << qs.value;
    }
    // Mozna cos popisac po dv
-   QString msg = "ok";
-   dev->ioDevice->write(msg.toAscii().data(), 2);
+   Message msg("ok", "ok");
+   QVector<Message> wiadomosci;
+   wiadomosci.push_back(msg);
+   dev->ioDevice->write(wiadomosci);
 }
 
 void CloProxy::queue(Message payload) {

@@ -5,8 +5,8 @@
 
 class MockCloud: CloConnection{
 public: 
-    virtual CloConnection* create(Configurator &);
-    virtual CloConnection* clone(Configurator &);
+    virtual CloConnection* create(Configurator*);
+    virtual CloConnection* clone(Configurator*);
     virtual ~MockCloud();
     virtual void write(QVector<Message>);
     virtual QVector<Message> readAll();
