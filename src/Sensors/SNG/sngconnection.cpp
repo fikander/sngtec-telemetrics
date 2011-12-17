@@ -1,5 +1,9 @@
 #include "sngconnection.h"
 
+SngConnection::SngConnection()
+{
+}
+
 SngConnection::SngConnection(Configurator *config) :
     commServerHostName("localhost"), port(8800),
     physicalAddress("2.4.7"), defaultDest("1.2.3")

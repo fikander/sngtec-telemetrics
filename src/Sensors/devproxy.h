@@ -5,6 +5,7 @@
 #include <QObject>
 #include <QAbstractSocket>
 #include "src/Message/message.h"
+#include "src/Configurator/configurator.h"
 
 class CloProxy;
 
@@ -19,10 +20,10 @@ signals:
     void enque(Message msg);
 
 public:
-    QAbstractSocket *ioDevice;
+    DevConnection *ioDevice;
 
     DevProxy();
-    DevProxy(CloProxy* cloud);
+    DevProxy(Configurator*);
     //    ~DevProxy();
 
 public slots:

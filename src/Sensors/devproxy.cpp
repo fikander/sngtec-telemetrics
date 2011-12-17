@@ -8,8 +8,8 @@
 //
 DevProxy::DevProxy() {}
 
-DevProxy::DevProxy(Configurator &config) {
-    ioDevice = config.giveDevice();
+DevProxy::DevProxy(Configurator* config) {
+    ioDevice = config->giveDevice();
     connect(ioDevice, SIGNAL(readyRead()), this, SLOT(readDevice()));
 
 //    connect(ioDevice, SIGNAL(error(QAbstractSocket::SocketError)),
