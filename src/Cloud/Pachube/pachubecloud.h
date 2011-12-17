@@ -9,8 +9,11 @@ class Configurator;
 
 //TODO: timeout
 //TODO: retry time
-class PachubeCloud: CloConnection{
+class PachubeCloud: public CloConnection{
+    Q_OBJECT
+    
 public:
+    PachubeCloud(Configurator &);
     virtual CloConnection* create(Configurator &);
     virtual CloConnection* clone(Configurator &);
     virtual ~PachubeCloud();
@@ -19,7 +22,6 @@ public:
     virtual bool isBusy();
 
 private:
-    PachubeCloud(Configurator &);
     void send();
 
     PachubeXml currentPachubeXml;
@@ -28,7 +30,7 @@ private:
     bool busy;
     QHttp http;
 
-private slots:
+public slots:
     void done(bool);
     void retry();
 

@@ -3,7 +3,6 @@
 Pachube::Pachube(const QString &apikey, const QString &feed, const QDomDocument &xml):feed(feed), xml(xml){
                 
     connect(&http, SIGNAL(done(bool)), this, SLOT(done(bool)));
-    connect(&http, SIGNAL(done(bool)), &http, SLOT(ignoreSslErrors()));
 
     QHttpRequestHeader header("PUT", feed);
     header.setValue("Host", "api.pachube.com");
