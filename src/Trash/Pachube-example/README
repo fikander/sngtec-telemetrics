@@ -1,0 +1,2 @@
+compile from src directory
+> qmake src/Trash/Pachube-example/pachube.pro
