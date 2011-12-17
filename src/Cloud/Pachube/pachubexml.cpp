@@ -1,11 +1,13 @@
 #include "pachubexml.h"
 #include "src/Message/message.h"
+#include <QDebug>
 
 PachubeXml::PachubeXml(QString feed): feed(feed) {
     QDomElement eeml = xml.createElement("eeml");
+    eeml.setAttribute("xmlns", "http://www.eeml.org/xsd/0.5.1");
+    eeml.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
     eeml.setAttribute("version", "0.5.1");
-    eeml.setAttribute("xsi:schemaLocation",
-            "http://www.eeml.org/xsd/0.5.1 http://www.eeml.org/xsd/0.5.1/0.5.1.xsd");
+    eeml.setAttribute("xsi:schemaLocation", "http://www.eeml.org/xsd/0.5.1 http://www.eeml.org/xsd/0.5.1/0.5.1.xsd");
     xml.appendChild(eeml);
 
     environment = xml.createElement("environment");
@@ -23,6 +25,7 @@ void PachubeXml::addData(const Message &message){
 }
 
 QDomDocument PachubeXml::getXml(){
+    qDebug() << xml.toString();
     return xml;
 }
 

@@ -49,6 +49,7 @@ void PachubeCloud::done(bool error) {
     }
     else {
         busy = false;
+        qDebug() << http.readAll();
         emit readyToWrite();
     }
 }
@@ -57,12 +58,12 @@ void PachubeCloud::retry(){
 }
 
 void PachubeCloud::send() {
+    qDebug() << "sending";
     busy = true;
 
     connect(&http, SIGNAL(done(bool)), this, SLOT(done(bool)));
-    connect(&http, SIGNAL(done(bool)), &http, SLOT(ignoreSslErrors()));
 
-    QHttpRequestHeader header("PUT", "/v2/feed/" + feed + ".xml");
+    QHttpRequestHeader header("PUT", "/v2/feeds/" + feed + ".xml");
     header.setValue("Host", "api.pachube.com");
     header.setValue("X-PachubeApiKey", apiKey);
     header.setContentType("application/xml");
