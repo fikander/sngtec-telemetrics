@@ -3,14 +3,12 @@
 #include <QVector>
 #include <QTimer>
 #include "src/Message/message.h"
+#include "src/Configurator/configurator.h"
 
 
-
-PachubeCloud::PachubeCloud(Configurator*)
-    : currentPachubeXml("41613")
-    { //: apiKey(config.getApiKey()), feed(config.getFeed())
-    apiKey = "xEc6VTbLaHKgmXMB24UCCXROcXm_hr2FWCFarVhHGtg";
-    feed = "41613";
+PachubeCloud::PachubeCloud(Configurator* config)
+    : currentPachubeXml(config->getFeed()), apiKey(config->getApiKey()), feed(config->getFeed()) {
+    busy = false;
 }
      
 
@@ -49,7 +47,7 @@ void PachubeCloud::done(bool error) {
     }
     else {
         busy = false;
-        qDebug() << http.readAll();
+        qDebug() << "pachube cloud done" << http.readAll();
         emit readyToWrite();
     }
 }

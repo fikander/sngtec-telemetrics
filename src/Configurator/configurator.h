@@ -12,6 +12,12 @@ public:
     Configurator();
     DevConnection* giveDevice();
     CloConnection* giveCloud();
+    QString getFeed();
+    QString getApiKey();
+
+private:
+    QString feedNo;
+    QString apiKey;
 };
 
 #endif // CONFIGURATOR_H

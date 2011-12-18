@@ -7,7 +7,9 @@
 #include <QQueue>
 #include "src/Message/message.h"
 
+class CloConnection;
 class DevProxy;
+class Configurator;
 
 class CloProxy : public QObject {
   Q_OBJECT
@@ -15,10 +17,11 @@ class CloProxy : public QObject {
 private:
     int askInterval;
     DevProxy *dev;
+    CloConnection *ioDevice;
     QQueue<Message> que;
 
 public:
-    CloProxy();
+    CloProxy(Configurator *config);
 
     void connectDev(DevProxy *dv);
 

@@ -25,7 +25,7 @@ void PachubeXml::addData(const Message &message){
 }
 
 QDomDocument PachubeXml::getXml(){
-    qDebug() << xml.toString();
+    qDebug() << "got xml" << xml.toString();
     return xml;
 }
 

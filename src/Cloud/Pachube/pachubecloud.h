@@ -1,5 +1,5 @@
-#ifndef MOCK_CLOUD_H
-#define MOCK_CLOUD_H
+#ifndef PACHUBE_CLOUD_H
+#define PACHUBE_CLOUD_H
 
 #include "src/Cloud/cloconnection.h"
 #include "pachubexml.h"
