@@ -5,8 +5,11 @@
 #include <QObject>
 #include <QAbstractSocket>
 #include "src/Message/message.h"
+#include "src/Configurator/configurator.h"
+#include "src/Sensors/devconnection.h"
 
 class CloProxy;
+class DevConnection;
 
 class DevProxy : public QObject {
     Q_OBJECT
@@ -19,10 +22,10 @@ signals:
     void enque(Message msg);
 
 public:
-    QAbstractSocket *ioDevice;
+    DevConnection *ioDevice;
 
     DevProxy();
-    DevProxy(CloProxy* cloud);
+    DevProxy(Configurator &config);
     //    ~DevProxy();
 
 public slots:

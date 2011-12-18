@@ -26,7 +26,8 @@ SOURCES += src/main.cpp \
     src/Sensors/devconnection.cpp \
     src/Sensors/SNG/sngconnection.cpp \
     src/Sensors/Modbus/modbus.cpp \
-    src/Sensors/SNG/sngphysicaladdress.cpp
+    src/Sensors/SNG/sngphysicaladdress.cpp \
+    src/Sensors/Mock/mockdev.cpp
 HEADERS += src/Sensors/devproxy.h \
     src/Cloud/cloconnection.h \
     src/Cloud/cloproxy.h \
@@ -38,4 +39,5 @@ HEADERS += src/Sensors/devproxy.h \
     src/Sensors/devconnection.h \
     src/Sensors/SNG/sngconnection.h \
     src/Sensors/Modbus/modbus.h \
-    src/Sensors/SNG/sngphysicaladdress.h
+    src/Sensors/SNG/sngphysicaladdress.h \
+    src/Sensors/Mock/mockdev.h
