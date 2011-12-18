@@ -30,12 +30,13 @@ short int ModbusRtuFrame::showSize(){
     return data_length;
 }
 
-void ModbusRtuFrame::countCRC(){ // To test
+void ModbusRtuFrame::countCRC(){
     unsigned char* tmp = new unsigned char[data_length + 2];
     tmp[0] = addr;
     tmp[1] = function;
     memcpy((tmp + 2), data, data_length);
     crc = qChecksum((char*) tmp, data_length + 2);
+    //qDebug() << "CRC: " << crc;
     delete []tmp;
 }
 

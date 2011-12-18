@@ -1,42 +1,51 @@
 #include "modbus.h"
+#include "modbusrtuframe.h"
+
 #include <iostream>
 #include <QByteArray>
 #include <QVector>
 #include <QDebug>
 #include <errno.h>
 
+
 Modbus* Modbus::create(Configurator *config){
     // TODO
-    return new Modbus("/dev/ttyS0", "normal");
+    return new Modbus(config);
 }
 
 Modbus* Modbus::clone(Configurator *config){
     // TODO
-    return new Modbus("/dev/ttyS0", "normal");
+    return new Modbus(config);
 }
 
-Modbus::Modbus(std::string port, std::string connection){
-        preparePort(port);
-        // Sends signal which sends signal to who?
+Modbus::Modbus(Configurator* new_config){
+        config = new_config;
+        // Change after defining config
+        preparePort("/dev/pts/3");
         portNotifier = new QSocketNotifier(fd, QSocketNotifier::Read);
+        //QObject problem
+        //QObject::connect(portNotifier, SIGNAL(activated()), this, SLOT(readFromSensor()));
 }
 
 
 int Modbus::preparePort(std::string port){
-        /* Check params! */
+        // Check params
         if ((fd = open(port.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK)) < 0)
-                std::cout << "Open port failure" << fd << std::endl;
-        termios* port_param = (termios*) malloc(sizeof(termios));
+            qDebug() << "Open port failure" << fd;
+        std::string port2("/dev/pts/5");
+        if ((fd2 = open(port2.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK)) < 0)
+            qDebug() << "Open port2 failure" << errno;
+        termios* port_param = new termios;
         port_param->c_cflag = B9600 | CS8;
         port_param->c_iflag = IGNPAR;
         port_param->c_oflag = 0;
         port_param->c_lflag = 0;
         port_param->c_cc[VMIN] = 1;
         port_param->c_cc[VTIME] = 0;
-
-        //if (tcsetattr(fd, TCSAFLUSH, port_param) < 0)
-              //  std::cout<< "Setting port attr error" << std::endl;
-        free(port_param);
+        if (tcsetattr(fd, TCSAFLUSH, port_param) < 0)
+                qDebug() << "Setting port attr error";
+        tcsetattr(fd2, TCSAFLUSH, port_param);
+        delete port_param;
         return 0;
 }
 
@@ -45,58 +54,105 @@ int Modbus::connect(unsigned char addr){
         return 0;
 }
 
-void Modbus::decodeMessage(Message msg){
-        /* todo */
+//Add more function codes
+ModbusRtuFrame* Modbus::decodeMessage(Message msg){
+    ModbusRtuFrame* frame;
+    unsigned char* data;
+    if (msg.key == "1") { // read coils
+        frame = new ModbusRtuFrame('1', 4);
+        data = new unsigned char[4];
+        data[0]>>8;
+        data[1]&0xFF;
+        data[2]>>8;
+        data[3]&0xFF;
+        frame->setData(data, 4);
+    } else if (msg.key == "2") { //read discrete
+        frame = new ModbusRtuFrame('2', 4);
+        data = new unsigned char[4];
+        data[0]&0xFF;
+        data[1]&0xFF;
+        data[2]>>8;
+        data[3]&0xFF;
+        frame->setData(data, 4);
+    } else if (msg.key == "3") { // read holding registers
+        frame = new ModbusRtuFrame('3', 4);
+        data = new unsigned char[4];
+        data[0]>>8;
+        data[1]&0xFF;
+        data[2]>>8;
+        data[3]&0x7D;
+        frame->setData(data, 4);
+    } else if (msg.key == "4") {
+        frame = new ModbusRtuFrame('4', 4);
+        data = new unsigned char[4];
+        data[0]>>8;
+        data[1]&0xFF;
+        data[2]>>8;
+        data[3]&0x7D;
+        frame->setData(data, 4);
+    } else if (msg.key == "43") { // read device id
+        frame = new ModbusRtuFrame(0x2B, 3);
+        data = new unsigned char[3];
+        data[0] = 0x0E;
+        data[1] = 0x01;
+        data[2]>>8;
+        frame->setData(data, 3);
+    }
+    delete []data;
+    frame->setAddr(sensor_addr);
+    return frame;
 }
 
 void Modbus::write( QVector<Message> messages){
-        // queue messages?
         for (QVector<Message>::iterator it = messages.begin(); it < messages.end(); it++) {
-                //decodeMessage(it*);
-                struct ModbusRtuFrame* frame = (struct ModbusRtuFrame*) malloc(sizeof(unsigned char) * 10);
-                //Fake data, official are uknnown
-                // Test for funtion nr 4
-                frame->addr = sensor_addr;
-                frame->function = '4';
-                frame->data = (unsigned char*) frame + 2;
-                unsigned char c = (unsigned char) 'h';
-                (frame->data[0]) = (unsigned char) c; //0x00; // register adr
-                frame->data[1] = c;
-                frame->data[2] = c;//0x01; // length of data
-                frame->data[3] = c;
-                frame->crc = (unsigned short int) qChecksum((char*) frame, 6);
-                frame_length = 8;
-                //Send
+                ModbusRtuFrame* frame = decodeMessage(*it);
+                unsigned char** data = frame->toSend();
                 int temp = 0;
-                if ((temp = ::write(fd, frame, frame_length)) < 0)
-                    qDebug() << "write error!" << errno;
-                qDebug() << temp;
-                free(frame);
+                for (int j = 0; j < 2; j++) {
+                    if ((temp = ::write(fd, data[j], sizeof(j))) < 0)
+                        qDebug() << "write error!" << errno;
+                }
+                if ((temp = ::write(fd, data[2], frame->showSize())) < 0)
+                    qDebug() << "data write error";
+                if ((temp = ::write(fd, data[3], sizeof(unsigned short))) < 0)
+                    qDebug() << "crc write error";
+                delete []data;
+                delete frame;
         }
 }
 
 
 QVector<Message> Modbus::readAll(){
-        struct ModbusRtuFrame* answer = (struct ModbusRtuFrame*)
-                               malloc(frame_length * sizeof(unsigned char));
-        // Read for function nr 0x04
-        answer->data = (unsigned char*) malloc(4 * sizeof(unsigned char));
-        int readed;
-        if ((readed = read(fd, answer, frame_length)) < 0)
-            qDebug() << "Read error!" << errno;
-        qDebug() << readed;
-        //przetworz
-        unsigned char* odpowiedz = (unsigned char*) answer;
-        Message* mesg = new Message();
-        mesg->key = "Chciany klucz";
-        mesg->value = QString(odpowiedz[4]);
-        QVector<Message>* vector = new QVector<Message>();
-        vector->push_front(*mesg);
-        free(answer);
-        return *vector;
+    QVector<Message> messages = QVector<Message>(msgQue);
+    msgQue.clear();
+    return messages;
+}
+
+
+void Modbus::readFromSensor(){
+    unsigned char* answer = new unsigned char[2];
+    unsigned char* answer_data;
+    int readed;
+    if ((readed = read(fd2, answer, 2)) < 0)
+        qDebug() << "Read error!" << errno; // czytamy adres i funkcje
+    unsigned char bytes;
+    if (answer[1] == '1') {
+        read(fd, &bytes, 1);
+        answer_data = new unsigned char[(int) bytes];
+        read(fd, answer_data, (int) bytes);
+    }
+    qDebug() << answer[0];
+    qDebug() << answer[1];
+    qDebug() << answer[2];
+    //unsigned char* odpowiedz = (unsigned char*) answer;
+    //Message mesg("chciany klucz", QString(answer_data[0]));
+    //msgQue.push_back(mesg);
+    delete []answer;
+    //delete []answer_data;
 }
 
 Modbus::~Modbus(){
         if ((close(fd)) < 0)
-                std::cout << "Couldn't close file descriptor" << std::endl;
+            qDebug() << "Couldn't close file descriptor";
+        delete portNotifier;
 }
