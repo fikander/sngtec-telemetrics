@@ -13,6 +13,7 @@ class SngConnection : DevConnection
     Q_OBJECT
 
 public:
+    SngConnection();
     virtual DevConnection* create(Configurator *config);
     virtual DevConnection* clone(Configurator *config);
     virtual ~SngConnection();

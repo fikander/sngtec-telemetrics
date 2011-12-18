@@ -25,7 +25,7 @@ public:
     DevConnection *ioDevice;
 
     DevProxy();
-    DevProxy(Configurator &config);
+    DevProxy(Configurator*);
     //    ~DevProxy();
 
 public slots:

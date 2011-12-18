@@ -23,7 +23,7 @@ void CloProxy::askServer() {
    Message msg("ok", "ok");
    QVector<Message> wiadomosci;
    wiadomosci.push_back(msg);
-   dev->ioDevice->write(wiadomosci);
+   //dev->ioDevice->write(wiadomosci);
 }
 
 void CloProxy::queue(Message payload) {
