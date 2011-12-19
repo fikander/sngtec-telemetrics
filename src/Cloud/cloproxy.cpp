@@ -35,7 +35,7 @@ void CloProxy::askServer() {
 }
 
 
-   Message msg("status", "ok");
+   Message msg("status", "100");
    QVector<Message> wiadomosci;
    wiadomosci.push_back(msg);
    dev->ioDevice->write(wiadomosci);
