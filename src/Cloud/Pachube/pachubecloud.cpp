@@ -7,7 +7,7 @@
 
 
 PachubeCloud::PachubeCloud(Configurator* config)
-    : currentPachubeXml(config->getFeed()), apiKey(config->getApiKey()), feed(config->getFeed()) {
+    : currentPachubeXml(config->getFeed()), feed(config->getFeed()), apiKey(config->getApiKey()) {
     busy = false;
 }
      
