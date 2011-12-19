@@ -50,19 +50,16 @@ QVector<Message> SngConnection::readAll()
 
 void SngConnection::readFromSensor()
 {
-    qDebug() << "readFromSensor";
     char msg[SNG_FRAME_SIZE];
     commServer->read(msg, SNG_FRAME_SIZE);
 
     int val = msg[9];
+    qDebug() << "SNG: readFromSensor(), got value " << val;
+
     QString str;
-    str.append(val);
+    str.sprintf("%d", val);
     Message m("value", str);
     msgQue.push_back(m);
-
-    QString s = "got value: ";
-    s.append(val);
-    qDebug() << s;
 
     emit readyToRead();
 }
