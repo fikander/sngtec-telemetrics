@@ -8,18 +8,38 @@ PROJECT( TelemetronProject )
 # here we define TELEMETRON_SRCS variable that contains a list of all .cpp files
 # note that we don't need  at the end of line
 SET( TELEMETRON_SRCS
-		src/main.cpp 
-    src/Sensors/devproxy.cpp 
-    src/Cloud/cloproxy.cpp
-    )
+  src/main.cpp 
+  src/Cloud/cloproxy.cpp
+  src/Sensors/devproxy.cpp 
+  src/Configurator/configurator.cpp 
+  src/Message/message.cpp 
+  src/Cloud/cloconnection.cpp
+  src/Cloud/Mock/mockcloud.cpp 
+  src/Cloud/Pachube/pachubexml.cpp 
+  src/Cloud/Pachube/pachubecloud.cpp 
+  src/Sensors/devconnection.cpp 
+  src/Sensors/SNG/sngconnection.cpp 
+  src/Sensors/SNG/sngphysicaladdress.cpp 
+  src/Sensors/Mock/mockdev.cpp 
+)
 
 # another list, this time it includes all header files that should be treated with moc
 SET( TELEMETRON_HEADERS
 	)
 
 SET( TELEMETRON_MOC_HDRS
-	src/Sensors/devproxy.h 
-    src/Cloud/cloproxy.h
+  src/Message/message.h 
+  src/Sensors/devproxy.h 
+  src/Cloud/cloconnection.h 
+  src/Cloud/cloproxy.h 
+  src/Cloud/Mock/mockcloud.h 
+  src/Cloud/Pachube/pachubexml.h 
+  src/Cloud/Pachube/pachubecloud.h 
+  src/Configurator/configurator.h 
+  src/Sensors/devconnection.h 
+  src/Sensors/SNG/sngconnection.h 
+  src/Sensors/SNG/sngphysicaladdress.h 
+  src/Sensors/Mock/mockdev.h 
 )
 
 # enable warnings
@@ -30,6 +50,8 @@ ADD_DEFINITIONS( -Wall )
 #SET( QT_USE_QTGUI TRUE )
 SET( QT_DONT_USE_QTGUI TRUE )
 SET( QT_USE_QTNETWORK TRUE )
+SET( QT_USE_QTXML TRUE )
+
 
 # this command finds Qt4 libraries and sets all required variables
 # note that it's Qt4, not QT4 or qt4

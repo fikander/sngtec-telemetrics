@@ -17,29 +17,29 @@ UI_DIR = build/.ui
 SOURCES += src/main.cpp \
     src/Sensors/devproxy.cpp \
     src/Cloud/cloproxy.cpp \
+    src/Configurator/configurator.cpp \
+    src/Message/message.cpp \
     src/Cloud/cloconnection.cpp \
     src/Cloud/Mock/mockcloud.cpp \
     src/Cloud/Pachube/pachubexml.cpp \
     src/Cloud/Pachube/pachubecloud.cpp \
-    src/Configurator/configurator.cpp \
-    src/Message/message.cpp \
     src/Sensors/devconnection.cpp \
-    src/Sensors/SNG/sngconnection.cpp \
-    src/Sensors/Modbus/modbus.cpp \
-    src/Sensors/SNG/sngphysicaladdress.cpp \
     src/Sensors/Mock/mockdev.cpp \
+    src/Sensors/SNG/sngconnection.cpp \
+    src/Sensors/SNG/sngphysicaladdress.cpp \
+    src/Sensors/Modbus/modbus.cpp \
     src/Sensors/Modbus/modbusrtuframe.cpp
 HEADERS += src/Sensors/devproxy.h \
-    src/Cloud/cloconnection.h \
     src/Cloud/cloproxy.h \
+    src/Configurator/configurator.h \
+    src/Message/message.h \
+    src/Cloud/cloconnection.h \
     src/Cloud/Mock/mockcloud.h \
     src/Cloud/Pachube/pachubexml.h \
     src/Cloud/Pachube/pachubecloud.h \
-    src/Configurator/configurator.h \
-    src/Message/message.h \
     src/Sensors/devconnection.h \
+    src/Sensors/Mock/mockdev.h \
+    src/Sensors/SNG/sngphysicaladdress.h \
     src/Sensors/SNG/sngconnection.h \
     src/Sensors/Modbus/modbus.h \
-    src/Sensors/SNG/sngphysicaladdress.h \
-    src/Sensors/Mock/mockdev.h \
     src/Sensors/Modbus/modbusrtuframe.h

@@ -5,11 +5,14 @@
 #include <QTimer>
 #include <QDebug>
 #include <QQueue>
+
 #include "src/Message/message.h"
+#include "src/Configurator/configurator.h"
 
 class CloConnection;
 class DevProxy;
 class Configurator;
+class Message;
 
 class CloProxy : public QObject {
   Q_OBJECT

@@ -6,10 +6,11 @@
 #include <QAbstractSocket>
 #include "src/Message/message.h"
 #include "src/Configurator/configurator.h"
-#include "src/Sensors/devconnection.h"
 
 class CloProxy;
 class DevConnection;
+class Message;
+class Configurator;
 
 class DevProxy : public QObject {
     Q_OBJECT

@@ -3,8 +3,13 @@
 #include "src/Cloud/cloconnection.h"
 #include "src/Sensors/devconnection.h"
 #include "src/Cloud/Mock/mockcloud.h"
+#include "src/Sensors/Mock/mockdev.h"
 #include "src/Sensors/SNG/sngconnection.h"
 #include "src/Cloud/Pachube/pachubecloud.h"
+
+#include "src/Message/message.h"
+#include "src/Configurator/configurator.h"
+
 
 Configurator::Configurator() {
     feedNo = "42213";
@@ -17,7 +22,7 @@ CloConnection* Configurator::giveCloud() {
 }
 
 DevConnection* Configurator::giveDevice() {
-    SngConnection device;
+    MockDev device;
     return device.create(this);
 }
 
