@@ -6,11 +6,11 @@
 
 
 ModbusRtuFrame::ModbusRtuFrame(unsigned char new_function, int new_data_length){
-    setAddr('1');
     function = new_function;
     data_length = new_data_length;
     data = new unsigned char[data_length];
-    countCRC();
+    setAddr('1');
+    //countCRC();
 }
 
 void ModbusRtuFrame::setAddr(unsigned char new_addr){
@@ -20,7 +20,7 @@ void ModbusRtuFrame::setAddr(unsigned char new_addr){
 
 void ModbusRtuFrame::setData(unsigned char* new_data, short new_data_length){
     if (new_data_length == data_length)
-        memcpy(data, new_data, sizeof(data));
+        memcpy(data, new_data, data_length); // ?? sizeof(data)??
     else
         qDebug() << "Adding data error - wrong data size";
     countCRC();
@@ -34,7 +34,8 @@ void ModbusRtuFrame::countCRC(){
     unsigned char* tmp = new unsigned char[data_length + 2];
     tmp[0] = addr;
     tmp[1] = function;
-    memcpy((tmp + 2), data, data_length);
+    memcpy(&tmp[2], data, data_length); // tmp + 2
+    //qDebug() << qChecksum((const char*) tmp, data_length + 2);
     crc = qChecksum((char*) tmp, data_length + 2);
     //qDebug() << "CRC: " << crc;
     delete []tmp;
@@ -47,4 +48,24 @@ unsigned char** ModbusRtuFrame::toSend(){
     to_send[2] = data;
     to_send[3] = (unsigned char*) &crc;
     return to_send;
+}
+
+void ModbusRtuFrame::destroyFrame(){
+    delete []data;
+}
+
+unsigned char ModbusRtuFrame::getFunction(){
+    return function;
+}
+
+unsigned char ModbusRtuFrame::getAddr(){
+    return addr;
+}
+
+unsigned char* ModbusRtuFrame::getData(){
+    return data;
+}
+
+unsigned short int ModbusRtuFrame::getCRC(){
+    return crc;
 }

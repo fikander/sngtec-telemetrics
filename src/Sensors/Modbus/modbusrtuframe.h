@@ -12,6 +12,12 @@ class ModbusRtuFrame {
         short int showSize();
         unsigned char** toSend();
 
+        void destroyFrame();
+        unsigned char getFunction();
+        unsigned char getAddr();
+        unsigned char* getData();
+        unsigned short int getCRC();
+
     private:
         unsigned char addr;
         unsigned char function;
