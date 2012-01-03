@@ -8,7 +8,7 @@
 
 #define SNG_FRAME_SIZE 14
 
-class SngConnection : DevConnection
+class SngConnection : public DevConnection
 {
     Q_OBJECT
 

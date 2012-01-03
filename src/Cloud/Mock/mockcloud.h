@@ -3,7 +3,7 @@
 
 #include "src/Cloud/cloconnection.h"
 
-class MockCloud: CloConnection{
+class MockCloud: public CloConnection{
 public: 
     virtual CloConnection* create(Configurator*);
     virtual CloConnection* clone(Configurator*);

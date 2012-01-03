@@ -4,7 +4,7 @@
 #include "src/Sensors/devconnection.h"
 #include <QTimer>
 
-class MockDev : DevConnection
+class MockDev : public DevConnection
 {
 Q_OBJECT
 private:
