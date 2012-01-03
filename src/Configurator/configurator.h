@@ -2,6 +2,10 @@
 #define CONFIGURATOR_H
 
 #include <QObject>
+#include <QDomDocument>
+#include <QString>
+#include <QFile>
+#include <QDomElement>
 
 class DevConnection;
 class CloConnection;
@@ -18,6 +22,7 @@ public:
 private:
     QString feedNo;
     QString apiKey;
+    QString cloudType, devType;
 };
 
 #endif // CONFIGURATOR_H
