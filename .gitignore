@@ -10,3 +10,6 @@ moc_*.*
 
 #ignore entire build directory
 /build/
+
+#ignore qtcreator settings
+*.pro.user
