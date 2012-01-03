@@ -7,9 +7,9 @@ MockDev::MockDev() {}
 
 MockDev::MockDev(Configurator *config) {
     timer = new QTimer(this);
-    askInterval = 5 * 1000; // 15 sekund
+    askInterval = 5 * 1000; // 5 sekund
     connect(timer, SIGNAL(timeout()), this, SLOT(fakeSignal()));
-    qDebug() << "pusczam mock dev";
+
     timer->start(askInterval);
  }
 
@@ -25,7 +25,7 @@ MockDev::~MockDev() {
 }
 
 void MockDev::fakeSignal() {
-    qDebug() << "Mock dev received fake data";
+    qDebug() << "MockDevice received fake data";
     emit readyToRead();
 }
 

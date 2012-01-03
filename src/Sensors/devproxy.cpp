@@ -4,8 +4,6 @@
 #include "src/Message/message.h"
 #include <QTcpSocket>
 
-
-//
 DevProxy::DevProxy() {}
 
 DevProxy::DevProxy(Configurator* config) {
@@ -26,7 +24,7 @@ void DevProxy::connectCloud(CloProxy *cl) {
 
 void DevProxy::readDevice() {
     QVector<Message> payload = ioDevice->readAll();
-    qDebug() << "Read from socket: " << payload[0].key << " " << payload[0].value;
+    qDebug() << "Read data from device: " << payload[0].key << " " << payload[0].value;
     Message msg = payload[0];
 
     emit enque(msg);
@@ -39,6 +37,6 @@ void DevProxy::readCloud() {
 }
 
 void DevProxy::displayError(QAbstractSocket::SocketError) {
-    qDebug() << "Socket fail";
+    qCritical() << "Socket fail";
     return;
 }
