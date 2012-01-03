@@ -3,7 +3,7 @@
 #include <QByteArray>
 #include <string>
 #include <QDebug>
-#include "/home/toolchains/telemetrics/src/Sensors/Modbus/modbusrtuframe.h"
+#include "../../src/Sensors/Modbus/modbusrtuframe.h"
 
 class ModbusframetestTest : public QObject
 {

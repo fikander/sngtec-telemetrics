@@ -13,7 +13,7 @@ CONFIG   += console
 CONFIG   -= app_bundle
 
 TEMPLATE = app
-LIBS += /home/toolchains/telemetron-build-desktop/build/.obj/modbusrtuframe.o
+LIBS += ../../build/.obj
 
 
 SOURCES += tst_modbusframetesttest.cpp
