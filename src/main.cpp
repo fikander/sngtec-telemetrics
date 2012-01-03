@@ -2,10 +2,12 @@
 #include "Sensors/devproxy.h"
 #include "Cloud/cloproxy.h"
 #include "Configurator/configurator.h"
+#include "loggingHandler.h"
 
 int main(int argc, char *argv[]) {
+    qInstallMsgHandler(loggingHandler);
     QCoreApplication a(argc, argv);
-    // TODO wczytywanie konfiga i podawanie argow do konstruktorow
+
     Configurator config;
     DevProxy device(&config);
     CloProxy cloud(&config);
