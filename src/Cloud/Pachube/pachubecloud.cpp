@@ -7,7 +7,7 @@
 
 
 PachubeCloud::PachubeCloud(Configurator* config)
-    : currentPachubeXml(config->getFeed()), feed(config->getFeed()), apiKey(config->getApiKey()) {
+    : currentPachubeXml(config->getFeed()), sendFeed(config->getFeed()), apiKey(config->getApiKey()) {
     busy = false;
 }
      
@@ -24,7 +24,7 @@ PachubeCloud::~PachubeCloud() {
 }
 
 void PachubeCloud::write(QVector<Message> messages) {
-    PachubeXml pxml(feed);
+    PachubeXml pxml(sendFeed);
     for(MessagesSet::const_iterator it = messages.begin(); it != messages.end(); ++it) {
         pxml.addData(*it);
     }
@@ -42,12 +42,12 @@ bool PachubeCloud::isBusy() {
 
 void PachubeCloud::done(bool error) {
     if (error) {
-        qDebug() << "error: " <<  http.errorString();
+        qDebug() << "PachubeCloud send error: " <<  http.errorString();
         QTimer::singleShot(100000, this, SLOT(retry()));
     }
     else {
         busy = false;
-        qDebug() << "pachube cloud done" << http.readAll();
+        //qDebug() << "pachube cloud done" << http.readAll();
         emit readyToWrite();
     }
 }
@@ -61,7 +61,7 @@ void PachubeCloud::send() {
 
     connect(&http, SIGNAL(done(bool)), this, SLOT(done(bool)));
 
-    QHttpRequestHeader header("PUT", "/v2/feeds/" + feed + ".xml");
+    QHttpRequestHeader header("PUT", "/v2/feeds/" + sendFeed + ".xml");
     header.setValue("Host", "api.pachube.com");
     header.setValue("X-PachubeApiKey", apiKey);
     header.setContentType("application/xml");
@@ -69,3 +69,28 @@ void PachubeCloud::send() {
     http.setHost("api.pachube.com", QHttp::ConnectionModeHttps);
     http.request(header, currentPachubeXml.getXml().toString().toUtf8());
 }
+
+
+void PachubeCloud::getOrders() {
+    connect(&http, SIGNAL(done(bool)), this, SLOT(oredersDone(bool)));
+
+    QHttpRequestHeader header("GET", "/v2/feeds/" + ordersFeed + ".sml");
+    header.setValue("Host", "api.pachube.com");
+    header.setValue("X-PachubeApiKey", apiKey);
+
+    orderHttp.setHost("api.pachube.com", QHttp::ConnectionModeHttps);
+    orderHttp.request(header);
+}
+
+void PachubeCloud::ordersDone(bool error) {
+    if(error) {
+        qDebug() << "PachubeCloud oreders receive error: " <<  orderHttp.errorString();
+    }
+    else {
+        PachubeXml ordersXml = PachubeXml::PachubeFromXml(orderHttp.readAll());
+        QVector<Message> messages = ordersXml.getMessages();
+        emit orderReceived(messages);
+    }
+}
+
+

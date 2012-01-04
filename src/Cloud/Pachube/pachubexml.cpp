@@ -16,6 +16,12 @@ PachubeXml::PachubeXml(QString feed): feed(feed) {
     
 }
 
+//Pachube from xml
+PachubeXml::PachubeXml(QString *xmlString) { 
+    xml.setContent(*xmlString, false);
+}
+
+
 //PachubeXml::PachubeXml(const PachubeXml &px): feed(px.feed), xml(px.xml), environment(px. environment){
 //}
 
@@ -42,3 +48,30 @@ QDomElement PachubeXml::messageToNode(const Message &message){
     
     return data;
 }
+
+inline
+QDomNodeList PachubeXml::getData() {
+    return xml.elementsByTagName("data");
+}
+
+QVector<Message> PachubeXml::getMessages() {
+    QDomNodeList dataNodes = getData();
+    QVector<Message> messages;
+    for(int i = 0; i < dataNodes.count(); ++i) {
+        QDomNode data = dataNodes.at(i);
+        if(data.hasAttributes() && data.hasChildNodes()) {
+            QString id = data.attributes().namedItem("id").toAttr().value();
+            QDomElement current_value =  data.firstChildElement("current_value");
+            if(!current_value.isNull()) {
+                QString timestamp = current_value.attribute("at");
+                QString value = current_value.text();
+                messages.push_back(Message(id, value));
+            }
+        }
+    }
+    return messages;
+}
+                
+
+
+
