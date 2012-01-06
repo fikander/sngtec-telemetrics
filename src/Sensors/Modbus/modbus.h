@@ -17,7 +17,7 @@
 /* TODO : map : function->rtuSize*/
 
 class Modbus : public DevConnection {
-   // Q_OBJECT - strange problem
+    Q_OBJECT
 
   public:
         Modbus* create(Configurator *config);

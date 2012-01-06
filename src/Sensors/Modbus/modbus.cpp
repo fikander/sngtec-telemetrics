@@ -23,8 +23,7 @@ Modbus::Modbus(Configurator* new_config){
         // Change after defining config
         preparePort("/dev/pts/3");
         portNotifier = new QSocketNotifier(fd, QSocketNotifier::Read);
-        //QObject problem
-        //QObject::connect(portNotifier, SIGNAL(activated()), this, SLOT(readFromSensor()));
+        QObject::connect(portNotifier, SIGNAL(activated()), this, SLOT(readFromSensor()));
 }
 
 
