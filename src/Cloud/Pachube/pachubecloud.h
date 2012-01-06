@@ -11,6 +11,7 @@ class Configurator;
 //TODO: timeout
 //TODO: retry time
 //TODO: ordersDone check timestamp of messages
+//TODO: set ordersFeed
 class PachubeCloud: public CloConnection{
     Q_OBJECT
     
@@ -22,6 +23,7 @@ public:
     virtual void write(QVector<Message>);
     virtual QVector<Message> readAll();
     virtual bool isBusy();
+    void getOrders();
 
 private:
     void send();
@@ -38,7 +40,7 @@ public slots:
     void done(bool);
     void ordersDone(bool);
     void retry();
-    void getOrders();
+    void getOrdersSlot();
 
 signals:
     void orderReceived(QVector<Message>);

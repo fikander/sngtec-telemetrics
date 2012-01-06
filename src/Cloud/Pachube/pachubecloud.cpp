@@ -9,6 +9,7 @@
 PachubeCloud::PachubeCloud(Configurator* config)
     : currentPachubeXml(config->getFeed()), sendFeed(config->getFeed()), apiKey(config->getApiKey()) {
     busy = false;
+    ordersFeed = sendFeed;
 }
      
 
@@ -72,9 +73,8 @@ void PachubeCloud::send() {
 
 
 void PachubeCloud::getOrders() {
-    connect(&http, SIGNAL(done(bool)), this, SLOT(oredersDone(bool)));
-
-    QHttpRequestHeader header("GET", "/v2/feeds/" + ordersFeed + ".sml");
+    connect(&orderHttp, SIGNAL(done(bool)), this, SLOT(ordersDone(bool)));
+    QHttpRequestHeader header("GET", "/v2/feeds/" + ordersFeed + ".xml");
     header.setValue("Host", "api.pachube.com");
     header.setValue("X-PachubeApiKey", apiKey);
 
@@ -93,4 +93,6 @@ void PachubeCloud::ordersDone(bool error) {
     }
 }
 
-
+void PachubeCloud::getOrdersSlot() {
+    getOrders();
+}

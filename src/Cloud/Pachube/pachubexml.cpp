@@ -18,7 +18,10 @@ PachubeXml::PachubeXml(QString feed): feed(feed) {
 
 //Pachube from xml
 PachubeXml::PachubeXml(QString *xmlString) { 
-    xml.setContent(*xmlString, false);
+    QString errorMsg = 0;
+    int errorLine = 0;
+    int errorColumn = 0;
+    xml.setContent(*xmlString, false, &errorMsg, &errorLine, &errorColumn);
 }
 
 
