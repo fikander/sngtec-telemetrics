@@ -61,9 +61,9 @@ ModbusRtuFrame* Modbus::decodeMessage(Message msg){
     if (msg.key == "1") { // read coils
         frame = new ModbusRtuFrame('1', 4);
         data = new unsigned char[4];
-        data[0]>>8;
+        data[0] = 0;
         data[1]&0xFF;
-        data[2]>>8;
+        data[2] = 0;
         data[3]&0xFF;
         frame->setData(data, 4);
     } else if (msg.key == "2") { //read discrete
@@ -71,31 +71,31 @@ ModbusRtuFrame* Modbus::decodeMessage(Message msg){
         data = new unsigned char[4];
         data[0]&0xFF;
         data[1]&0xFF;
-        data[2]>>8;
+        data[2] = 0;
         data[3]&0xFF;
         frame->setData(data, 4);
     } else if (msg.key == "3") { // read holding registers
         frame = new ModbusRtuFrame('3', 4);
         data = new unsigned char[4];
-        data[0]>>8;
+        data[0] = 0;
         data[1]&0xFF;
-        data[2]>>8;
-        data[3]&0x7D;
+        data[2] = 0;
+        data[3] = 1; //&0x7D;
         frame->setData(data, 4);
     } else if (msg.key == "4") {
         frame = new ModbusRtuFrame('4', 4);
         data = new unsigned char[4];
-        data[0]>>8;
+        data[0] = 0;
         data[1]&0xFF;
-        data[2]>>8;
-        data[3]&0x7D;
+        data[2] = 0;
+        data[3] = 1; //&0x7D;
         frame->setData(data, 4);
     } else if (msg.key == "43") { // read device id
         frame = new ModbusRtuFrame(0x2B, 3);
         data = new unsigned char[3];
         data[0] = 0x0E;
         data[1] = 0x01;
-        data[2]>>8;
+        data[2] = 0;
         frame->setData(data, 3);
     }
     delete []data;
