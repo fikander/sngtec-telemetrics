@@ -5,6 +5,7 @@
 #include "src/Sensors/devconnection.h"
 #include "modbusrtuframe.h"
 
+#include <QObject>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -22,7 +23,7 @@ class Modbus : public DevConnection {
   public:
         Modbus* create(Configurator *config);
         Modbus* clone(Configurator *config);
-        virtual ~Modbus();
+        ~Modbus(); // was virtual
 
         Modbus(Configurator* config);
 

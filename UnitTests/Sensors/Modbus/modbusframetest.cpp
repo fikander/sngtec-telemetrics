@@ -1,5 +1,5 @@
 #include "modbusframetest.h"
-#include "Sensors/Modbus/modbusrtuframe.h"
+#include "src/Sensors/Modbus/modbusrtuframe.h"
 
 
 void ModbusFrameTest::testCase1()

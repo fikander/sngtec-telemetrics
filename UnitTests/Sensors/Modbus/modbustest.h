@@ -9,9 +9,12 @@ class ModbusTest : public QObject
     Q_OBJECT
 
 private slots:
-    void testCase1();
-    void testCase1_data();
+    void simpleTest();
+    void simpleTest_data();
 
+private:
+    void testPort();
+    int fd;
 };
 
 DECLARE_TEST(ModbusTest)

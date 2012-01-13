@@ -21,19 +21,20 @@ Modbus* Modbus::clone(Configurator *config){
 Modbus::Modbus(Configurator* new_config){
         config = new_config;
         // Change after defining config
-        preparePort("/dev/pts/3");
+        preparePort("/dev/pts/4");
         portNotifier = new QSocketNotifier(fd, QSocketNotifier::Read);
         QObject::connect(portNotifier, SIGNAL(activated()), this, SLOT(readFromSensor()));
+        qDebug() << "Modbus ready";
 }
 
 
 int Modbus::preparePort(std::string port){
         // Check params
         if ((fd = open(port.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK)) < 0)
-            qDebug() << "Open port failure" << fd;
-        std::string port2("/dev/pts/5");
-        if ((fd2 = open(port2.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK)) < 0)
-            qDebug() << "Open port2 failure" << errno;
+            qDebug() << "Open port failure" << fd << "Errno: " << errno;
+        //std::string port2("/dev/pts/5");
+        //if ((fd2 = open(port2.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK)) < 0)
+        //    qDebug() << "Open port2 failure" << "Errno: " << errno;
         termios* port_param = new termios;
         port_param->c_cflag = B9600 | CS8;
         port_param->c_iflag = IGNPAR;
@@ -42,8 +43,9 @@ int Modbus::preparePort(std::string port){
         port_param->c_cc[VMIN] = 1;
         port_param->c_cc[VTIME] = 0;
         if (tcsetattr(fd, TCSAFLUSH, port_param) < 0)
-                qDebug() << "Setting port attr error";
-        tcsetattr(fd2, TCSAFLUSH, port_param);
+            qDebug() << "Setting port attr error";
+        if (tcsetattr(fd2, TCSAFLUSH, port_param) < 0)
+            qDebug() << "Setting port2 attr error";
         delete port_param;
         return 0;
 }
@@ -60,10 +62,10 @@ ModbusRtuFrame* Modbus::decodeMessage(Message msg){
     if (msg.key == "1") { // read coils
         frame = new ModbusRtuFrame('1', 4);
         data = new unsigned char[4];
-        data[0] = 0;
-        data[1]&0xFF;
-        data[2] = 0;
-        data[3]&0xFF;
+        data[0] = 0x00;
+        data[1] = 0xFF;
+        data[2] = 0x00;
+        data[3] = 0x03; // dodac zmiennosc, zaleznie jak dzialaja messages (jak formatowac?)
         frame->setData(data, 4);
     } else if (msg.key == "2") { //read discrete
         frame = new ModbusRtuFrame('2', 4);
@@ -140,9 +142,9 @@ void Modbus::readFromSensor(){
         answer_data = new unsigned char[(int) bytes];
         read(fd, answer_data, (int) bytes);
     }
-    qDebug() << answer[0];
-    qDebug() << answer[1];
-    qDebug() << answer[2];
+    //qDebug() << answer[0];
+    //qDebug() << answer[1];
+    //qDebug() << answer[2];
     //unsigned char* odpowiedz = (unsigned char*) answer;
     //Message mesg("chciany klucz", QString(answer_data[0]));
     //msgQue.push_back(mesg);

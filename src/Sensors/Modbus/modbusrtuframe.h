@@ -1,7 +1,6 @@
 #ifndef MODBUSRTUFRAME_H
 #define MODBUSRTUFRAME_H
 
-
 class ModbusRtuFrame {
 
     public: // add change function?
