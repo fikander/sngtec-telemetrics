@@ -3,9 +3,10 @@
 #include "Cloud/cloproxy.h"
 #include "Configurator/configurator.h"
 #include "Logger/loggingHandler.h"
+#include "Logger/logger.h"
 
 int main(int argc, char *argv[]) {
-    qInstallMsgHandler(loggingHandler);
+    qInstallMsgHandler(Logger::getInstance()->loggingHandler);
     QCoreApplication a(argc, argv);
 
     Configurator config;
