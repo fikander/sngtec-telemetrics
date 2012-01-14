@@ -140,14 +140,14 @@ void SngMsgCreator::parseTime(char *buff, QString& value)
     QStringList v = value.split(":");
     if (v.size() != 3)
     {
-        qDebug() << "SNG: Error in parsing Time value. Got: " << value;
+        qDebug() << "SNG: Error in parsing Time value. Wrong number of args. Got: " << value;
     }
     else
     {
         for (int i = 0; i < 3; i++)
         {
             int t = v.at(i).toInt();
-            if ((t > 255) || (t < 0) || ((t == 0) && (v.at(i) != "0")))
+            if ((t > 255) || (t < 0) || ((t == 0) && (v.at(i) != "0") && (v.at(i) != "00") ))
             {
                 qDebug() << "SNG: Error in parsing Time value. Got: " << value;
                 return;
@@ -165,16 +165,16 @@ void SngMsgCreator::parseDate(char *buff, QString& value)
     QStringList v = value.split(".");
     if (v.size() != 3)
     {
-        qDebug() << "SNG: Error in parsing Date value. Got: " << value;
+        qDebug() << "SNG: Error in parsing Date value. Wrong nr of args. Got: " << value;
     }
     else
     {
         for (int i = 0; i < 3; i++)
         {
             int t = v.at(i).toInt();
-            if (t == 2)
+            if (i == 2)
             {
-                t %= 256;
+                t = t % 255;
             }
             if ((t > 255) || (t < 0) || ((t == 0) && (v.at(i) != "0")))
             {

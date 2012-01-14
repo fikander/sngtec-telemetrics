@@ -16,6 +16,17 @@ public:
 private slots:
     void prepareMsgSrc();
     void prepareMsgSrc_data();
+    void prepareMsgDest();
+    void prepareMsgDest_data();
+    void prepareMsgBeginEnd();
+    void prepareMsgOnOff();
+    void prepareMsgDimm();
+    void prepareMsgDimm_data();
+    void prepareMsgTime();
+    void prepareMsgTime_data();
+    void prepareMsgDate();
+    void prepareMsgDate_data();
+
 
 private:
     SngPhysicalAddress defaultAddr;
