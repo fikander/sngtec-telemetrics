@@ -1,4 +1,5 @@
 #include "sngphysicaladdress.h"
+#include <QStringList>
 
 SngPhysicalAddress::SngPhysicalAddress()
 {
@@ -7,7 +8,7 @@ SngPhysicalAddress::SngPhysicalAddress()
 
 SngPhysicalAddress::SngPhysicalAddress(QString addr)
 {
-    QVector<QString> parsedAdrr = parseAddr(addr);
+    QStringList parsedAdrr = addr.split(".");
     for (int i = 0; i < 3; i++)
     {
         bytes[i] = parsedAdrr[i].toInt();

@@ -6,6 +6,10 @@
 #include <QString>
 #include <QSharedPointer>
 
+//#define SAMPLE
+//#define MODBUS
+#define SNG
+
 namespace AutoTest
 {
     typedef QList<QObject*> TestList;

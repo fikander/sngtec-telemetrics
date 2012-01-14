@@ -10,45 +10,51 @@ TARGET = telemetron-test
 CONFIG += console
 CONFIG -= app_bundle
 
+INCLUDEPATH += ../
+
 OBJECTS_DIR = ../build/.obj-test
 MOC_DIR = ../build/.moc-test
 RCC_DIR = ../build/.rcc-test
-LIBS += /home/toolchains/telemetron-build-desktop/build/.obj/modbusrtuframe.o \
-        /home/toolchains/telemetron-build-desktop/build/.obj/modbus.o \
-        /home/toolchains/telemetron-build-desktop/build/.obj/sngconnection.o \
-        /home/toolchains/telemetron-build-desktop/build/.obj/sngphysicaladdress.o \
-        /home/toolchains/telemetron-build-desktop/build/.obj/devconnection.o \
-        /home/toolchains/telemetron-build-desktop/build/.obj/cloconnection.o \
-        /home/toolchains/telemetron-build-desktop/build/.obj/cloproxy.o \
-        /home/toolchains/telemetron-build-desktop/build/.obj/devproxy.o \
-        /home/toolchains/telemetron-build-desktop/build/.obj/pachubexml.o \
-        /home/toolchains/telemetron-build-desktop/build/.obj/pachubecloud.o \
-        /home/toolchains/telemetron-build-desktop/build/.obj/message.o \
-        /home/toolchains/telemetron-build-desktop/build/.obj/configurator.o \
-        /home/toolchains/telemetron-build-desktop/build/.obj/loggingHandler.o \
-        /home/toolchains/telemetron-build-desktop/build/.obj/moc_cloconnection.o \
-        /home/toolchains/telemetron-build-desktop/build/.obj/moc_devproxy.o \
-        /home/toolchains/telemetron-build-desktop/build/.obj/moc_mockdev.o \
-        /home/toolchains/telemetron-build-desktop/build/.obj/moc_devconnection.o \
-        /home/toolchains/telemetron-build-desktop/build/.obj/mockdev.o \
-        /home/toolchains/telemetron-build-desktop/build/.obj/moc_pachubecloud.o \
-        /home/toolchains/telemetron-build-desktop/build/.obj/moc_sngconnection.o \
-        /home/toolchains/telemetron-build-desktop/build/.obj/moc_cloproxy.o \
-        /home/toolchains/telemetron-build-desktop/build/.obj/mockcloud.o \
-        /home/toolchains/telemetron-build-desktop/build/.obj/moc_modbus.o
+LIBS += ../build/.obj/modbusrtuframe.o \
+        ../build/.obj/modbus.o \
+        ../build/.obj/sngconnection.o \
+        ../build/.obj/sngphysicaladdress.o \
+        ../build/.obj/sngframe.o\
+        ../build/.obj/sngmsgcreator.o\
+        ../build/.obj/devconnection.o \
+        ../build/.obj/cloconnection.o \
+        ../build/.obj/cloproxy.o \
+        ../build/.obj/devproxy.o \
+        ../build/.obj/pachubexml.o \
+        ../build/.obj/pachubecloud.o \
+        ../build/.obj/message.o \
+        ../build/.obj/configurator.o \
+        ../build/.obj/loggingHandler.o \
+        ../build/.obj/moc_cloconnection.o \
+        ../build/.obj/moc_devproxy.o \
+        ../build/.obj/moc_mockdev.o \
+        ../build/.obj/moc_devconnection.o \
+        ../build/.obj/mockdev.o \
+        ../build/.obj/moc_pachubecloud.o \
+        ../build/.obj/moc_sngconnection.o \
+        ../build/.obj/moc_cloproxy.o \
+        ../build/.obj/mockcloud.o \
+        ../build/.obj/moc_modbus.o
 
-
-INCLUDEPATH += ../
 
 TEMPLATE = app
 SOURCES += main.cpp \
     sampletest.cpp \
     Sensors/Modbus/modbusframetest.cpp \
-    Sensors/Modbus/modbustest.cpp
+    Sensors/Modbus/modbustest.cpp \
+    Sensors/Sng/sngtest.cpp \
+    Sensors/Sng/sngmsgcreatortest.cpp \
+    Sensors/Sng/sngphysicaladdresstest.cpp
 
 HEADERS += AutoTest.h \
     sampletest.h \
     Sensors/Modbus/modbusframetest.h \
-    Sensors/Modbus/modbustest.h
-
-
+    Sensors/Modbus/modbustest.h \
+    Sensors/Sng/sngtest.h \
+    Sensors/Sng/sngmsgcreatortest.h \
+    Sensors/Sng/sngphysicaladdresstest.h

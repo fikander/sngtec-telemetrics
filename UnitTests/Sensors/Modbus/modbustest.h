@@ -17,6 +17,8 @@ private:
     int fd;
 };
 
+#ifdef MODBUS
 DECLARE_TEST(ModbusTest)
+#endif
 
 #endif // MODBUSTEST_H

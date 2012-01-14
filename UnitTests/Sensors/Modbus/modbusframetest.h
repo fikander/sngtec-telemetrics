@@ -12,6 +12,8 @@ private slots:
     void testCase1_data();
 };
 
+#ifdef MODBUS
 DECLARE_TEST(ModbusFrameTest)
+#endif
 
 #endif // MODBUSFRAMETEST_H

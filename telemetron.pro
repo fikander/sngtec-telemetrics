@@ -30,7 +30,9 @@ SOURCES += src/main.cpp \
     src/Sensors/Modbus/modbus.cpp \
     src/Sensors/Modbus/modbusrtuframe.cpp \
     src/Logger/loggingHandler.cpp \
-    src/Logger/logger.cpp
+    src/Logger/logger.cpp \
+    src/Sensors/SNG/sngframe.cpp \
+    src/Sensors/SNG/sngmsgcreator.cpp
 HEADERS += src/Sensors/devproxy.h \
     src/Cloud/cloproxy.h \
     src/Configurator/configurator.h \
@@ -46,4 +48,6 @@ HEADERS += src/Sensors/devproxy.h \
     src/Sensors/Modbus/modbus.h \
     src/Sensors/Modbus/modbusrtuframe.h \
     src/Logger/loggingHandler.h \
-    src/Logger/logger.h
+    src/Logger/logger.h \
+    src/Sensors/SNG/sngframe.h \
+    src/Sensors/SNG/sngmsgcreator.h

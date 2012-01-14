@@ -93,3 +93,13 @@ QString Configurator::getFeed() {
 QString Configurator::getApiKey() {
     return apiKey;
 }
+
+QString Configurator::getDest()
+{
+    return "2.3.4";
+}
+
+QString Configurator::getFrameType()
+{
+    return "Value";
+}

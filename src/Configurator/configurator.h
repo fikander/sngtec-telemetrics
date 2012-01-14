@@ -19,10 +19,15 @@ public:
     QString getFeed();
     QString getApiKey();
 
+    //SNG - narazie stuby
+    QString getDest();
+    QString getFrameType();
+
 private:
     QString feedNo;
     QString apiKey;
     QString cloudType, devType;
+
 };
 
 #endif // CONFIGURATOR_H
