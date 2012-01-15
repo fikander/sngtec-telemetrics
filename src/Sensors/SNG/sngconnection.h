@@ -5,6 +5,7 @@
 #include "sngphysicaladdress.h"
 #include "sngframe.h"
 #include "sngmsgcreator.h"
+#include "sngmsgparser.h"
 #include <QTcpSocket>
 #include <QStringList>
 
@@ -39,6 +40,7 @@ private:
 
     SngFrame translateMessageToFrame(Message&);
     SngFrameType parseFrameType(QString&);
+    Message translateFrameToMessage(SngFrame&);
 
     Configurator* conf;
 
@@ -50,6 +52,7 @@ private:
     SngPhysicalAddress defaultDest;
 
     SngMsgCreator msgCreator;
+    SngMsgParser msgParser;
 
     QVector<Message> msgQue;
 };

@@ -5,7 +5,7 @@ SngConnection::SngConnection()
 }
 
 SngConnection::SngConnection(Configurator *config) :
-    commServerHostName("localhost"), port(8800),
+    commServerHostName("localhost"), port(8888),
     physicalAddress("2.4.7"), defaultDest("1.2.3")
 {
     this->conf = config;
@@ -52,13 +52,12 @@ void SngConnection::readFromSensor()
     char msg[SNG_FRAME_SIZE];
     commServer->read(msg, SNG_FRAME_SIZE);
 
-    int val = msg[9];
-    qDebug() << "SNG: readFromSensor(), got value " << val;
+    SngFrame * frame = NULL;
 
-    QString str;
-    str.sprintf("%d", val);
-    Message m("value", str);
-    msgQue.push_back(m);
+    if (msgParser.parseMsg(msg, frame))
+        return;
+
+    msgQue.push_back(translateFrameToMessage(*frame));
 
     emit readyToRead();
 }
@@ -96,5 +95,10 @@ SngFrameType SngConnection::parseFrameType(QString& s)
     }
     qDebug() << "SngConnection::parseFrameType : wrong Frame Type";
     return SngValue;
+}
+
+Message SngConnection::translateFrameToMessage(SngFrame & frame)
+{
+    return Message(sngFrameTypeNames[frame.type], frame.value);
 }
 
