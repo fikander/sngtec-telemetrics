@@ -74,10 +74,4 @@ public:
 
 #define DECLARE_TEST(className) static Test<className> t(#className);
 
-#define TEST_MAIN \
-    int main(int argc, char *argv[]) \
-    { \
-      return AutoTest::run(argc, argv); \
-  }
-
 #endif // AUTOTEST_H

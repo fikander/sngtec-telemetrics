@@ -19,6 +19,7 @@ private slots:
     void prepareMsgDest();
     void prepareMsgDest_data();
     void prepareMsgBeginEnd();
+
     void prepareMsgOnOff();
     void prepareMsgDimm();
     void prepareMsgDimm_data();
@@ -26,6 +27,10 @@ private slots:
     void prepareMsgTime_data();
     void prepareMsgDate();
     void prepareMsgDate_data();
+    void prepareMsgTemp();
+    void prepareMsgTemp_data();
+    void prepareMsgValue();
+    void prepareMsgValue_data();
 
 
 private:
