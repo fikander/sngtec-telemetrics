@@ -30,9 +30,9 @@ Modbus::Modbus(Configurator* new_config){
 
 int Modbus::preparePort(std::string port){
         // Check params
-        if ((fd = open(port.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK)) < 0)
+        if ((fd = open(port.c_str(), O_RDWR | O_NOCTTY)) < 0) //without O_NONBLOCK
             qDebug() << "Open port failure" << fd << "Errno: " << errno;
-        //std::string port2("/dev/pts/5");
+        //std::string port2("/dev/pts/4");
         //if ((fd2 = open(port2.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK)) < 0)
         //    qDebug() << "Open port2 failure" << "Errno: " << errno;
         termios* port_param = new termios;
@@ -44,8 +44,8 @@ int Modbus::preparePort(std::string port){
         port_param->c_cc[VTIME] = 0;
         if (tcsetattr(fd, TCSAFLUSH, port_param) < 0)
             qDebug() << "Setting port attr error";
-        if (tcsetattr(fd2, TCSAFLUSH, port_param) < 0)
-            qDebug() << "Setting port2 attr error";
+        //if (tcsetattr(fd2, TCSAFLUSH, port_param) < 0)
+        //    qDebug() << "Setting port2 attr error";
         delete port_param;
         return 0;
 }
@@ -63,23 +63,23 @@ ModbusRtuFrame* Modbus::decodeMessage(Message msg){
         frame = new ModbusRtuFrame('1', 4);
         data = new unsigned char[4];
         data[0] = 0x00;
-        data[1] = 0xFF;
+        data[1] = 0x00;
         data[2] = 0x00;
-        data[3] = 0x03; // dodac zmiennosc, zaleznie jak dzialaja messages (jak formatowac?)
+        data[3] = msg.value.toShort();
         frame->setData(data, 4);
     } else if (msg.key == "2") { //read discrete
         frame = new ModbusRtuFrame('2', 4);
         data = new unsigned char[4];
-        data[0]&0xFF;
-        data[1]&0xFF;
-        data[2] = 0;
-        data[3]&0xFF;
+        data[0] = 0x00;
+        data[1] = 0x00;
+        data[2] = 0x00;
+        data[3] = 0xFF;
         frame->setData(data, 4);
     } else if (msg.key == "3") { // read holding registers
         frame = new ModbusRtuFrame('3', 4);
         data = new unsigned char[4];
         data[0] = 0;
-        data[1]&0xFF;
+        data[1] = 0xFF;
         data[2] = 0;
         data[3] = 1; //&0x7D;
         frame->setData(data, 4);
@@ -87,7 +87,7 @@ ModbusRtuFrame* Modbus::decodeMessage(Message msg){
         frame = new ModbusRtuFrame('4', 4);
         data = new unsigned char[4];
         data[0] = 0;
-        data[1]&0xFF;
+        data[1] = 0xFF;
         data[2] = 0;
         data[3] = 1; //&0x7D;
         frame->setData(data, 4);
@@ -110,13 +110,13 @@ void Modbus::write( QVector<Message> messages){
                 unsigned char** data = frame->toSend();
                 int temp = 0;
                 for (int j = 0; j < 2; j++) {
-                    if ((temp = ::write(fd, data[j], sizeof(j))) < 0)
-                        qDebug() << "write error!" << errno;
+                    if ((temp = ::write(fd, data[j], 1)) < 0)
+                        qDebug() << "Modbus write error!" << errno;
                 }
                 if ((temp = ::write(fd, data[2], frame->showSize())) < 0)
-                    qDebug() << "data write error";
+                    qDebug() << "Modbus data write error";
                 if ((temp = ::write(fd, data[3], sizeof(unsigned short))) < 0)
-                    qDebug() << "crc write error";
+                    qDebug() << "Modbus crc write error";
                 delete []data;
                 delete frame;
         }
@@ -129,27 +129,27 @@ QVector<Message> Modbus::readAll(){
     return messages;
 }
 
-
+// brak mapy
 void Modbus::readFromSensor(){
-    unsigned char* answer = new unsigned char[2];
+    // najpierw przychodzi adres / nazwa funkcji / liczba bajtow
+    unsigned char* answer = new unsigned char[3];
     unsigned char* answer_data;
+    short crc;
     int readed;
-    if ((readed = read(fd2, answer, 2)) < 0)
-        qDebug() << "Read error!" << errno; // czytamy adres i funkcje
-    unsigned char bytes;
-    if (answer[1] == '1') {
-        read(fd, &bytes, 1);
-        answer_data = new unsigned char[(int) bytes];
-        read(fd, answer_data, (int) bytes);
+    if ((readed = read(fd, answer, 3)) < 0)
+        qDebug() << "Read error!" << errno;
+    if (answer[1] < 0x80) {
+        answer_data = new unsigned char[(int) answer[2] + 1];
+        read(fd, answer_data, answer[2]);
+    } else {
+        qDebug() << "Modbus: Sensor send error!";
     }
-    //qDebug() << answer[0];
-    //qDebug() << answer[1];
-    //qDebug() << answer[2];
-    //unsigned char* odpowiedz = (unsigned char*) answer;
-    //Message mesg("chciany klucz", QString(answer_data[0]));
-    //msgQue.push_back(mesg);
+    //read(fd, &crc, sizeof(short));
+    answer_data[(int) answer[2]] = '\0';
+    Message mesg("chciany klucz", QString((char *) answer_data));
+    msgQue.push_back(mesg);
     delete []answer;
-    //delete []answer_data;
+    delete []answer_data;
 }
 
 Modbus::~Modbus(){

@@ -45,7 +45,7 @@ class Modbus : public DevConnection {
 
         //vector of sensors for rs458
         unsigned char sensor_addr;
-        int fd, fd2;
+        int fd;
         QSocketNotifier* portNotifier;
         Configurator * config;
 
