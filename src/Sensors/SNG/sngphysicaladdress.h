@@ -8,14 +8,14 @@ class SngPhysicalAddress
 {
 private:
     char bytes[3];
+    QString byteToString(char);
 
 public:
     SngPhysicalAddress();
     SngPhysicalAddress(QString);
     char getByteAt(int);
 
-//    maybe be usefull in the future
-//    QString toString();
+    QString toString();
 };
 
 #endif // SNGPHYSICALADDRESS_H

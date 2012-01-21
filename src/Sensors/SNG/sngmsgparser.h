@@ -7,7 +7,7 @@ class SngMsgParser
 {
 public:
     SngMsgParser();
-    bool parseMsg(char*, SngFrame*); // return true if msg invalid
+    bool parseMsg(char*, SngFrame&); // return true if msg invalid
 
 private:
     bool checkBeginAndEndOfFrame(char*);

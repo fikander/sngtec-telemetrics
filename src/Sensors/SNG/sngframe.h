@@ -14,11 +14,14 @@ static QString sngFrameTypeNames[] = {"OnOff", "Dimm", "Time", "Date", "Temp", "
 class SngFrame
 {
 public:
+    SngFrame();
     SngFrame(SngPhysicalAddress, SngPhysicalAddress, SngFrameType, QString);
     SngPhysicalAddress src;
     SngPhysicalAddress dest;
     SngFrameType type;
     QString value;
+
+    QString toString();
 };
 
 #endif // SNGFRAME_H

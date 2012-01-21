@@ -5,7 +5,7 @@ SngConnection::SngConnection()
 }
 
 SngConnection::SngConnection(Configurator *config) :
-    commServerHostName("localhost"), port(8888),
+    commServerHostName("89.231.108.25"), port(8888),
     physicalAddress("2.4.7"), defaultDest("1.2.3")
 {
     this->conf = config;
@@ -49,15 +49,26 @@ QVector<Message> SngConnection::readAll()
 
 void SngConnection::readFromSensor()
 {
+    qDebug() << "read from sensor\n";
     char msg[SNG_FRAME_SIZE];
-    commServer->read(msg, SNG_FRAME_SIZE);
+    int errNo = commServer->read(msg, SNG_FRAME_SIZE);
+    qDebug() << "przeczytano " << errNo << " bajtow\n";
 
-    SngFrame * frame = NULL;
+    SngFrame frame;
 
     if (msgParser.parseMsg(msg, frame))
+    {
+        qDebug() << "SngConn::readFromSensor(): error in parsing\n";
         return;
+    }
 
-    msgQue.push_back(translateFrameToMessage(*frame));
+    qDebug() << "SngConn::readFromSensor(): parsing OK\n";
+
+    msgQue.push_back(translateFrameToMessage(frame));
+
+    qDebug() << "SngConn::readFromSensor(): get message ("
+             << msgQue[msgQue.size()-1].key << ", " << msgQue[msgQue.size()-1].value
+             << ")\n";
 
     emit readyToRead();
 }
@@ -75,14 +86,14 @@ void SngConnection::sendMessage(Message& msg)
     msgCreator.prepareMsg(frame, msgToSend);
 
     qint64 dataLength = commServer->write(msgToSend, SNG_FRAME_SIZE);
-    qDebug() << "sent " << dataLength << " bytes of data to sensor";
+    qDebug() << "sent " << dataLength << " bytes of data to sensor" << "\n";
 }
 
 SngFrame SngConnection::translateMessageToFrame(Message& msg)
 {
     //should ask config about what to
-    QString frameTypeName = conf->getFrameType();
-    SngFrameType frameType = parseFrameType(frameTypeName);
+//    QString frameTypeName = conf->getFrameType();
+    SngFrameType frameType = parseFrameType(msg.key);
     return SngFrame(physicalAddress, conf->getDest(), frameType, msg.value);
 }
 

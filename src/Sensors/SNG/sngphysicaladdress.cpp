@@ -19,3 +19,25 @@ char SngPhysicalAddress::getByteAt(int i)
 {
     return bytes[i];
 }
+
+QString SngPhysicalAddress::toString()
+{
+    QString res;
+    res.append(byteToString(bytes[0]));
+    res.append(".");
+    res.append(byteToString(bytes[1]));
+    res.append(".");
+    res.append(byteToString(bytes[2]));
+    return res;
+}
+
+QString SngPhysicalAddress::byteToString(char c)
+{
+    QString res;
+    int val = c;
+
+    val = (val + 256) % 256;
+
+    res.sprintf("%d", val);
+    return res;
+}

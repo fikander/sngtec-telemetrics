@@ -1,35 +1,48 @@
 #include "sngmsgparser.h"
+#include <QDebug>
 
 SngMsgParser::SngMsgParser()
 {
 }
 
-bool SngMsgParser::parseMsg(char * msg, SngFrame* frame)
+bool SngMsgParser::parseMsg(char * msg, SngFrame& frame)
 {
     SngFrameType type;
     QString value;
     SngPhysicalAddress src, dest;
 
     if (checkBeginAndEndOfFrame(msg))
+    {
+        qDebug() << "SngMsgParser::parseMsg: wrong begin and/or end of frame\n";
         return true;
+    }
 
     if (getFrameType(msg, type))
+    {
+        qDebug() << "SngMsgParser::parseMsg: wrong frame type\n";
         return true;
+    }
 
     if (getValue(type, msg, value))
+    {
+        qDebug() << "SngMsgParser::parseMsg: wrong value\n";
         return true;
+    }
 
-    getSrcAddr(msg, src);
-    getDestAddr(msg, dest);
+    qDebug() << "SngMsgParser::parseMsg: begin, end, type, value OK\n";
 
-    frame = new SngFrame(src, dest, type, value);
+    //getSrcAddr(msg, src);
+    //getDestAddr(msg, dest);
+
+    frame.type = type;
+    frame.value = value;
 
     return false;
 }
 
 bool SngMsgParser::checkBeginAndEndOfFrame(char * msg)
 {
-    return (msg[0] == '\xff') && (msg[1] == '\xff') && (msg[13] == '\xfe');
+    return (msg[0] != '\xff') || (msg[1] != '\xff') || (msg[13] != '\xfe');
 }
 
 bool SngMsgParser::getFrameType(char * msg, SngFrameType & frameType)
@@ -96,10 +109,10 @@ bool SngMsgParser::parseOnOff(char * msg, QString & res)
         return true;
     }
 
-    int val = msg[0];
-    val = (val+256)%256;
+//    int val = msg[0];
+//    val = (val+256)%256;
 
-    res.sprintf("%d", val);
+//    res.sprintf("%d", val);
     return checkZeros(&msg[1], 3);
 }
 
@@ -143,8 +156,22 @@ bool SngMsgParser::parseDate(char * msg, QString & res)
 
 bool SngMsgParser::parseTemp(char * msg, QString & res)
 {
-    //TODO
-    return true;
+    res.clear();
+
+    if (msg[2] == '\x01')
+    {
+        res.append("-");
+    }
+    else if (msg[2] != '\x00')
+    {
+        return true;
+    }
+
+    res.append(byteToString(msg[0]));
+    res.append(".");
+    res.append(byteToString(msg[1]));
+
+    return checkZeros(&msg[3], 1);
 }
 
 bool SngMsgParser::parseValue(char * msg, QString & res)
