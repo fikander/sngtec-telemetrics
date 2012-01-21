@@ -54,7 +54,7 @@ Configurator::Configurator() {
         e = n.toElement();
 
         if (e.tagName() == "device") {
-            devType = e.attribute("device", "");
+            devType = e.attribute("type", "");
         }
     }
 }
