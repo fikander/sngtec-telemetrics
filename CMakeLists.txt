@@ -1,6 +1,7 @@
 #set cmaeke minimum version
 cmake_minimum_required(VERSION 2.8)
 
+
 # set project's name
 PROJECT( TelemetronProject )
 
@@ -24,6 +25,7 @@ SET( TELEMETRON_SRCS
   src/Sensors/SNG/sngphysicaladdress.cpp
   src/Sensors/SNG/sngframe.cpp
   src/Sensors/SNG/sngmsgcreator.cpp
+  src/Sensors/SNG/sngmsgparser.cpp
   src/Sensors/Modbus/modbus.cpp
   src/Sensors/Modbus/modbusrtuframe.cpp
 )
@@ -47,6 +49,7 @@ SET( TELEMETRON_MOC_HDRS
   src/Sensors/SNG/sngphysicaladdress.h 
   src/Sensors/SNG/sngframe.h
   src/Sensors/SNG/sngmsgcreator.h
+  src/Sensors/SNG/sngmsgparser.h
   src/Sensors/Mock/mockdev.h 
   src/Sensors/Modbus/modbus.h
   src/Sensors/Modbus/modbusrtuframe.h
