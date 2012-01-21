@@ -6,7 +6,7 @@
 #include <QDomElement>
 #include <QVector>
 #include <QDomNodeList>
-#include "src/Message/message.h"
+#include "Message/message.h"
 #include <QDebug>
 
 class Message;

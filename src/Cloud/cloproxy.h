@@ -6,8 +6,9 @@
 #include <QDebug>
 #include <QQueue>
 
-#include "src/Message/message.h"
-#include "src/Configurator/configurator.h"
+#include "Message/message.h"
+#include "Configurator/configurator.h"
+#include "Logger/logger.h"
 
 class CloConnection;
 class DevProxy;

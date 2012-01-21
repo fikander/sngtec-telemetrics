@@ -9,18 +9,23 @@ PROJECT( TelemetronProject )
 # note that we don't need  at the end of line
 SET( TELEMETRON_SRCS
   src/main.cpp 
+  src/Configurator/configurator.cpp
+  src/Logger/logger.cpp
+  src/Message/message.cpp
   src/Cloud/cloproxy.cpp
-  src/Sensors/devproxy.cpp 
-  src/Configurator/configurator.cpp 
-  src/Message/message.cpp 
   src/Cloud/cloconnection.cpp
-  src/Cloud/Mock/mockcloud.cpp 
+  src/Cloud/Mock/mockcloud.cpp
   src/Cloud/Pachube/pachubexml.cpp 
   src/Cloud/Pachube/pachubecloud.cpp 
+  src/Sensors/Mock/mockdev.cpp
+  src/Sensors/devproxy.cpp
   src/Sensors/devconnection.cpp 
   src/Sensors/SNG/sngconnection.cpp 
-  src/Sensors/SNG/sngphysicaladdress.cpp 
-  src/Sensors/Mock/mockdev.cpp 
+  src/Sensors/SNG/sngphysicaladdress.cpp
+  src/Sensors/SNG/sngframe.cpp
+  src/Sensors/SNG/sngmsgcreator.cpp
+  src/Sensors/Modbus/modbus.cpp
+  src/Sensors/Modbus/modbusrtuframe.cpp
 )
 
 # another list, this time it includes all header files that should be treated with moc
@@ -30,7 +35,8 @@ SET( TELEMETRON_HEADERS
 SET( TELEMETRON_MOC_HDRS
   src/Message/message.h 
   src/Sensors/devproxy.h 
-  src/Cloud/cloconnection.h 
+  src/Logger/logger.h
+  src/Cloud/cloconnection.h
   src/Cloud/cloproxy.h 
   src/Cloud/Mock/mockcloud.h 
   src/Cloud/Pachube/pachubexml.h 
@@ -39,7 +45,11 @@ SET( TELEMETRON_MOC_HDRS
   src/Sensors/devconnection.h 
   src/Sensors/SNG/sngconnection.h 
   src/Sensors/SNG/sngphysicaladdress.h 
+  src/Sensors/SNG/sngframe.h
+  src/Sensors/SNG/sngmsgcreator.h
   src/Sensors/Mock/mockdev.h 
+  src/Sensors/Modbus/modbus.h
+  src/Sensors/Modbus/modbusrtuframe.h
 )
 
 # enable warnings
@@ -75,9 +85,10 @@ QT4_WRAP_CPP( TELEMETRON_MOC_SRCS ${TELEMETRON_MOC_HDRS} )
 
 # we need this to be able to include headers produced by uic in our code
 # (CMAKE_BINARY_DIR holds a path to the build directory, while INCLUDE_DIRECTORIES() works just like INCLUDEPATH from qmake)
-INCLUDE_DIRECTORIES( ${CMAKE_BINARY_DIR} 
-											./src
-											)
+INCLUDE_DIRECTORIES( 
+  ${CMAKE_BINARY_DIR} 
+  ./src
+  )
 											
 
 # here we instruct CMake to build "BACProject" executable from all of the source files

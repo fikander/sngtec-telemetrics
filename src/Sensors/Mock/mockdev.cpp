@@ -1,7 +1,7 @@
 #include "mockdev.h"
 #include <QVector>
 #include <QDebug>
-#include "src/Message/message.h"
+#include "Message/message.h"
 
 MockDev::MockDev() {}
 

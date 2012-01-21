@@ -14,6 +14,7 @@ OBJECTS_DIR = build/.obj
 MOC_DIR = build/.moc
 RCC_DIR = build/.rcc
 UI_DIR = build/.ui
+INCLUDEPATH += src/
 SOURCES += src/main.cpp \
     src/Sensors/devproxy.cpp \
     src/Cloud/cloproxy.cpp \

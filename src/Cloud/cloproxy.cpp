@@ -1,8 +1,8 @@
 #include "cloproxy.h"
-#include "src/Sensors/devproxy.h"
-#include "src/Cloud/cloconnection.h"
-#include "src/Message/message.h"
-#include "src/Sensors/devconnection.h"
+#include "Sensors/devproxy.h"
+#include "Cloud/cloconnection.h"
+#include "Message/message.h"
+#include "Sensors/devconnection.h"
 
 CloProxy::CloProxy(Configurator *config) {
     timer = new QTimer(this);

@@ -1,10 +1,10 @@
 #ifndef PACHUBE_CLOUD_H
 #define PACHUBE_CLOUD_H
 
-#include "src/Cloud/cloconnection.h"
+#include "Cloud/cloconnection.h"
 #include "pachubexml.h"
 #include <QHttp>
-#include "src/Message/message.h"
+#include "Message/message.h"
 
 class Configurator;
 

@@ -2,8 +2,8 @@
 #include <QDebug>
 #include <QVector>
 #include <QTimer>
-#include "src/Message/message.h"
-#include "src/Configurator/configurator.h"
+#include "Message/message.h"
+#include "Configurator/configurator.h"
 
 
 PachubeCloud::PachubeCloud(Configurator* config)

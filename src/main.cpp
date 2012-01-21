@@ -2,8 +2,8 @@
 #include "Sensors/devproxy.h"
 #include "Cloud/cloproxy.h"
 #include "Configurator/configurator.h"
-#include "Logger/loggingHandler.h"
 #include "Logger/logger.h"
+
 
 int main(int argc, char *argv[]) {
     qInstallMsgHandler(Logger::getInstance()->loggingHandler);

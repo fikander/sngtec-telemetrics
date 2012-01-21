@@ -7,7 +7,7 @@
 #include <QVector>
 #include <QTimer>
 
-#include "src/Configurator/configurator.h"
+#include "Configurator/configurator.h"
 
 class Logger : public QObject
 {

@@ -1,7 +1,7 @@
 #ifndef MOCKDEV_H
 #define MOCKDEV_H
 
-#include "src/Sensors/devconnection.h"
+#include "Sensors/devconnection.h"
 #include <QTimer>
 
 class MockDev : public DevConnection

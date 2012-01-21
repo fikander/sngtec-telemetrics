@@ -1,7 +1,7 @@
 #include "devproxy.h"
-#include "src/Cloud/cloproxy.h"
-#include "src/Sensors/devconnection.h"
-#include "src/Message/message.h"
+#include "Cloud/cloproxy.h"
+#include "Sensors/devconnection.h"
+#include "Message/message.h"
 #include <QTcpSocket>
 
 DevProxy::DevProxy() {}

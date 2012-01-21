@@ -1,15 +1,15 @@
 #include "configurator.h"
 
-#include "src/Cloud/cloconnection.h"
-#include "src/Sensors/devconnection.h"
-#include "src/Cloud/Mock/mockcloud.h"
-#include "src/Sensors/Mock/mockdev.h"
-#include "src/Sensors/SNG/sngconnection.h"
-#include "src/Sensors/Modbus/modbus.h"
-#include "src/Cloud/Pachube/pachubecloud.h"
+#include "Cloud/cloconnection.h"
+#include "Sensors/devconnection.h"
+#include "Cloud/Mock/mockcloud.h"
+#include "Sensors/Mock/mockdev.h"
+#include "Sensors/SNG/sngconnection.h"
+#include "Sensors/Modbus/modbus.h"
+#include "Cloud/Pachube/pachubecloud.h"
 
-#include "src/Message/message.h"
-#include "src/Configurator/configurator.h"
+#include "Message/message.h"
+#include "Configurator/configurator.h"
 
 
 Configurator::Configurator() {
