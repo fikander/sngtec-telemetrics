@@ -41,6 +41,7 @@ public slots:
     void ordersDone(bool);
     void retry();
     void getOrdersSlot();
+    void catchSslErrors ( const QList<QSslError> & errors );
 
 signals:
     void orderReceived(QVector<Message>);

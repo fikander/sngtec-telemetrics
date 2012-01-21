@@ -2,6 +2,8 @@
 #include <QDebug>
 #include <QVector>
 #include <QTimer>
+#include <QNetworkRequest>
+#include <QSslError>
 #include "Message/message.h"
 #include "Configurator/configurator.h"
 
@@ -48,7 +50,7 @@ void PachubeCloud::done(bool error) {
     }
     else {
         busy = false;
-        //qDebug() << "pachube cloud done" << http.readAll();
+        qDebug() << "pachube cloud done" << http.readAll();
         emit readyToWrite();
     }
 }
@@ -60,6 +62,8 @@ void PachubeCloud::send() {
     qDebug() << "sending";
     busy = true;
 
+    //connect(&http, SIGNAL(sslEBBrrors),  this, SLOT(catchSslErrors));
+    connect(&http, SIGNAL(sslErrors(const QList<QSslError> &)),  &http, SLOT(ignoreSslErrors()));
     connect(&http, SIGNAL(done(bool)), this, SLOT(done(bool)));
 
     QHttpRequestHeader header("PUT", "/v2/feeds/" + sendFeed + ".xml");
@@ -68,6 +72,7 @@ void PachubeCloud::send() {
     header.setContentType("application/xml");
 
     http.setHost("api.pachube.com", QHttp::ConnectionModeHttps);
+    //http.setHost("api.pachube.com");
     http.request(header, currentPachubeXml.getXml().toString().toUtf8());
 }
 
@@ -95,4 +100,12 @@ void PachubeCloud::ordersDone(bool error) {
 
 void PachubeCloud::getOrdersSlot() {
     getOrders();
+}
+
+void PachubeCloud::catchSslErrors ( const QList<QSslError> & errors ) {
+    qDebug() << "PachubeCloud ssl errors: ";
+    for(QList<QSslError>::const_iterator it = errors.begin();
+            it != errors.end(); ++it) {
+        qDebug() << it->errorString();
+    }
 }
