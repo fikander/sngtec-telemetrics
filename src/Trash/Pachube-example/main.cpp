@@ -10,7 +10,7 @@ int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
     Configurator config;
-    CloConnection *cloud = new PachubeCloud(config);
+    CloConnection *cloud = new PachubeCloud(&config);
     CloConnection::MessagesSet mess; 
     Message message;
     message.key = "1";
