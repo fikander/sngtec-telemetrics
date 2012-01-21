@@ -19,29 +19,3 @@ char SngPhysicalAddress::getByteAt(int i)
 {
     return bytes[i];
 }
-
-QVector<QString> SngPhysicalAddress::parseAddr(QString addr)
-{
-    QVector<QString> res;
-    QString str = "";
-
-    for (int i = 0; i < addr.size(); i++)
-    {
-        if (addr[i] == '.')
-        {
-            res.push_back(str);
-            str.clear();
-        }
-        else
-        {
-            str.append(addr[i]);
-        }
-    }
-
-    if (!(str.isEmpty()))
-    {
-        res.push_back(str);
-    }
-
-    return res;
-}

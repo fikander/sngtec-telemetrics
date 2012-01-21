@@ -8,15 +8,14 @@ class SngPhysicalAddress
 {
 private:
     char bytes[3];
-    QVector<QString> parseAddr(QString);
 
 public:
     SngPhysicalAddress();
     SngPhysicalAddress(QString);
     char getByteAt(int);
 
-    //maybe be usefull in the future
-    //QString toString();
+//    maybe be usefull in the future
+//    QString toString();
 };
 
 #endif // SNGPHYSICALADDRESS_H
