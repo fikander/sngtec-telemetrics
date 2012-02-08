@@ -1,8 +1,8 @@
 #ifndef MODBUS_H
 #define MODBUS_H
 
-#include "Message/message.h"
-#include "Sensors/devconnection.h"
+#include "src/Message/message.h"
+#include "src/Sensors/devconnection.h"
 #include "modbusrtuframe.h"
 
 #include <QObject>
@@ -13,9 +13,9 @@
 #include <termios.h>
 #include <string>
 #include <QSocketNotifier>
+#include <QMap>
 
 
-/* TODO : map : function->rtuSize*/
 
 class Modbus : public DevConnection {
     Q_OBJECT
@@ -40,7 +40,8 @@ class Modbus : public DevConnection {
 
   private:
         ModbusRtuFrame* decodeMessage(Message msg);
-
+        int checkResponseCRC(unsigned char* answer, unsigned char* answer_data,
+                             int answer_size, int take_byte_count, unsigned short crc);
         int preparePort(std::string port);
 
         //vector of sensors for rs458
@@ -50,7 +51,7 @@ class Modbus : public DevConnection {
         Configurator * config;
 
         QVector<Message> msgQue;
-
+        QMap<short, short> function_sizes; // Mapa to glupota?
 };
 
 #endif // MODBUS_H
