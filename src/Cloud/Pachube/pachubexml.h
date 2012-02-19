@@ -6,7 +6,7 @@
 #include <QDomElement>
 #include <QVector>
 #include <QDomNodeList>
-#include "Message/message.h"
+#include "src/Message/message.h"
 #include <QDebug>
 
 class Message;
@@ -35,7 +35,7 @@ private:
 
 inline
 PachubeXml PachubeXml::PachubeFromXml(QString xml){
-    qDebug() << xml;
+    //qDebug() << xml;
     return PachubeXml(&xml);
 }
 

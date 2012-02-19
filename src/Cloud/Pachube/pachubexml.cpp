@@ -1,5 +1,5 @@
 #include "pachubexml.h"
-#include "Message/message.h"
+#include "src/Message/message.h"
 #include <QDebug>
 
 PachubeXml::PachubeXml(QString feed): feed(feed) {

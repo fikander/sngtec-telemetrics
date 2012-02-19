@@ -21,6 +21,7 @@ LIBS += ../build/.obj/modbusrtuframe.o \
         ../build/.obj/sngphysicaladdress.o \
         ../build/.obj/sngframe.o\
         ../build/.obj/sngmsgcreator.o\
+        ../build/.obj/sngmsgparser.o \
         ../build/.obj/devconnection.o \
         ../build/.obj/cloconnection.o \
         ../build/.obj/cloproxy.o \
@@ -45,16 +46,18 @@ LIBS += ../build/.obj/modbusrtuframe.o \
 TEMPLATE = app
 SOURCES += main.cpp \
     sampletest.cpp \
+    Cloud/Pachube/pachubexmltest.cpp \
     Sensors/Modbus/modbusframetest.cpp \
     Sensors/Modbus/modbustest.cpp \
     Sensors/Sng/sngtest.cpp \
     Sensors/Sng/sngmsgcreatortest.cpp \
-    Sensors/Sng/sngphysicaladdresstest.cpp
+    Sensors/Sng/sngphysicaladdresstest.cpp \
 
 HEADERS += AutoTest.h \
     sampletest.h \
+    Cloud/Pachube/pachubexmltest.h \
     Sensors/Modbus/modbusframetest.h \
     Sensors/Modbus/modbustest.h \
     Sensors/Sng/sngtest.h \
     Sensors/Sng/sngmsgcreatortest.h \
-    Sensors/Sng/sngphysicaladdresstest.h
+    Sensors/Sng/sngphysicaladdresstest.h 
