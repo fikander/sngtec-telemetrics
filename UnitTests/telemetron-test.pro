@@ -28,6 +28,7 @@ LIBS += ../build/.obj/modbusrtuframe.o \
         ../build/.obj/devproxy.o \
         ../build/.obj/pachubexml.o \
         ../build/.obj/pachubecloud.o \
+        ../build/.obj/pachubetime.o \
         ../build/.obj/message.o \
         ../build/.obj/configurator.o \
         ../build/.obj/loggingHandler.o \
@@ -47,6 +48,7 @@ TEMPLATE = app
 SOURCES += main.cpp \
     sampletest.cpp \
     Cloud/Pachube/pachubexmltest.cpp \
+    Cloud/Pachube/pachubetimetest.cpp \
     Sensors/Modbus/modbusframetest.cpp \
     Sensors/Modbus/modbustest.cpp \
     Sensors/Sng/sngtest.cpp \
@@ -55,6 +57,7 @@ SOURCES += main.cpp \
 
 HEADERS += AutoTest.h \
     sampletest.h \
+    Cloud/Pachube/pachubetimetest.h \
     Cloud/Pachube/pachubexmltest.h \
     Sensors/Modbus/modbusframetest.h \
     Sensors/Modbus/modbustest.h \

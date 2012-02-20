@@ -10,7 +10,7 @@
 //#define MODBUS
 #define SNG
 #define PACHUBE_XML
-#define PACHUBE
+#define PACHUBE_TIME
 
 namespace AutoTest
 {
