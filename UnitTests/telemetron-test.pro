@@ -54,6 +54,7 @@ SOURCES += main.cpp \
     Sensors/Sng/sngtest.cpp \
     Sensors/Sng/sngmsgcreatortest.cpp \
     Sensors/Sng/sngphysicaladdresstest.cpp \
+    Sensors/Sng/sngparsertest.cpp
 
 HEADERS += AutoTest.h \
     sampletest.h \
@@ -63,4 +64,5 @@ HEADERS += AutoTest.h \
     Sensors/Modbus/modbustest.h \
     Sensors/Sng/sngtest.h \
     Sensors/Sng/sngmsgcreatortest.h \
-    Sensors/Sng/sngphysicaladdresstest.h 
+    Sensors/Sng/sngphysicaladdresstest.h \ 
+    Sensors/Sng/sngparsertest.h

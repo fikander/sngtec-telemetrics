@@ -5,7 +5,7 @@
          feedno="42213" 
          apikey="7p1iGBicjYRQS20cEDjFdr3SnTldEyq-kL2XabP6iXw" />
 
-  <device type="mock">
+  <device type="sng">
     <commserver address="127.0.0.1" 
                 port="7171" />
   </device>
