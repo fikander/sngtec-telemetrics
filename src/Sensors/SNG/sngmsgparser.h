@@ -16,6 +16,7 @@ private:
 
     void getSrcAddr(char*, SngPhysicalAddress&);
     void getDestAddr(char*, SngPhysicalAddress&);
+    void getAddr(char*, SngPhysicalAddress&);
 
     bool parseOnOff(char*, QString&);   // correct values: on, off
     bool parseDimm(char*, QString&);    // inc, endInc, dec, endDec

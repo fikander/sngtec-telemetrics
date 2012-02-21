@@ -9,7 +9,7 @@ bool SngMsgParser::parseMsg(char * msg, SngFrame& frame)
 {
     SngFrameType type;
     QString value;
-    SngPhysicalAddress src, dest;
+//    SngPhysicalAddress src, dest;
 
     if (checkBeginAndEndOfFrame(msg))
     {
@@ -29,10 +29,11 @@ bool SngMsgParser::parseMsg(char * msg, SngFrame& frame)
         return true;
     }
 
-    qDebug() << "SngMsgParser::parseMsg: begin, end, type, value OK\n";
+//    qDebug() << "SngMsgParser::parseMsg: begin, end, type, value OK\n";
 
-    //getSrcAddr(msg, src);
-    //getDestAddr(msg, dest);
+    getSrcAddr(msg, frame.src);
+    getDestAddr(msg, frame.dest);
+//    qDebug() << "wyluskalem adresy: " << frame.src.toString() << " " << frame.dest.toString() << "\n";
 
     frame.type = type;
     frame.value = value;
@@ -206,10 +207,20 @@ QString SngMsgParser::byteToString(char c)
 
 void SngMsgParser::getSrcAddr(char * msg, SngPhysicalAddress & res)
 {
+    getAddr(&msg[2], res);
 }
 
 void SngMsgParser::getDestAddr(char * msg, SngPhysicalAddress & res)
 {
+    getAddr(&msg[5], res);
+}
+
+void SngMsgParser::getAddr(char * msg, SngPhysicalAddress & res)
+{
+    for (int i = 0; i <= 2; i++)
+    {
+        res.setByteAt(i, msg[i]);
+    }
 }
 
 
