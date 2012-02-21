@@ -109,53 +109,50 @@ void SngMsgParserTest::parseMsgBeginEnd()
 
 void SngMsgParserTest::parseMsgOnOff()
 {
-//    char msgOn[14];
-//    char msgOff[14];
-//    SngMsgCreator msgCreator;
-//    SngFrame frameOn(defaultAddr, defaultAddr, SngOnOff, "on");
-//    SngFrame frameOff(defaultAddr, defaultAddr, SngOnOff, "off");
+    char msgOn[14];
+    char msgOff[14];
+    init(msgOn);
+    init(msgOff);
+    msgOn[9] = '\x01';
 
-//    msgCreator.prepareMsg(frameOn, msgOn);
-//    msgCreator.prepareMsg(frameOff, msgOff);
+    SngMsgParser msgParser;
+    SngFrame frameOn, frameOff;
 
-//    QCOMPARE(msgOn[8], '\x01');
-//    QCOMPARE(msgOn[9], '\x01');
-//    QCOMPARE(msgOn[10], '\x00');
-//    QCOMPARE(msgOn[11], '\x00');
-//    QCOMPARE(msgOn[12], '\x00');
+    QCOMPARE(msgParser.parseMsg(msgOn, frameOn), false);
+    QCOMPARE(frameOn.type, SngOnOff);
+    QCOMPARE(frameOn.value, QString("on"));
 
-//    QCOMPARE(msgOff[8], '\x01');
-//    QCOMPARE(msgOff[9], '\x00');
-//    QCOMPARE(msgOff[10], '\x00');
-//    QCOMPARE(msgOff[11], '\x00');
-//    QCOMPARE(msgOff[12], '\x00');
+    QCOMPARE(msgParser.parseMsg(msgOff, frameOff), false);
+    QCOMPARE(frameOff.type, SngOnOff);
+    QCOMPARE(frameOff.value, QString("off"));
 }
 
 void SngMsgParserTest::parseMsgDimm()
 {
-//    QFETCH(QString, valueType);
-//    QFETCH(char, expRes);
-//    char msg[14];
-//    SngMsgCreator msgCreator;
-//    SngFrame frame(defaultAddr, defaultAddr, SngDimm, valueType);
+    QFETCH(QString, valueType);
+    QFETCH(char, valueByte);
+    char msg[14];
+    init(msg);
 
-//    msgCreator.prepareMsg(frame, msg);
+    SngMsgParser msgParser;
+    SngFrame frame;
 
-//    QCOMPARE(msg[8], '\x02');
-//    QCOMPARE(msg[9], expRes);
-//    QCOMPARE(msg[10], '\x00');
-//    QCOMPARE(msg[11], '\x00');
-//    QCOMPARE(msg[12], '\x00');
+    msg[8] = '\x02';
+    msg[9] = valueByte;
+
+    QCOMPARE(msgParser.parseMsg(msg, frame), false);
+    QCOMPARE(frame.type, SngDimm);
+    QCOMPARE(frame.value, valueType);
 }
 
 void SngMsgParserTest::parseMsgDimm_data()
 {
-//    QTest::addColumn<QString>("valueType");
-//    QTest::addColumn<char>("expRes");
-//    QTest::newRow("0") << "inc" << '\x09';
-//    QTest::newRow("1") << "endInc" << '\x08';
-//    QTest::newRow("2") << "dec" << '\x01';
-//    QTest::newRow("3") << "endDec" << '\x00';
+    QTest::addColumn<QString>("valueType");
+    QTest::addColumn<char>("valueByte");
+    QTest::newRow("0") << "inc" << '\x09';
+    QTest::newRow("1") << "endInc" << '\x08';
+    QTest::newRow("2") << "dec" << '\x01';
+    QTest::newRow("3") << "endDec" << '\x00';
 }
 
 void SngMsgParserTest::parseMsgTime()
@@ -228,66 +225,72 @@ void SngMsgParserTest::prepareMsgDate_data()
 
 void SngMsgParserTest::prepareMsgTemp()
 {
-//    QFETCH(QString, temp);
-//    QFETCH(char, integ);
-//    QFETCH(char, frac);
-//    QFETCH(char, minus);
-//    char msg[14];
+    QFETCH(QString, temp);
+    QFETCH(char, integ);
+    QFETCH(char, frac);
+    QFETCH(char, minus);
 
-//    SngMsgCreator msgCreator;
-//    SngFrame frame(defaultAddr, defaultAddr, SngTemp, temp);
-//    msgCreator.prepareMsg(frame, msg);
+    char msg[14];
+    init(msg);
 
-//    QCOMPARE(msg[8], '\x05');
-//    QCOMPARE(msg[9], integ);
-//    QCOMPARE(msg[10], frac);
-//    QCOMPARE(msg[11], minus);
-//    QCOMPARE(msg[12], '\x00');
+    SngMsgParser msgParser;
+    SngFrame frame;
+
+    msg[8] = '\x05';
+    msg[9] = integ;
+    msg[10] = frac;
+    msg[11] = minus;
+
+    QCOMPARE(msgParser.parseMsg(msg, frame), false);
+    QCOMPARE(frame.type, SngTemp);
+    QCOMPARE(frame.value, temp);
 }
 
 void SngMsgParserTest::prepareMsgTemp_data()
 {
-//    QTest::addColumn<QString>("temp");
-//    QTest::addColumn<char>("integ");
-//    QTest::addColumn<char>("frac");
-//    QTest::addColumn<char>("minus");
-//    QTest::newRow("0") << "-21.5" << '\x15' << '\x05' << '\x01';
-//    QTest::newRow("1") << "36.6" << '\x24' << '\x06' << '\x00';
-//    QTest::newRow("2") << "42.0" << '\x2a' << '\x00' << '\x00';
-//    QTest::newRow("3") << "-10.23" << '\x0a' << '\x17' << '\x01';
-//    QTest::newRow("4") << "-4.0" << '\x04' << '\x00' << '\x01';
-//    QTest::newRow("5") << "35.9" << '\x23' << '\x09' << '\x00';
-//    QTest::newRow("6") << "25.45" << '\x19' << '\x2d' << '\x00';
+    QTest::addColumn<QString>("temp");
+    QTest::addColumn<char>("integ");
+    QTest::addColumn<char>("frac");
+    QTest::addColumn<char>("minus");
+    QTest::newRow("0") << "-21.5" << '\x15' << '\x05' << '\x01';
+    QTest::newRow("1") << "36.6" << '\x24' << '\x06' << '\x00';
+    QTest::newRow("2") << "42.0" << '\x2a' << '\x00' << '\x00';
+    QTest::newRow("3") << "-10.2" << '\x0a' << '\x02' << '\x01';
+    QTest::newRow("4") << "-4.0" << '\x04' << '\x00' << '\x01';
+    QTest::newRow("5") << "35.9" << '\x23' << '\x09' << '\x00';
+    QTest::newRow("6") << "25.4" << '\x19' << '\x04' << '\x00';
 }
 
 void SngMsgParserTest::prepareMsgValue()
 {
-//    QFETCH(QString, value);
-//    QFETCH(char, expRes);
-//    char msg[14];
+    QFETCH(QString, expValue);
+    QFETCH(char, valueByte);
 
-//    SngMsgCreator msgCreator;
-//    SngFrame frame(defaultAddr, defaultAddr, SngValue, value);
-//    msgCreator.prepareMsg(frame, msg);
+    char msg[14];
+    init(msg);
 
-//    QCOMPARE(msg[8], '\x06');
-//    QCOMPARE(msg[9], expRes);
-//    QCOMPARE(msg[10], '\x00');
-//    QCOMPARE(msg[11], '\x00');
-//    QCOMPARE(msg[12], '\x00');
+    SngMsgParser msgParser;
+    SngFrame frame;
+
+    msg[8] = '\x06';
+    msg[9] = valueByte;
+
+    QCOMPARE(msgParser.parseMsg(msg, frame), false);
+    QCOMPARE(frame.type, SngValue);
+    QCOMPARE(frame.value, expValue);
 }
 
 void SngMsgParserTest::prepareMsgValue_data()
 {
-//    QTest::addColumn<QString>("value");
-//    QTest::addColumn<char>("expRes");
-//    QTest::newRow("0") << "0" << '\x00';
-//    QTest::newRow("1") << "36" << '\x24';
-//    QTest::newRow("2") << "42" << '\x2a';
-//    QTest::newRow("3") << "127" << '\x7f';
-//    QTest::newRow("4") << "99" << '\x63';
-//    QTest::newRow("5") << "255" << '\xff';
-//    QTest::newRow("6") << "203" << '\xcb';
+    QTest::addColumn<QString>("expValue");
+    QTest::addColumn<char>("valueByte");
+    QTest::newRow("0") << "0" << '\x00';
+    QTest::newRow("1") << "36" << '\x24';
+    QTest::newRow("2") << "42" << '\x2a';
+    QTest::newRow("3") << "127" << '\x7f';
+    QTest::newRow("4") << "99" << '\x63';
+    QTest::newRow("5") << "255" << '\xff';
+    QTest::newRow("6") << "203" << '\xcb';
 }
 
 
