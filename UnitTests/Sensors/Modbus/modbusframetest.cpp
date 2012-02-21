@@ -52,7 +52,7 @@ void ModbusFrameTest::testCase1_data()
     for (int i = 0; i < tests_Number; i++) {
         QTest::newRow("0") << (unsigned char) '1' << (unsigned char) '4'
                            << (short) data_lengths[i]
-                           << qChecksum((const char*) tmp[i], data_lengths[i] + 3);
+                           << qChecksum((const char*) tmp[i], data_lengths[i] + 2);
     }
     for (int i = 0; i < tests_Number; i++) {
         delete []tmp[i];

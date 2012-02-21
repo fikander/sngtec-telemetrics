@@ -13,14 +13,14 @@
 int readed;
 unsigned short crc;
 
-short ModbusTest::countCRC(unsigned char *array, int array_length){
-    crc = qChecksum((char*) array, array_length);
+unsigned short ModbusTest::countCRC(unsigned char *array, int array_length){
+    return qChecksum((char*) array, array_length);
 }
 
-void ModbusTest::testPort(){ // Check out those parameters!
-    std::string port2("/dev/pts/3");
+void ModbusTest::testPort(){
+    std::string port2("/dev/pts/5");
     if ((fd = open(port2.c_str(), O_RDWR | O_NOCTTY)) < 0) //wywalamy O_NONBLOCK, wtedy dziala
-        qDebug() << "Open test port failure" << "Errno: " << errno;
+        qDebug() << "ModbusTest: Open test port failure" << "Errno: " << errno;
     termios* port_param = new termios;
     port_param->c_cflag = B9600 | CS8;
     port_param->c_iflag = IGNPAR;
@@ -29,8 +29,7 @@ void ModbusTest::testPort(){ // Check out those parameters!
     port_param->c_cc[VMIN] = 1;
     port_param->c_cc[VTIME] = 0;
     if (tcsetattr(fd, TCSAFLUSH, port_param) < 0)
-        qDebug() << "Setting test port attr error";
-    qDebug() << "Test port is ready!";
+        qDebug() << "ModbusTest: Setting test port attr error";
     delete[] port_param;
 }
 
@@ -42,57 +41,42 @@ void ModbusTest::f1_2_3_4_Snd()
 {
     QFETCH(unsigned char, addr);
     QFETCH(QString, function);
-    QFETCH(QString, NSize);
-    QFETCH(unsigned char, testval);
+    QFETCH(QString, msg_data);
     testPort();
     Modbus* m = new Modbus(new Configurator());
     m->connect(addr);
-    Message* mesg = new Message(function, NSize);
+    Message* mesg = new Message(function, msg_data);
     QVector<Message>* messages = new QVector<Message>();
     messages->append(*mesg);
     m->write(*messages);
 
-    unsigned char* answer = new unsigned char[2];
-    unsigned char* data = new unsigned char[4];
-    //unsigned short crc;
+    unsigned char* answer = new unsigned char[6];
     if ((readed = read(fd, answer, 2)) < 0)
         qDebug() << "Read error!" << errno; // czytamy adres i funkcje
-    if ((readed = read(fd, data, 4)) < 0)
+    if ((readed = read(fd, &answer[2], 4)) < 0)
         qDebug() << "Read error!" << errno;
     if ((readed = read(fd, &crc, sizeof(short))) < 0)
         qDebug() << "CRC read error";
-    QCOMPARE(answer[0], addr);
-    QCOMPARE(answer[1], (unsigned char) function.toStdString()[0]);
-    QCOMPARE(data[3], (unsigned char) NSize.at(3).toAscii());
-    delete[] answer;
-    delete[] data;
+    unsigned short my_crc = countCRC(answer, 6);
 
-    /*
-    unsigned char* response = new unsigned char[5];
-    response[0] = addr;
-    response[1] = 0x01;
-    response[2] = 2;
-    response[3] = testval;
-    response[4] = testval;
-    if ((readed = write(fd, response, 5)) < 0)
-        qDebug() << "Test: Write error!";
-    qDebug() << "Writed: " << readed;
-    m->readFromSensor();
-    QVector<Message> returned = m->readAll();
-    qDebug() << returned[0].value; */
+    QCOMPARE(answer[0], addr);
+    QCOMPARE(answer[1], (unsigned char) function.toStdString()[1]);
+    QCOMPARE(answer[5], (unsigned char) msg_data.at(3).toAscii());
+    QCOMPARE(my_crc, crc);
+    delete[] answer;
+
 }
 
 void ModbusTest::f1_2_3_4_Snd_data()
 {
     QTest::addColumn<unsigned char>("addr");
     QTest::addColumn<QString>("function");
-    QTest::addColumn<QString>("NSize");
-    QTest::addColumn<unsigned char>("testval");
-    QTest::newRow("0") << (unsigned char) 0x01 << "\x01" << "\x52\x4B\x11\x11\x34\x67" << (unsigned char) 0xBB;
-    QTest::newRow("1") << (unsigned char) 0x02 << "\x02" << "1342432" << (unsigned char) 0x3F;
-    QTest::newRow("2") << (unsigned char) 0x03 << "\x03" << "324352" << (unsigned char) 0xCC;
-    QTest::newRow("3") << (unsigned char) 0x02 << "\x01" << "125243" << (unsigned char) 0x45;
-    QTest::newRow("4") << (unsigned char) 0x01 << "\x01" << "4234231" << (unsigned char) 0x52;
+    QTest::addColumn<QString>("msg_data");
+    QTest::newRow("0") << (unsigned char) 0x01 << "\x01\x01" << "\x52\x4B\x11\x11\x34\x67";
+    QTest::newRow("1") << (unsigned char) 0x02 << "\x02\x02" << "1342432";
+    QTest::newRow("2") << (unsigned char) 0x03 << "\x03\x03" << "324352";
+    QTest::newRow("3") << (unsigned char) 0x02 << "\x02\x01" << "125243";
+    QTest::newRow("4") << (unsigned char) 0x01 << "\x01\x01" << "4234231";
 }
 
 
@@ -107,7 +91,7 @@ void ModbusTest::errorRec(){
     response[0] = addr;
     response[1] = function.at(0).toAscii();
     response[2] = error;
-    crc = qChecksum((char*) response, 3);
+    crc = countCRC(response, 3);
     if ((readed = write(fd, response, 3)) < 0)
         qDebug() << "Test: Write error!";
     if ((readed = write(fd, &crc, sizeof(short))) < 0)
@@ -159,7 +143,7 @@ void ModbusTest::f1_2_3_4_Rec(){
     response[8] = data6;
     QString tmp;
     tmp.append(data1).append(data2).append(data3).append(data4).append(data5).append(data6).append('\0');
-    crc = qChecksum((char*) response, 9);
+    crc = countCRC(response, 9);
     if ((readed = write(fd, response, 9)) < 0)
         qDebug() << "Test: Write error!";
     if ((readed = write(fd, &crc, sizeof(short))) < 0)
@@ -204,7 +188,6 @@ void ModbusTest::f1_2_3_4_Rec_data(){
 void ModbusTest::f7_11_12_Snd(){
     QFETCH(unsigned char, addr);
     QFETCH(QString, function);
-
     testPort();
     Modbus* m = new Modbus(new Configurator());
     m->connect(addr);
@@ -217,21 +200,22 @@ void ModbusTest::f7_11_12_Snd(){
     unsigned char* answer = new unsigned char[2];
     if ((readed = read(fd, answer, 2)) < 0)
         qDebug() << "Read error!" << errno;
+    //qDebug() << "Readed :" << readed;
     //if ((readed = read(fd, &crc, sizeof(short))) < 0)
     //    qDebug() << "CRC read error";
     QCOMPARE(answer[0], addr);
-    QCOMPARE(answer[1], (unsigned char) function.toStdString()[0]);
+    QCOMPARE(answer[1], (unsigned char) function.toStdString()[1]);
     delete[] answer;
 }
 
 void ModbusTest::f7_11_12_Snd_data(){
     QTest::addColumn<unsigned char>("addr");
     QTest::addColumn<QString>("function");
-    QTest::newRow("0") << (unsigned char) 0x01 << "\x07";
-    QTest::newRow("1") << (unsigned char) 0x02 << "\x07";
-    QTest::newRow("2") << (unsigned char) 0x03 << "\x0B";
-    QTest::newRow("3") << (unsigned char) 0x02 << "\x0B";
-    QTest::newRow("4") << (unsigned char) 0x01 << "\x0C";
+    QTest::newRow("0") << (unsigned char) 0x01 << "\x01\x07";
+    QTest::newRow("1") << (unsigned char) 0x02 << "\x02\x07";
+    QTest::newRow("2") << (unsigned char) 0x03 << "\x03\x0B";
+    QTest::newRow("3") << (unsigned char) 0x02 << "\x02\x0B";
+    QTest::newRow("4") << (unsigned char) 0x01 << "\x01\x0C";
 }
 
 
@@ -415,4 +399,78 @@ void ModbusTest::f0C_Rec_data(){
                        << (unsigned char) 0xCC << (unsigned char) 0xFA
                        << (unsigned char) 0xDD << (unsigned char) 0x5C
                        << (unsigned char) 0xB5 << (unsigned char) 0x52;
+}
+
+void ModbusTest::f8_Rec(){
+    QFETCH(unsigned char, addr);
+    QFETCH(QString, function);
+    QFETCH(unsigned char, data1);
+    QFETCH(unsigned char, data2);
+    QFETCH(unsigned char, data3);
+    QFETCH(unsigned char, data4);
+    testPort();
+    Modbus* m = new Modbus(new Configurator());
+    m->connect(addr);
+    unsigned char* response = new unsigned char[6];
+    response[0] = addr;
+    response[1] = function.at(0).toAscii();
+    response[2] = data1;
+    response[3] = data2;
+    response[4] = data3;
+    response[5] = data4;
+    crc = qChecksum((char*) response, 6);
+    if ((readed = write(fd, response, 6)) < 0)
+        qDebug() << "Test: Write error!";
+    if ((readed = write(fd, &crc, sizeof(short))) < 0)
+        qDebug() << "Test: CRC write error";
+    m->readFromSensor();
+}
+
+void ModbusTest::f8_Rec_data(){
+    QTest::addColumn<unsigned char>("addr");
+    QTest::addColumn<QString>("function");
+    QTest::addColumn<unsigned char>("data1");
+    QTest::addColumn<unsigned char>("data2");
+    QTest::addColumn<unsigned char>("data3");
+    QTest::addColumn<unsigned char>("data4");
+    QTest::newRow("0") << (unsigned char) 0x01 << "\x08"
+                       << (unsigned char) 0x00 << (unsigned char) 0x01
+                       << (unsigned char) 0xCC << (unsigned char) 0xCC;
+    QTest::newRow("1") << (unsigned char) 0x01 << "\x08"
+                       << (unsigned char) 0x00 << (unsigned char) 0x01
+                       << (unsigned char) 0xCC << (unsigned char) 0xCC;
+    QTest::newRow("2") << (unsigned char) 0x01 << "\x08"
+                       << (unsigned char) 0xCC << (unsigned char) 0xCC
+                       << (unsigned char) 0xCC << (unsigned char) 0xCC;
+}
+
+void ModbusTest::f8_Snd(){
+    QFETCH(unsigned char, addr);
+    QFETCH(QString, function);
+    QFETCH(QString, data);
+    testPort();
+    Modbus* m = new Modbus(new Configurator());
+    m->connect(addr);
+    Message* mesg = new Message(function, data);
+    QVector<Message>* messages = new QVector<Message>();
+    messages->append(*mesg);
+    m->write(*messages);
+    unsigned char* answer = new unsigned char[6];
+    if ((readed = read(fd, answer, 6)) < 0)
+        qDebug() << "Read error!" << errno;
+    if ((readed = read(fd, &crc, sizeof(short))) < 0)
+        qDebug() << "CRC read error";
+    QCOMPARE(answer[0], addr);
+    QCOMPARE(answer[1], (unsigned char) function.toStdString()[1]);
+    QCOMPARE(answer[3], (unsigned char) data.toAscii()[2]);
+    delete[] answer;
+}
+
+void ModbusTest::f8_Snd_data(){
+    QTest::addColumn<unsigned char>("addr");
+    QTest::addColumn<QString>("function");
+    QTest::addColumn<QString>("data");
+    QTest::newRow("0") << (unsigned char) 0x01 << "\x01\x08" << "\00\01\02\03";
+    QTest::newRow("1") << (unsigned char) 0x01 << "\x01\x08" << "\00\04\02\03";
+    QTest::newRow("2") << (unsigned char) 0x01 << "\x01\x08" << "\00\08\04\03";
 }

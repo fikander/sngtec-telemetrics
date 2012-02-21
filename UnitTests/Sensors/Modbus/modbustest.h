@@ -23,10 +23,14 @@ private slots:
     void f7_Rec_data();
     void f0C_Rec();
     void f0C_Rec_data();
+    void f8_Rec();
+    void f8_Rec_data();
+    void f8_Snd();
+    void f8_Snd_data();
 
 private:
     void testPort();
-    short countCRC(unsigned char* array, int array_length);
+    unsigned short countCRC(unsigned char* array, int array_length);
     int fd;
 };
 
