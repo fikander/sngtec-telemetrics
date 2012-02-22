@@ -145,8 +145,33 @@ bool SngMsgParser::parseDimm(char * msg, QString & res)
 
 bool SngMsgParser::parseTime(char * msg, QString & res)
 {
-    //TODO
-    return true;
+    QString hours = byteToString(msg[0]);
+    QString min = byteToString(msg[1]);
+    QString sec = byteToString(msg[2]);
+    int h = hours.toInt();
+    int m = min.toInt();
+    int s = sec.toInt();
+
+    if (h > 23)
+        return true;
+    else
+        res.append(hours).append(":");
+
+    if (m > 59)
+        return true;
+    else if (m < 10)
+        res.append("0");
+
+    res.append(min).append(":");
+
+    if (s > 59)
+        return true;
+    else if(s < 10)
+        res.append("0");
+
+    res.append(sec);
+
+    return checkZeros(&msg[3], 1);
 }
 
 bool SngMsgParser::parseDate(char * msg, QString & res)

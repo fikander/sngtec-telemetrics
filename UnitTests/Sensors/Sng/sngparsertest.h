@@ -24,13 +24,13 @@ private slots:
     void parseMsgDimm();
     void parseMsgDimm_data();
     void parseMsgTime();
-    void prepareMsgTime_data();
-    void prepareMsgDate();
-    void prepareMsgDate_data();
-    void prepareMsgTemp();
-    void prepareMsgTemp_data();
-    void prepareMsgValue();
-    void prepareMsgValue_data();
+    void parseMsgTime_data();
+    void parseMsgDate();
+    void parseMsgDate_data();
+    void parseMsgTemp();
+    void parseMsgTemp_data();
+    void parseMsgValue();
+    void parseMsgValue_data();
 
     void init(char*);
 

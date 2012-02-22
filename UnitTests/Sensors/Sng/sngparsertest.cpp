@@ -157,39 +157,44 @@ void SngMsgParserTest::parseMsgDimm_data()
 
 void SngMsgParserTest::parseMsgTime()
 {
-//    QFETCH(QString, time);
-//    QFETCH(char, hours);
-//    QFETCH(char, min);
-//    QFETCH(char, sec);
-//    char msg[14];
+    QFETCH(QString, time);
+    QFETCH(char, hours);
+    QFETCH(char, min);
+    QFETCH(char, sec);
 
-//    SngMsgCreator msgCreator;
-//    SngFrame frame(defaultAddr, defaultAddr, SngTime, time);
-//    msgCreator.prepareMsg(frame, msg);
+    char msg[14];
+    init(msg);
 
-//    QCOMPARE(msg[8], '\x03');
-//    QCOMPARE(msg[9], hours);
-//    QCOMPARE(msg[10], min);
-//    QCOMPARE(msg[11], sec);
-//    QCOMPARE(msg[12], '\x00');
+    SngMsgParser msgParser;
+    SngFrame frame;
+
+    msg[8] = '\x03';
+    msg[9] = hours;
+    msg[10] = min;
+    msg[11] = sec;
+
+    QCOMPARE(msgParser.parseMsg(msg, frame), false);
+    QCOMPARE(frame.type, SngTime);
+//    qDebug() << frame.value << "|" << time;
+    QCOMPARE(frame.value, time);
 }
 
-void SngMsgParserTest::prepareMsgTime_data()
+void SngMsgParserTest::parseMsgTime_data()
 {
-//    QTest::addColumn<QString>("time");
-//    QTest::addColumn<char>("hours");
-//    QTest::addColumn<char>("min");
-//    QTest::addColumn<char>("sec");
-//    QTest::newRow("0") << "12:48:31" << '\x0c' << '\x30' << '\x1f';
-//    QTest::newRow("1") << "1:02:03" << '\x01' << '\x02' << '\x03';
-//    QTest::newRow("2") << "8:42:12" << '\x08' << '\x2a' << '\x0c';
-//    QTest::newRow("3") << "12:00:00" << '\x0c' << '\x00' << '\x00';
-//    QTest::newRow("4") << "0:00:00" << '\x00' << '\x00' << '\x00';
-//    QTest::newRow("5") << "23:59:59" << '\x17' << '\x3b' << '\x3b';
-//    QTest::newRow("6") << "12:15:19" << '\x0c' << '\x0f' << '\x13';
+    QTest::addColumn<QString>("time");
+    QTest::addColumn<char>("hours");
+    QTest::addColumn<char>("min");
+    QTest::addColumn<char>("sec");
+    QTest::newRow("0") << "12:48:31" << '\x0c' << '\x30' << '\x1f';
+    QTest::newRow("1") << "1:02:03" << '\x01' << '\x02' << '\x03';
+    QTest::newRow("2") << "8:42:12" << '\x08' << '\x2a' << '\x0c';
+    QTest::newRow("3") << "12:00:00" << '\x0c' << '\x00' << '\x00';
+    QTest::newRow("4") << "0:00:00" << '\x00' << '\x00' << '\x00';
+    QTest::newRow("5") << "23:59:59" << '\x17' << '\x3b' << '\x3b';
+    QTest::newRow("6") << "12:15:19" << '\x0c' << '\x0f' << '\x13';
 }
 
-void SngMsgParserTest::prepareMsgDate()
+void SngMsgParserTest::parseMsgDate()
 {
 //    QFETCH(QString, date);
 //    QFETCH(char, day);
@@ -208,7 +213,7 @@ void SngMsgParserTest::prepareMsgDate()
 //    QCOMPARE(msg[12], '\x00');
 }
 
-void SngMsgParserTest::prepareMsgDate_data()
+void SngMsgParserTest::parseMsgDate_data()
 {
 //    QTest::addColumn<QString>("date");
 //    QTest::addColumn<char>("day");
@@ -223,7 +228,7 @@ void SngMsgParserTest::prepareMsgDate_data()
 //    QTest::newRow("6") << "9.09.1909" << '\x09' << '\x09' << '\x7c';
 }
 
-void SngMsgParserTest::prepareMsgTemp()
+void SngMsgParserTest::parseMsgTemp()
 {
     QFETCH(QString, temp);
     QFETCH(char, integ);
@@ -246,7 +251,7 @@ void SngMsgParserTest::prepareMsgTemp()
     QCOMPARE(frame.value, temp);
 }
 
-void SngMsgParserTest::prepareMsgTemp_data()
+void SngMsgParserTest::parseMsgTemp_data()
 {
     QTest::addColumn<QString>("temp");
     QTest::addColumn<char>("integ");
@@ -261,7 +266,7 @@ void SngMsgParserTest::prepareMsgTemp_data()
     QTest::newRow("6") << "25.4" << '\x19' << '\x04' << '\x00';
 }
 
-void SngMsgParserTest::prepareMsgValue()
+void SngMsgParserTest::parseMsgValue()
 {
     QFETCH(QString, expValue);
     QFETCH(char, valueByte);
@@ -280,7 +285,7 @@ void SngMsgParserTest::prepareMsgValue()
     QCOMPARE(frame.value, expValue);
 }
 
-void SngMsgParserTest::prepareMsgValue_data()
+void SngMsgParserTest::parseMsgValue_data()
 {
     QTest::addColumn<QString>("expValue");
     QTest::addColumn<char>("valueByte");
