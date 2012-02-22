@@ -9,7 +9,14 @@
 
 
 PachubeCloud::PachubeCloud(Configurator* config)
-    : currentPachubeXml(config->getFeed()), sendFeed(config->getFeed()), apiKey(config->getApiKey()) {
+    : currentPachubeXml(config->getFeed()), sendFeed(config->getFeed()), apiKey(config->getApiKey()),
+      last_time(QDateTime::currentDateTime()){
+    busy = false;
+    ordersFeed = sendFeed;
+}
+
+PachubeCloud::PachubeCloud(QString feed, QString sendfeed, QString key)
+    : currentPachubeXml(feed), sendFeed(feed), apiKey(key), last_time(QDateTime::currentDateTime()){
     busy = false;
     ordersFeed = sendFeed;
 }
@@ -94,6 +101,8 @@ void PachubeCloud::ordersDone(bool error) {
     else {
         PachubeXml ordersXml = PachubeXml::PachubeFromXml(orderHttp.readAll());
         QVector<Message> messages = ordersXml.getMessages();
+        removeOldOrders(messages);
+        updateOrders(messages);
         emit orderReceived(messages);
     }
 }
@@ -107,5 +116,24 @@ void PachubeCloud::catchSslErrors ( const QList<QSslError> & errors ) {
     for(QList<QSslError>::const_iterator it = errors.begin();
             it != errors.end(); ++it) {
         qDebug() << it->errorString();
+    }
+}
+
+void PachubeCloud::removeOldOrders(QVector<Message> &messages) {
+    for(QVector<Message>::iterator it = messages.begin();
+        it != messages.end(); ++it) {
+        if((last_messages.contains(it->key) &&
+           last_messages.find(it->key)->timestamp == it->timestamp) ||
+           it->timestamp < last_time) {
+            messages.erase(it);
+        }
+    }
+}
+
+void PachubeCloud::updateOrders(const QVector<Message> &messages) {
+    last_messages.clear();
+    for(QVector<Message>::const_iterator it = messages.begin();
+        it != messages.end(); ++it) {
+        last_messages.insert(it->key, *it);
     }
 }

@@ -2,6 +2,10 @@
 #include <QDate>
 #include <QTime>
 
+
+PachubeTime::PachubeTime() : time (QDateTime::currentDateTime()) {
+}
+
 PachubeTime::PachubeTime(const QString &timeString) {
     int year = timeString.mid(0, 4).toInt();
     int month = timeString.mid(5, 2).toInt();
@@ -33,4 +37,24 @@ QDateTime PachubeTime::getDateTime() {
 
 bool PachubeTime::operator == (const PachubeTime &rtime) {
     return this->time == rtime.time;
+}
+
+bool PachubeTime::operator != (const PachubeTime & rtime){
+    return this->time != rtime.time;
+}
+
+bool PachubeTime::operator <= (const PachubeTime & rtime) {
+    return this->time <= rtime.time;
+}
+
+bool PachubeTime::operator < (const PachubeTime & rtime) {
+    return this->time < rtime.time;
+}
+
+bool PachubeTime::operator > (const PachubeTime & rtime) {
+    return this->time > rtime.time;
+}
+
+bool PachubeTime::operator >= (const PachubeTime & rtime) {
+    return this->time >= rtime.time;
 }
