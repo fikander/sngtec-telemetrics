@@ -1,7 +1,7 @@
 #ifndef SNGCONNECTION_H
 #define SNGCONNECTION_H
 
-#include "Sensors/devconnection.h"
+#include "src/Sensors/devconnection.h"
 #include "sngphysicaladdress.h"
 #include "sngframe.h"
 #include "sngmsgcreator.h"

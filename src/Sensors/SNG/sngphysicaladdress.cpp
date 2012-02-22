@@ -20,6 +20,11 @@ char SngPhysicalAddress::getByteAt(int i)
     return bytes[i];
 }
 
+void SngPhysicalAddress::setByteAt(int i, char c)
+{
+    bytes[i] = c;
+}
+
 QString SngPhysicalAddress::toString()
 {
     QString res;
