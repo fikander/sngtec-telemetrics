@@ -21,8 +21,8 @@ class Modbus : public DevConnection {
     Q_OBJECT
 
   public:
-        Modbus* create(Configurator *config);
-        Modbus* clone(Configurator *config);
+        Modbus* create(Configurator *config, int no);
+        Modbus* clone(Configurator *config, int no);
         ~Modbus(); // was virtual
 
         Modbus(Configurator* config);

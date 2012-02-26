@@ -5,6 +5,7 @@
 #include <QTimer>
 #include <QDebug>
 #include <QQueue>
+#include <QVector>
 
 #include "Message/message.h"
 #include "Configurator/configurator.h"
@@ -20,20 +21,21 @@ class CloProxy : public QObject {
 
 private:
     int askInterval;
+    Configurator *configurator;
     DevProxy *dev;
     CloConnection *ioDevice;
     QQueue<Message> que;
+    void dispatchMessage(Message m);
+    QVector<DevProxy*> devList;
 
 public:
     CloProxy(Configurator *config);
-
     void connectDev(DevProxy *dv);
-
     QTimer *timer;
 
 public slots:
-void askServer();
-void queue(Message payload);
+    void askServer();
+    void queue(Message payload);
 };
 
 #endif // CLOPROXY_H

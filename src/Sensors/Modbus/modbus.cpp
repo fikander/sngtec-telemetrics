@@ -8,12 +8,12 @@
 #include <errno.h>
 
 
-Modbus* Modbus::create(Configurator *config){
+Modbus* Modbus::create(Configurator *config, int no){
     // TODO
     return new Modbus(config);
 }
 
-Modbus* Modbus::clone(Configurator *config){
+Modbus* Modbus::clone(Configurator *config, int no){
     // TODO
     return new Modbus(config);
 }

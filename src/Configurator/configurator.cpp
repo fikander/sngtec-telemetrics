@@ -26,7 +26,7 @@ Configurator::Configurator() {
 
     file.close();
 
-    QDomElement root = doc.documentElement();
+    root = doc.documentElement();
     QDomNode n;
     QDomElement e;
 
@@ -46,17 +46,24 @@ Configurator::Configurator() {
             }
         }
     }
-    // Read dev
-    n = root.firstChildElement("device");
-    if (n.isNull()) {
-        qCritical("Malformed config file - can't read device");
-    } else {
-        e = n.toElement();
 
-        if (e.tagName() == "device") {
-            devType = e.attribute("type", "");
-        }
+    // Count devices
+    e = root.firstChildElement("device");
+    devicesAmount = 0;
+    while (!e.isNull()) {
+        devicesAmount += 1;
+        e = e.nextSiblingElement("device");
     }
+
+    if (devicesAmount == 0) {
+        qCritical("Malformed config file - can't read device");
+    }
+
+    // This pointer will be used later when creating all the devices
+    devPointer = root.firstChildElement("device");
+    devNo = 0;
+
+    devDicts.resize(devicesAmount);
 }
 
 CloConnection* Configurator::giveCloud() { 
@@ -71,9 +78,13 @@ CloConnection* Configurator::giveCloud() {
     return cloud->create(this);
 }
 
-DevConnection* Configurator::giveDevice() {
+DevConnection* Configurator::readDevice(QDomElement &devPointer) {
+  //     qDebug() << "Attempting device read from" << devPointer.nodeName();
     DevConnection *device;
-
+    QDomElement e = devPointer;
+    QString devType = e.attribute("type", "");
+    QString devName = e.attribute("name", "");
+    // Create device
     if (devType == "sng") {
         device = new SngConnection();
     } else if (devType == "modbus") {
@@ -83,8 +94,49 @@ DevConnection* Configurator::giveDevice() {
         device = new MockDev();
     }
 
-    return device->create(this);
+    devNamesToNumbers[devName] = devNo;
+    devNumbersToNames[devNo] = devName;
+
+    // Put key-mappings-stuff into dictionary
+    QDomElement m = e.firstChildElement("mappings");
+
+    if (!m.isNull()) {
+        QDomNamedNodeMap mappings = m.attributes();
+
+        for (int i = 0; i < mappings.size(); i++) {
+            QDomNode nd = mappings.item(i);
+//            qDebug() << devNo << nd.nodeName() << nd.nodeValue();
+            devDicts[devNo].insert(nd.nodeName(), nd.nodeValue());
+        }
+    }
+
+
+    devPtrs.push_back(device);
+    return device;
 }
+
+DevConnection* Configurator::giveDevice() {
+    if (devPointer.isNull()) {
+        qWarning() << "Configurator: no more devices to read.";
+    }
+    DevConnection *device = readDevice(devPointer);
+
+    devNo += 1;
+    devPointer = devPointer.nextSiblingElement();
+
+    return device->create(this, devNo - 1);
+}
+
+
+QString Configurator::deviceTranslate(int no, QString key) {
+    if (!devDicts[no].contains(key)) {
+        qWarning() << "Device number: " << no << " asked for non-existent key: " << key;
+        return "";
+    } else {
+        return devDicts[no][key];
+    }
+}
+
 
 QString Configurator::getFeed() {
     return feedNo;
@@ -94,11 +146,13 @@ QString Configurator::getApiKey() {
     return apiKey;
 }
 
+// Do usuniecia
 QString Configurator::getDest()
 {
     return "2.3.4";
 }
 
+// Do usuneicia
 QString Configurator::getFrameType()
 {
     return "Value";

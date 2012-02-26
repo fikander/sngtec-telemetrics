@@ -8,14 +8,14 @@ class MockDev : public DevConnection
 {
 Q_OBJECT
 private:
-    MockDev(Configurator *config);
+    MockDev(Configurator *config, int no);
     QTimer *timer;
     int askInterval;
-
+    int number;
 public:
     MockDev();
-    virtual DevConnection* create(Configurator *config);
-    virtual DevConnection* clone(Configurator *config);
+    virtual DevConnection* create(Configurator *config, int no);
+    virtual DevConnection* clone(Configurator *config, int no);
     virtual ~MockDev();
 
     virtual void write(QVector<Message>);
