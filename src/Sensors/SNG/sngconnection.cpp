@@ -53,7 +53,7 @@ void SngConnection::readFromSensor()
     qDebug() << "read from sensor\n";
     char msg[SNG_FRAME_SIZE];
     int errNo = commServer->read(msg, SNG_FRAME_SIZE);
-    qDebug() << "przeczytano " << errNo << " bajtow\n";
+    qDebug() << "read " << errNo << " bytes\n";
 
     SngFrame frame;
 

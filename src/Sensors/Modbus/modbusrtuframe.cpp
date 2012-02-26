@@ -35,8 +35,9 @@ void ModbusRtuFrame::countCRC(){
     tmp[0] = addr;
     tmp[1] = function;
     memcpy(&tmp[2], data, data_length);
-    tmp[data_length + 2] = '\0';
-    crc = qChecksum((char*) tmp, data_length + 3);
+    tmp[data_length + 2] = '\0'; // to zatem niepotrzebne!
+    crc = qChecksum((char*) tmp, data_length + 2);
+    qDebug() << crc;
     delete []tmp;
 }
 

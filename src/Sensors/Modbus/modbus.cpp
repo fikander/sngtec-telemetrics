@@ -8,30 +8,31 @@
 #include <errno.h>
 
 
+const QString serial_port_name = "/dev/pts/4";
+
+
 Modbus* Modbus::create(Configurator *config, int no){
-    // TODO
     return new Modbus(config);
 }
 
 Modbus* Modbus::clone(Configurator *config, int no){
-    // TODO
+
     return new Modbus(config);
 }
 
 Modbus::Modbus(Configurator* new_config){
         config = new_config;
-        // Change after defining config
-        preparePort("/dev/pts/4");
+        preparePort(serial_port_name.toStdString().c_str());
         portNotifier = new QSocketNotifier(fd, QSocketNotifier::Read);
         QObject::connect(portNotifier, SIGNAL(activated(int)), this, SLOT(readFromSensor()));
-        qDebug() << "Modbus ready";
+        //qDebug() << "Modbus ready";
 }
 
 
 int Modbus::preparePort(std::string port){
         // Check params
         if ((fd = open(port.c_str(), O_RDWR | O_NOCTTY)) < 0) //without O_NONBLOCK
-            qDebug() << "Open port failure" << fd << "Errno: " << errno;
+            qDebug() << "Modbus: Opening port " << fd << " failure. Errno: " << errno << " !!!";
         termios* port_param = new termios;
         port_param->c_cflag = B9600 | CS8;
         port_param->c_iflag = IGNPAR;
@@ -40,22 +41,23 @@ int Modbus::preparePort(std::string port){
         port_param->c_cc[VMIN] = 1;
         port_param->c_cc[VTIME] = 0;
         if (tcsetattr(fd, TCSAFLUSH, port_param) < 0)
-            qDebug() << "Setting port attr error";
+            qDebug() << "Modbus: Setting port attr error. Errno: " << errno << " !!!";
         delete port_param;
         return 0;
 }
 
 int Modbus::connect(unsigned char addr){
-        sensor_addr = addr;
-        return 0;
+    sensor_addr.insert(addr);
+    return 0;
 }
 
-//Add more function codes
-//dane bda zle, to dostane jakiegos errora - brzmi ok
+
 ModbusRtuFrame* Modbus::decodeMessage(Message msg){
     ModbusRtuFrame* frame;
     unsigned char* data;
-    //read coils / discrete/ holding registers/ input registers
+    unsigned char sensor_address = msg.key.at(0).toAscii();
+    msg.key = msg.key.at(1);
+            //read coils / discrete/ holding registers/ input registers
     if ((msg.key == "\x01") || (msg.key == "\x02") || (msg.key == "\x03") || (msg.key == "\x04") ||
             (msg.key == "\x05") || (msg.key == "\x06")) {
         frame = new ModbusRtuFrame(msg.key.at(0).toAscii(), 4);
@@ -68,8 +70,26 @@ ModbusRtuFrame* Modbus::decodeMessage(Message msg){
     } else if ((msg.key == "\x07") || (msg.key == "\x0B") || (msg.key == "\x0C")){
         frame = new ModbusRtuFrame(msg.key.at(0).toAscii(), 0);
         qDebug() << "Dodalem!!";
-    } else if (msg.key == "8") {
+    } else if (msg.key == "\x08") {
         //diagnostics!
+        //at(0) = 0 dla wszystkich
+        if (msg.value.at(1).toAscii() == '\x00') {
+            frame = new ModbusRtuFrame(msg.key.at(0).toAscii(), 4);
+            data = new unsigned char[4];
+            data[0] = msg.value.at(0).toAscii();
+            data[1] = msg.value.at(1).toAscii();
+            data[2] = '\x54';
+            data[3] = '\x65';
+            frame ->setData(data,4);
+        } else {
+            frame = new ModbusRtuFrame(msg.key.at(0).toAscii(), 4);
+            data = new unsigned char[4];
+            data[0] = msg.value.at(0).toAscii();
+            data[1] = msg.value.at(1).toAscii();
+            data[2] = '\x00';
+            data[3] = '\x00';
+            frame ->setData(data,4);
+         }
     } else if (msg.key == "15") {
         char size = msg.value.at(4).toAscii();
         frame = new ModbusRtuFrame(msg.key.at(0).toAscii(), ((int) (size)) + 4);
@@ -112,9 +132,9 @@ ModbusRtuFrame* Modbus::decodeMessage(Message msg){
             data[i] = msg.value.at(i).toAscii();
         frame->setData(data, byte_count + 8);
     }
-    qDebug () << "koniec decoda";
+    //qDebug () << "koniec decoda";
     delete []data;
-    frame->setAddr(sensor_addr);
+    frame->setAddr(sensor_address);
     return frame;
 }
 
@@ -123,21 +143,21 @@ void Modbus::write( QVector<Message> messages){
                 ModbusRtuFrame* frame = decodeMessage(*it);
                 unsigned char** data = frame->toSend();
                 int temp = 0;
-                qDebug() << "Frame size: " << frame->showSize();
+                //qDebug() << "Frame size: " << frame->showSize();
                 for (int j = 0; j < 2; j++) {
                     if ((temp = ::write(fd, data[j], 1)) < 0)
-                        qDebug() << "Modbus write error!" << errno;
+                        qDebug() << "Modbus: write error!" << errno;
                 }
-                qDebug() << temp;
+                //qDebug() << temp;
                 if ((temp = ::write(fd, data[2], frame->showSize())) < 0)
-                    qDebug() << "Modbus data write error";
-                qDebug() << temp;
+                    qDebug() << "Modbus: data write error";
+                //qDebug() << temp;
                 if ((temp = ::write(fd, data[3], sizeof(short))) < 0)
-                    qDebug() << "Modbus crc write error";
-                qDebug() << temp;
+                    qDebug() << "Modbus: crc write error";
+                //qDebug() << temp;
                 delete []data;
                 delete frame;
-                qDebug() << "Modbus: writing finished";
+                //qDebug() << "Modbus: writing finished";
         }
 }
 
@@ -153,7 +173,7 @@ QVector<Message> Modbus::readAll(){
 void Modbus::readFromSensor(){
     unsigned char* answer = new unsigned char[3];
     unsigned char* answer_data;
-    short crc;
+    unsigned short crc;
     unsigned short sent_crc;
     int take_byte_count;
     int readed;
@@ -161,7 +181,7 @@ void Modbus::readFromSensor(){
     if ((readed = read(fd, answer, 2)) < 0)
         qDebug() << "Read error!" << errno;
     qDebug() << "Modbus: incoming transmission";
-    if (answer[1] < 0x80) {
+    if (answer[1] < 0x80) { // normal function
         if ((answer[1] == 0x01) || (answer[1] == 0x02) || (answer[1] == 0x03) ||
                 (answer[1] == 0x04) || (answer[1] == 0x0C)) {
             read(fd, &answer[2], 1);
@@ -175,15 +195,27 @@ void Modbus::readFromSensor(){
                    (answer[1] == 0x0F) || (answer[1] == 0x10)) {
             answer_data = new unsigned char[5];
             answer_size = 4;
-            read(fd, answer_data, 4);
+            read(fd, answer_data, answer_size);
             answer_data[4] = '\0';
             take_byte_count = 0;
         } else if (answer[1] == 0x07) {
             answer_data = new unsigned char[2];
             answer_size = 1;
-            read(fd, answer_data, 1);
+            read(fd, answer_data, answer_size);
             answer_data[1] = '\0';
             take_byte_count = 0;
+        } else if (answer[1] == 0x08) {
+            answer_data = new unsigned char[5];
+            answer_size = 4;
+            read(fd, answer_data, answer_size);
+            answer_data[4] = '\0';
+            if ((answer_data[1] == '\x00') && ((answer_data[2] != '\x54') || (answer_data[3] != '\x65'))) {
+                qDebug() << "Modbus: Function 0x08 with subfunction 0000 returned and failed!";
+                qDebug() << "Modbus: Wrong data returned by sensor";
+            } else {
+                qDebug() << "Modbus: Function 0x08 with subfunction 00" << answer_data[1] << " returned! ";
+            }
+
         } else if ((answer[1] == 0x18)) { // FIFO
             unsigned short size;
             read(fd, &size, 2);
@@ -207,18 +239,17 @@ void Modbus::readFromSensor(){
             answer_data[answer_size] = '\0';
             take_byte_count = 1;
         }
-        //qDebug() << "Modbus: Waiting for CRC";
         read(fd, &sent_crc, sizeof(short));
-        //qDebug() << "sent_crc:" << sent_crc;
         if(checkResponseCRC(answer, answer_data, answer_size, take_byte_count, sent_crc)) {
-            qDebug() << "Dziala!";
-            QString* ret = new QString();
-            (*ret).append(answer[0]).append(answer[1]);
-            Message mesg(*ret, QString((char *) answer_data));
-            msgQue.push_back(mesg);
-            delete ret;
-        } // do else?
-        //qDebug() << "Modbus: Read done!";
+            if (answer[1] != 0x08) {
+                QString* ret = new QString();
+                (*ret).append(answer[0]).append(answer[1]);
+                Message mesg(*ret, QString((char *) answer_data));
+                msgQue.push_back(mesg);
+                delete ret;
+            }
+        } else
+            qDebug() << "Modbus: CRC of received data is wrong!";
         delete []answer_data;
     } else { // error arrived
         read(fd, &answer[2], 1);

@@ -9,7 +9,7 @@ bool SngMsgParser::parseMsg(char * msg, SngFrame& frame)
 {
     SngFrameType type;
     QString value;
-    SngPhysicalAddress src, dest;
+//    SngPhysicalAddress src, dest;
 
     if (checkBeginAndEndOfFrame(msg))
     {
@@ -29,10 +29,11 @@ bool SngMsgParser::parseMsg(char * msg, SngFrame& frame)
         return true;
     }
 
-    qDebug() << "SngMsgParser::parseMsg: begin, end, type, value OK\n";
+//    qDebug() << "SngMsgParser::parseMsg: begin, end, type, value OK\n";
 
-    //getSrcAddr(msg, src);
-    //getDestAddr(msg, dest);
+    getSrcAddr(msg, frame.src);
+    getDestAddr(msg, frame.dest);
+//    qDebug() << "wyluskalem adresy: " << frame.src.toString() << " " << frame.dest.toString() << "\n";
 
     frame.type = type;
     frame.value = value;
@@ -144,8 +145,33 @@ bool SngMsgParser::parseDimm(char * msg, QString & res)
 
 bool SngMsgParser::parseTime(char * msg, QString & res)
 {
-    //TODO
-    return true;
+    QString hours = byteToString(msg[0]);
+    QString min = byteToString(msg[1]);
+    QString sec = byteToString(msg[2]);
+    int h = hours.toInt();
+    int m = min.toInt();
+    int s = sec.toInt();
+
+    if (h > 23)
+        return true;
+    else
+        res.append(hours).append(":");
+
+    if (m > 59)
+        return true;
+    else if (m < 10)
+        res.append("0");
+
+    res.append(min).append(":");
+
+    if (s > 59)
+        return true;
+    else if(s < 10)
+        res.append("0");
+
+    res.append(sec);
+
+    return checkZeros(&msg[3], 1);
 }
 
 bool SngMsgParser::parseDate(char * msg, QString & res)
@@ -206,10 +232,20 @@ QString SngMsgParser::byteToString(char c)
 
 void SngMsgParser::getSrcAddr(char * msg, SngPhysicalAddress & res)
 {
+    getAddr(&msg[2], res);
 }
 
 void SngMsgParser::getDestAddr(char * msg, SngPhysicalAddress & res)
 {
+    getAddr(&msg[5], res);
+}
+
+void SngMsgParser::getAddr(char * msg, SngPhysicalAddress & res)
+{
+    for (int i = 0; i <= 2; i++)
+    {
+        res.setByteAt(i, msg[i]);
+    }
 }
 
 

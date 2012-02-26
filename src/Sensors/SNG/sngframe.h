@@ -1,6 +1,6 @@
 #ifndef SNGFRAME_H
 #define SNGFRAME_H
-#include "Sensors/SNG/sngphysicaladdress.h"
+#include "src/Sensors/SNG/sngphysicaladdress.h"
 
 #define SNG_FRAME_TYPES_NR 6
 

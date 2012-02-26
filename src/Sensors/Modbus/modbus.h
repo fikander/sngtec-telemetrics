@@ -13,7 +13,7 @@
 #include <termios.h>
 #include <string>
 #include <QSocketNotifier>
-#include <QMap>
+#include <set>
 
 
 
@@ -44,14 +44,11 @@ class Modbus : public DevConnection {
                              int answer_size, int take_byte_count, unsigned short crc);
         int preparePort(std::string port);
 
-        //vector of sensors for rs458
-        unsigned char sensor_addr;
+        std::set<unsigned char> sensor_addr;
         int fd;
         QSocketNotifier* portNotifier;
         Configurator * config;
-
         QVector<Message> msgQue;
-        QMap<short, short> function_sizes; // Mapa to glupota?
 };
 
 #endif // MODBUS_H

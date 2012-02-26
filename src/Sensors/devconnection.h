@@ -3,8 +3,8 @@
 
 #include <QObject>
 #include <QVector>
-#include "Configurator/configurator.h"
-#include "Message/message.h"
+#include "src/Configurator/configurator.h"
+#include "src/Message/message.h"
 
 //Iterface for various sensors
 class DevConnection : public QObject

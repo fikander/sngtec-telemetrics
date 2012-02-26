@@ -1,6 +1,7 @@
 #include "pachubexml.h"
 #include "src/Message/message.h"
 #include <QDebug>
+#include "pachubetime.h"
 
 PachubeXml::PachubeXml(QString feed): feed(feed) {
     QDomElement eeml = xml.createElement("eeml");
@@ -68,7 +69,9 @@ QVector<Message> PachubeXml::getMessages() {
             if(!current_value.isNull()) {
                 QString timestamp = current_value.attribute("at");
                 QString value = current_value.text();
-                messages.push_back(Message(id, value));
+                Message message = Message(id, value);
+                message.timestamp = PachubeTime(timestamp).getDateTime();
+                messages.push_back(message);
             }
         }
     }

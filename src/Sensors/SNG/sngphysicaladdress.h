@@ -14,6 +14,7 @@ public:
     SngPhysicalAddress();
     SngPhysicalAddress(QString);
     char getByteAt(int);
+    void setByteAt(int, char);
 
     QString toString();
 };
