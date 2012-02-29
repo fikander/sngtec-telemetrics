@@ -25,7 +25,6 @@ Modbus::Modbus(Configurator* new_config){
         preparePort(serial_port_name.toStdString().c_str());
         portNotifier = new QSocketNotifier(fd, QSocketNotifier::Read);
         QObject::connect(portNotifier, SIGNAL(activated(int)), this, SLOT(readFromSensor()));
-        //qDebug() << "Modbus ready";
 }
 
 
@@ -53,8 +52,8 @@ int Modbus::connect(unsigned char addr){
 
 
 ModbusRtuFrame* Modbus::decodeMessage(Message msg){
-    ModbusRtuFrame* frame;
-    unsigned char* data;
+    ModbusRtuFrame* frame = NULL;
+    unsigned char* data = NULL;
     unsigned char sensor_address = msg.key.at(0).toAscii();
     msg.key = msg.key.at(1);
             //read coils / discrete/ holding registers/ input registers
@@ -70,26 +69,22 @@ ModbusRtuFrame* Modbus::decodeMessage(Message msg){
     } else if ((msg.key == "\x07") || (msg.key == "\x0B") || (msg.key == "\x0C")){
         frame = new ModbusRtuFrame(msg.key.at(0).toAscii(), 0);
         qDebug() << "Dodalem!!";
-    } else if (msg.key == "\x08") {
-        //diagnostics!
+    } else if (msg.key == "\x08") { // diagnostic
+        frame = new ModbusRtuFrame(msg.key.at(0).toAscii(), 4);
+        data = new unsigned char[4];
         //at(0) = 0 dla wszystkich
         if (msg.value.at(1).toAscii() == '\x00') {
-            frame = new ModbusRtuFrame(msg.key.at(0).toAscii(), 4);
-            data = new unsigned char[4];
             data[0] = msg.value.at(0).toAscii();
             data[1] = msg.value.at(1).toAscii();
             data[2] = '\x54';
             data[3] = '\x65';
-            frame ->setData(data,4);
         } else {
-            frame = new ModbusRtuFrame(msg.key.at(0).toAscii(), 4);
-            data = new unsigned char[4];
             data[0] = msg.value.at(0).toAscii();
             data[1] = msg.value.at(1).toAscii();
             data[2] = '\x00';
             data[3] = '\x00';
-            frame ->setData(data,4);
-         }
+        }
+        frame ->setData(data,4);
     } else if (msg.key == "15") {
         char size = msg.value.at(4).toAscii();
         frame = new ModbusRtuFrame(msg.key.at(0).toAscii(), ((int) (size)) + 4);
@@ -132,9 +127,9 @@ ModbusRtuFrame* Modbus::decodeMessage(Message msg){
             data[i] = msg.value.at(i).toAscii();
         frame->setData(data, byte_count + 8);
     }
-    //qDebug () << "koniec decoda";
     delete []data;
     frame->setAddr(sensor_address);
+    qDebug() << "koniec decoda";
     return frame;
 }
 
@@ -157,7 +152,7 @@ void Modbus::write( QVector<Message> messages){
                 //qDebug() << temp;
                 delete []data;
                 delete frame;
-                //qDebug() << "Modbus: writing finished";
+                qDebug() << "Modbus: writing finished";
         }
 }
 
@@ -171,22 +166,24 @@ QVector<Message> Modbus::readAll(){
 
 
 void Modbus::readFromSensor(){
+    // answer[0] = address, [1] = function, [2] = byte count
     unsigned char* answer = new unsigned char[3];
-    unsigned char* answer_data;
+    unsigned char* answer_data = NULL;
     unsigned short crc;
     unsigned short sent_crc;
-    int take_byte_count;
-    int readed;
-    int answer_size = 0;
-    if ((readed = read(fd, answer, 2)) < 0)
-        qDebug() << "Read error!" << errno;
+    short take_byte_count; // whether answer[2] is active
+    //int readed;
+    short answer_size = 0;
+    if ((read(fd, answer, 2)) < 2)
+        qDebug() << "Modbus: Read error!" << errno;
     qDebug() << "Modbus: incoming transmission";
     if (answer[1] < 0x80) { // normal function
         if ((answer[1] == 0x01) || (answer[1] == 0x02) || (answer[1] == 0x03) ||
-                (answer[1] == 0x04) || (answer[1] == 0x0C)) {
+                (answer[1] == 0x04) || (answer[1] == 0x0C) || (answer[1] == 0x14) ||
+                (answer[1] == 0x15) || (answer[1] == 0x17)) {
             read(fd, &answer[2], 1);
             answer_size = answer[2];
-            qDebug() << "answer size::" << answer_size;
+            //qDebug() << "answer size::" << answer_size;
             answer_data = new unsigned char[answer_size + 1];
             read(fd, answer_data, answer_size);
             answer_data[answer_size] = '\0';
@@ -215,29 +212,18 @@ void Modbus::readFromSensor(){
             } else {
                 qDebug() << "Modbus: Function 0x08 with subfunction 00" << answer_data[1] << " returned! ";
             }
-
+        } else if (answer[1] == 0x16) {
+            answer_data = new unsigned char[7];
+            answer_size = 6;
+            read(fd, answer_data, answer_size);
+            answer_data[6] = '\0';
+            take_byte_count = 0;
         } else if ((answer[1] == 0x18)) { // FIFO
-            unsigned short size;
-            read(fd, &size, 2);
-            answer_data = new unsigned char[size + 1];
-            answer_size = size;
-            read(fd, answer_data, size);
-            answer_data[size + 1] = '\0';
-            take_byte_count = 1;
-        } else if ((answer[1] == 0x14) || (answer[1] == 0x15)) { // read file record, 20
-            read(fd, &answer[2], 1);
-            answer_size = answer[2];
+            read(fd, &answer_size, 2);
             answer_data = new unsigned char[answer_size + 1];
             read(fd, answer_data, answer_size);
-            answer_data[answer_size] = '\0';
-            take_byte_count = 1;
-        } else if (answer[1] == 0x17) {
-            read(fd, &answer[2], 1);
-            answer_size = answer[2];
-            answer_data = new unsigned char[answer_size + 1];
-            read(fd, answer_data, answer_size);
-            answer_data[answer_size] = '\0';
-            take_byte_count = 1;
+            answer_data[answer_size + 1] = '\0';
+            take_byte_count = 1; // tutaj nie ma problemu? JEST!
         }
         read(fd, &sent_crc, sizeof(short));
         if(checkResponseCRC(answer, answer_data, answer_size, take_byte_count, sent_crc)) {
@@ -265,6 +251,7 @@ void Modbus::readFromSensor(){
         }
     }
     delete []answer;
+    emit readyToRead();
 }
 
 int Modbus::checkResponseCRC(unsigned char* answer, unsigned char* answer_data,

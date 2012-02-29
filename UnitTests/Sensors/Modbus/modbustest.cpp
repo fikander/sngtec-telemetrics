@@ -18,7 +18,7 @@ unsigned short ModbusTest::countCRC(unsigned char *array, int array_length){
 }
 
 void ModbusTest::testPort(){
-    std::string port2("/dev/pts/5");
+    std::string port2("/dev/pts/3");
     if ((fd = open(port2.c_str(), O_RDWR | O_NOCTTY)) < 0) //wywalamy O_NONBLOCK, wtedy dziala
         qDebug() << "ModbusTest: Open test port failure" << "Errno: " << errno;
     termios* port_param = new termios;
@@ -195,14 +195,12 @@ void ModbusTest::f7_11_12_Snd(){
     QVector<Message>* messages = new QVector<Message>();
     messages->append(*mesg);
     m->write(*messages);
-    //qDebug() << "No to czytam!";
-    //qDebug() << "hejho!";
+
     unsigned char* answer = new unsigned char[2];
     if ((readed = read(fd, answer, 2)) < 0)
         qDebug() << "Read error!" << errno;
-    //qDebug() << "Readed :" << readed;
-    //if ((readed = read(fd, &crc, sizeof(short))) < 0)
-    //    qDebug() << "CRC read error";
+    if ((readed = read(fd, &crc, sizeof(short))) < 0)
+        qDebug() << "CRC read error";
     QCOMPARE(answer[0], addr);
     QCOMPARE(answer[1], (unsigned char) function.toStdString()[1]);
     delete[] answer;
@@ -289,7 +287,7 @@ void ModbusTest::f7_Rec(){
     response[1] = function.at(0).toAscii();
     response[2] = data1;
     QString tmp;
-    tmp.append(data1).append('\0');
+    tmp.append(data1); //.append('\0');
     crc = qChecksum((char*) response, 3);
     if ((readed = write(fd, response, 3)) < 0)
         qDebug() << "Test: Write error!";
@@ -401,6 +399,7 @@ void ModbusTest::f0C_Rec_data(){
                        << (unsigned char) 0xB5 << (unsigned char) 0x52;
 }
 
+
 void ModbusTest::f8_Rec(){
     QFETCH(unsigned char, addr);
     QFETCH(QString, function);
@@ -445,6 +444,7 @@ void ModbusTest::f8_Rec_data(){
 }
 
 void ModbusTest::f8_Snd(){
+    //porownanie CRC?
     QFETCH(unsigned char, addr);
     QFETCH(QString, function);
     QFETCH(QString, data);
