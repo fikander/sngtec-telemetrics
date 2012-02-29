@@ -66,9 +66,8 @@ ModbusRtuFrame* Modbus::decodeMessage(Message msg){
         data[2] = msg.value.at(2).toAscii();
         data[3] = msg.value.at(3).toAscii();
         frame->setData(data, 4);
-    } else if ((msg.key == "\x07") || (msg.key == "\x0B") || (msg.key == "\x0C")){
+    } else if ((msg.key == "\x07") || (msg.key == "\x0B") || (msg.key == "\x0C")) {
         frame = new ModbusRtuFrame(msg.key.at(0).toAscii(), 0);
-        qDebug() << "Dodalem!!";
     } else if (msg.key == "\x08") { // diagnostic
         frame = new ModbusRtuFrame(msg.key.at(0).toAscii(), 4);
         data = new unsigned char[4];
@@ -85,26 +84,23 @@ ModbusRtuFrame* Modbus::decodeMessage(Message msg){
             data[3] = '\x00';
         }
         frame ->setData(data,4);
-    } else if (msg.key == "15") {
+    } else if ((msg.key == "\x0F") || (msg.key == "\x10")) {
         char size = msg.value.at(4).toAscii();
-        frame = new ModbusRtuFrame(msg.key.at(0).toAscii(), ((int) (size)) + 4);
-        data = new unsigned char[((int)(size)) + 4];
-        for (int i = 0; i < ((int)(size)) + 4; i++)
-            data[i] = msg.value.at(i).toAscii();
-        frame->setData(data, ((int)(size)) + 4);
-    } else if (msg.key == "16") {
-        char size = msg.value.at(4).toAscii();
-        frame = new ModbusRtuFrame(msg.key.at(0).toAscii(), ((int) (size)) * 2 + 4);
-        data = new unsigned char[((int)(size)) * 2 + 4];
-        for (int i = 0; i < ((int)(size)) * 2 + 4; i++)
-            data[i] = msg.value.at(i).toAscii();
-        frame->setData(data, ((int)(size)) * 2 + 4);
+        qDebug() << "Moje valki: " << msg.value;
+        qDebug() << "a size: " << (int) size;
+        frame = new ModbusRtuFrame(msg.key.at(0).toAscii(), ((int)(size)) + 4 + 1);
+        frame->setData(msg.value.toAscii());
+        //data = new unsigned char[(size) + 4];
+        //na memcpy!
+        //for (int i = 0; i < (size) + 4; i++)
+         //   data[i] = msg.value.at(i).toAscii();
+        //frame->setData(data, (size) + 4);
     } else if (msg.key == "24") {
         frame = new ModbusRtuFrame(msg.key.at(0).toAscii(), 2);
         data = new unsigned char[2];
         data[0] = msg.value.at(0).toAscii();
         data[1] = msg.value.at(1).toAscii();
-        frame->setData(data, 4);
+        frame->setData(data, 4); // WTF??
     } else if ((msg.key == "20") || (msg.key == "21")){ //read file record
         char byte_count = msg.value.at(0).toAscii();
         frame = new ModbusRtuFrame(msg.key.at(0).toAscii(), byte_count);
@@ -171,7 +167,7 @@ void Modbus::readFromSensor(){
     unsigned char* answer_data = NULL;
     unsigned short crc;
     unsigned short sent_crc;
-    short take_byte_count; // whether answer[2] is active
+    short take_byte_count = 0; // whether answer[2] is active
     //int readed;
     short answer_size = 0;
     if ((read(fd, answer, 2)) < 2)
@@ -183,7 +179,7 @@ void Modbus::readFromSensor(){
                 (answer[1] == 0x15) || (answer[1] == 0x17)) {
             read(fd, &answer[2], 1);
             answer_size = answer[2];
-            //qDebug() << "answer size::" << answer_size;
+            qDebug() << "answer size::" << answer_size;
             answer_data = new unsigned char[answer_size + 1];
             read(fd, answer_data, answer_size);
             answer_data[answer_size] = '\0';
@@ -222,8 +218,8 @@ void Modbus::readFromSensor(){
             read(fd, &answer_size, 2);
             answer_data = new unsigned char[answer_size + 1];
             read(fd, answer_data, answer_size);
-            answer_data[answer_size + 1] = '\0';
-            take_byte_count = 1; // tutaj nie ma problemu? JEST!
+            answer_data[answer_size] = '\0';
+            take_byte_count = 2;
         }
         read(fd, &sent_crc, sizeof(short));
         if(checkResponseCRC(answer, answer_data, answer_size, take_byte_count, sent_crc)) {
@@ -251,17 +247,21 @@ void Modbus::readFromSensor(){
         }
     }
     delete []answer;
-    emit readyToRead();
+    //emit readyToRead();
 }
 
 int Modbus::checkResponseCRC(unsigned char* answer, unsigned char* answer_data,
                              int answer_size, int take_byte_count,unsigned short crc) {
     int ret = 0;
-    unsigned char* tmp = new unsigned char[answer_size + 1 + 3];
+    unsigned char* tmp = new unsigned char[answer_size + 1 + 3 + 1];
     memcpy(tmp, answer, 3);
     if (! take_byte_count) {
         memcpy(&tmp[2], answer_data, answer_size);
         answer_size--;
+    } else if (take_byte_count == 2){ //for FIFO
+        memcpy(&tmp[2], &answer_size, sizeof(short));
+        memcpy(&tmp[4], answer_data, answer_size);
+        answer_size++;
     } else {
         memcpy(&tmp[3], answer_data, answer_size);
     }

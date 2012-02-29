@@ -26,6 +26,16 @@ void ModbusRtuFrame::setData(unsigned char* new_data, short new_data_length){
     countCRC();
 }
 
+void ModbusRtuFrame::setData(QByteArray new_data){
+    if (new_data.size() == data_length) {
+        memcpy(data, new_data.data(), new_data.size());
+        qDebug() << new_data.at(0) << new_data.at(1);
+        qDebug() << data[0] << data[1];
+    } else {
+        qDebug() << "Adding data error - wrong data size?" << data_length << new_data.size();
+    }
+}
+
 short int ModbusRtuFrame::showSize(){
     return data_length;
 }

@@ -27,6 +27,10 @@ private slots:
     void f8_Rec_data();
     void f8_Snd();
     void f8_Snd_data();
+    void f18_Rec();
+    void f18_Rec_data();
+    void f0F_10_Snd();
+    void f0F_10_Snd_data();
 
 private:
     void testPort();
