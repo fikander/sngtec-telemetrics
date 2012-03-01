@@ -29,8 +29,6 @@ void ModbusRtuFrame::setData(unsigned char* new_data, short new_data_length){
 void ModbusRtuFrame::setData(QByteArray new_data){
     if (new_data.size() == data_length) {
         memcpy(data, new_data.data(), new_data.size());
-        qDebug() << new_data.at(0) << new_data.at(1);
-        qDebug() << data[0] << data[1];
     } else {
         qDebug() << "Adding data error - wrong data size?" << data_length << new_data.size();
     }
@@ -47,7 +45,7 @@ void ModbusRtuFrame::countCRC(){
     memcpy(&tmp[2], data, data_length);
     tmp[data_length + 2] = '\0'; // to zatem niepotrzebne!
     crc = qChecksum((char*) tmp, data_length + 2);
-    qDebug() << "Nowe crc ramki: " << crc;
+    //qDebug() << "Nowe crc ramki: " << crc;
     delete []tmp;
 }
 

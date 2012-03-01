@@ -8,7 +8,7 @@
 #include <errno.h>
 
 
-const QString serial_port_name = "/dev/pts/4";
+const QString serial_port_name = "/dev/pts/2";
 
 
 Modbus* Modbus::create(Configurator *config, int no){
@@ -86,42 +86,22 @@ ModbusRtuFrame* Modbus::decodeMessage(Message msg){
         frame ->setData(data,4);
     } else if ((msg.key == "\x0F") || (msg.key == "\x10")) {
         char size = msg.value.at(4).toAscii();
-        qDebug() << "Moje valki: " << msg.value;
-        qDebug() << "a size: " << (int) size;
         frame = new ModbusRtuFrame(msg.key.at(0).toAscii(), ((int)(size)) + 4 + 1);
         frame->setData(msg.value.toAscii());
-        //data = new unsigned char[(size) + 4];
-        //na memcpy!
-        //for (int i = 0; i < (size) + 4; i++)
-         //   data[i] = msg.value.at(i).toAscii();
-        //frame->setData(data, (size) + 4);
-    } else if (msg.key == "24") {
-        frame = new ModbusRtuFrame(msg.key.at(0).toAscii(), 2);
-        data = new unsigned char[2];
-        data[0] = msg.value.at(0).toAscii();
-        data[1] = msg.value.at(1).toAscii();
-        frame->setData(data, 4); // WTF??
-    } else if ((msg.key == "20") || (msg.key == "21")){ //read file record
+    } else if ((msg.key == "\x14") || (msg.key == "\x15")){ //read file record
         char byte_count = msg.value.at(0).toAscii();
-        frame = new ModbusRtuFrame(msg.key.at(0).toAscii(), byte_count);
-        data = new unsigned char[(int)(byte_count)];
-        for (int i = 0; i < (int)(byte_count); i++) {
-            data[i] = msg.value.at(i).toAscii();
-        }
-        frame -> setData(data, (int)(byte_count) + 1);
-    } else if (msg.key == "22") { // mask
+        frame = new ModbusRtuFrame(msg.key.at(0).toAscii(), ((int)byte_count) + 1);
+        frame->setData(msg.value.toAscii());
+    } else if (msg.key == "\x16") { // mask
         frame = new ModbusRtuFrame(msg.key.at(0).toAscii(), 6);
-        data = new unsigned char[6];
-        for (int i = 0; i < 6; i++)
-            data[i] = msg.value.at(i).toAscii();
-        frame->setData(data, 6);
-    } else if (msg.key == "23") { //read/write multiple
-        char byte_count = msg.value.at(9).toAscii();
-        frame = new ModbusRtuFrame(msg.key.at(0).toAscii(), byte_count + 8);
-        data = new unsigned char[byte_count + 8];
-        for (int i = 0; i < byte_count + 8; i++)
-            data[i] = msg.value.at(i).toAscii();
-        frame->setData(data, byte_count + 8);
+        frame->setData(msg.value.toAscii());
+    } else if (msg.key == "\x17") { //read/write multiple
+        char byte_count = msg.value.at(8).toAscii();
+        frame = new ModbusRtuFrame(msg.key.at(0).toAscii(), byte_count + 9);
+        frame->setData(msg.value.toAscii());
+    } else if (msg.key == "\x18") {
+        frame = new ModbusRtuFrame(msg.key.at(0).toAscii(), 2);
+        frame->setData(msg.value.toAscii());
     }
     delete []data;
     frame->setAddr(sensor_address);
@@ -179,7 +159,7 @@ void Modbus::readFromSensor(){
                 (answer[1] == 0x15) || (answer[1] == 0x17)) {
             read(fd, &answer[2], 1);
             answer_size = answer[2];
-            qDebug() << "answer size::" << answer_size;
+            //qDebug() << "answer size::" << answer_size;
             answer_data = new unsigned char[answer_size + 1];
             read(fd, answer_data, answer_size);
             answer_data[answer_size] = '\0';

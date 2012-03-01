@@ -554,10 +554,10 @@ void ModbusTest::f0F_10_Snd() {
     Modbus* m = new Modbus(new Configurator());
     m->connect(addr);
     Message* mesg = new Message(function, msg_data);
-    qDebug() << "s" << msg_data;
-    qDebug() << "Ma byc val:" << mesg->value;
-    qDebug() << "do tego: " << mesg->value.at(0) << mesg->value.size();
-    qDebug() << "Array: " << mesg->value.toAscii().at(5);
+    //qDebug() << "s" << msg_data.size();
+    //qDebug() << "Ma byc val:" << mesg->value;
+    //qDebug() << "do tego: " << mesg->value.at(0) << mesg->value.size();
+    //qDebug() << "Array: " << mesg->value.toAscii().at(5);
     QVector<Message>* messages = new QVector<Message>();
     messages->append(*mesg);
     m->write(*messages);
@@ -568,7 +568,6 @@ void ModbusTest::f0F_10_Snd() {
         qDebug() << "CRC read error";
     QCOMPARE(answer[0], addr);
     QCOMPARE(answer[1], (unsigned char) function.toStdString()[1]);
-    qDebug() << answer[4] << (unsigned char) msg_data.toAscii().at(2);
     QCOMPARE(answer[4], (unsigned char) msg_data.toAscii().at(2));
     delete[] answer;
 }
@@ -578,7 +577,24 @@ void ModbusTest::f0F_10_Snd_data() {
     QTest::addColumn<QString>("function");
     QTest::addColumn<QString>("msg_data");
     QTest::addColumn<int>("size");
-    QTest::newRow("0") << (unsigned char) 0x01 << "\x01\x0F" << "\x55\x54\x55\xFF\x02\x4B\x50" << 9;
-    QTest::newRow("1") << (unsigned char) 0x02 << "\x02\x0F" << QString::fromLocal8Bit("\x55\x54\x00\x03\x04\x56\x57\x68\x66", 9) << 11;
-    QTest::newRow("2") << (unsigned char) 0x01 << "\x01\x10" << QString::fromLocal8Bit("\x00\x08\x04\x03\x03\x65\x56\x56", 8) << 10;
+    QTest::newRow("0") << (unsigned char) 0x01 << "\x01\x0F" <<
+                          QString::fromAscii("\x55\x54\x55\xFF\x02\x4B\x50", 7) << 9;
+    QTest::newRow("1") << (unsigned char) 0x02 << "\x02\x0F" <<
+                          QString::fromAscii("\x55\x54\x00\x03\x04\x56\x57\x68\x66", 9) << 11;
+    QTest::newRow("2") << (unsigned char) 0x01 << "\x01\x10" <<
+                          QString::fromAscii("\x00\x08\x04\x03\x03\x65\x56\x56", 8) << 10;
+    QTest::newRow("3") << (unsigned char) 0x01 << "\x01\x14" <<
+                          QString::fromAscii("\x0A\x55\x00\xFF\x52\x4B\x50\x53\x32\x23\x4D", 11) << 13;
+    QTest::newRow("4") << (unsigned char) 0x02 << "\x02\x14" <<
+                          QString::fromAscii("\x08\x54\x00\x03\x04\x56\x57\x68\x66", 9) << 11;
+    QTest::newRow("5") << (unsigned char) 0x01 << "\x01\x15" <<
+                          QString::fromAscii("\x0A\x08\x04\x03\x03\x65\x56\x56\x65\x34\xBA", 11) << 13;
+    QTest::newRow("6") << (unsigned char) 0x01 << "\x01\x16" <<
+                          QString::fromAscii("\x0A\x08\x04\x03\x03\x65", 6) << 8;
+    QTest::newRow("7") << (unsigned char) 0x01 << "\x01\x16" <<
+                          QString::fromAscii("\x0A\x08\xFF\xCF\x4D\x65", 6) << 8;
+    QTest::newRow("8") << (unsigned char) 0x01 << "\x01\x17" <<
+                          QString::fromAscii("\xCD\x08\x04\x03\x03\x65\x56\x56\x08\xBA\xBA\xBA\xBA\xBA\xBA\xBA\xBA", 17) << 19;
+    QTest::newRow("9") << (unsigned char) 0x01 << "\x01\x17" <<
+                          QString::fromAscii("\x0A\x08\x04\x03\x03\x65\x56\x56\x06\xBA\x56\x56\x56\x56\x56", 15) << 17;
 }
