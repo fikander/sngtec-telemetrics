@@ -8,6 +8,7 @@ class Message {
 public:
     Message();
     Message(QString key, QString val);
+    Message(QString key, QString val, QDateTime timestamp);
     QString key;
     QString value;
     QDateTime timestamp;

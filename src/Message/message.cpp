@@ -8,3 +8,9 @@ Message::Message(QString k, QString v) {
     value = v;
     timestamp = QDateTime::currentDateTime();
 }
+
+Message::Message(QString k, QString v, QDateTime t) {
+    key = k;
+    value = v;
+    timestamp = t; 
+}

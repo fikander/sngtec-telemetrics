@@ -21,6 +21,7 @@ public:
     PachubeCloud(QString feed, QString sendfeed, QString key);
     virtual CloConnection* create(Configurator*);
     virtual CloConnection* clone(Configurator*);
+    virtual void connect();
     virtual ~PachubeCloud();
     virtual void write(QVector<Message>);
     virtual QVector<Message> readAll();

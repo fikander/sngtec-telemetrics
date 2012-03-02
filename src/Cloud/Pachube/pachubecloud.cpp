@@ -21,7 +21,6 @@ PachubeCloud::PachubeCloud(QString feed, QString sendfeed, QString key)
     ordersFeed = sendFeed;
 }
      
-
 CloConnection* PachubeCloud::create(Configurator* config) {
     return new PachubeCloud(config);
 }
@@ -32,6 +31,8 @@ CloConnection* PachubeCloud::clone(Configurator* config) {
 
 PachubeCloud::~PachubeCloud() {
 }
+
+void PachubeCloud::connect() {}
 
 void PachubeCloud::write(QVector<Message> messages) {
     PachubeXml pxml(sendFeed);
@@ -70,8 +71,8 @@ void PachubeCloud::send() {
     busy = true;
 
     //connect(&http, SIGNAL(sslEBBrrors),  this, SLOT(catchSslErrors));
-    connect(&http, SIGNAL(sslErrors(const QList<QSslError> &)),  &http, SLOT(ignoreSslErrors()));
-    connect(&http, SIGNAL(done(bool)), this, SLOT(done(bool)));
+    QObject::connect(&http, SIGNAL(sslErrors(const QList<QSslError> &)),  &http, SLOT(ignoreSslErrors()));
+    QObject::connect(&http, SIGNAL(done(bool)), this, SLOT(done(bool)));
 
     QHttpRequestHeader header("PUT", "/v2/feeds/" + sendFeed + ".xml");
     header.setValue("Host", "api.pachube.com");
@@ -85,7 +86,7 @@ void PachubeCloud::send() {
 
 
 void PachubeCloud::getOrders() {
-    connect(&orderHttp, SIGNAL(done(bool)), this, SLOT(ordersDone(bool)));
+    QObject::connect(&orderHttp, SIGNAL(done(bool)), this, SLOT(ordersDone(bool)));
     QHttpRequestHeader header("GET", "/v2/feeds/" + ordersFeed + ".xml");
     header.setValue("Host", "api.pachube.com");
     header.setValue("X-PachubeApiKey", apiKey);
