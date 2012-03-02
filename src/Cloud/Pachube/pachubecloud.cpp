@@ -97,7 +97,7 @@ void PachubeCloud::getOrders() {
 
 void PachubeCloud::ordersDone(bool error) {
     if(error) {
-        qDebug() << "PachubeCloud oreders receive error: " <<  orderHttp.errorString();
+        qDebug() << "PachubeCloud orders receive error: " <<  orderHttp.errorString();
     }
     else {
         PachubeXml ordersXml = PachubeXml::PachubeFromXml(orderHttp.readAll());

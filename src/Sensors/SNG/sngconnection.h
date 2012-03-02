@@ -17,8 +17,8 @@ class SngConnection : public DevConnection
 
 public:
     SngConnection();
-    virtual DevConnection* create(Configurator *config);
-    virtual DevConnection* clone(Configurator *config);
+    virtual DevConnection* create(Configurator *config, int no);
+    virtual DevConnection* clone(Configurator *config, int no);
     virtual ~SngConnection();
 
     virtual void write(QVector<Message>);

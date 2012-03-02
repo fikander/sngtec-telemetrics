@@ -22,12 +22,12 @@ SngConnection::~SngConnection()
 {
 }
 
-DevConnection* SngConnection::create(Configurator *config)
+DevConnection* SngConnection::create(Configurator *config, int no)
 {
     return new SngConnection(config);
 }
 
-DevConnection* SngConnection::clone(Configurator *config)
+DevConnection* SngConnection::clone(Configurator *config, int no)
 {
     return new SngConnection(config);
 }
@@ -36,6 +36,7 @@ void SngConnection::write(QVector<Message> messages)
 {
     for (int i = 0; i < messages.size(); i++)
     {
+          qDebug() << "wysyp sie tu plox";
         sendMessage(messages[i]);
     }
 }

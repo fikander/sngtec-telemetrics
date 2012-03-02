@@ -5,8 +5,9 @@
 #include "Sensors/devconnection.h"
 
 CloProxy::CloProxy(Configurator *config) {
+    configurator = config;
     timer = new QTimer(this);
-    askInterval = 15 * 1000; // 15 sekund
+    askInterval = 5 * 1000; // 15 sekund
     connect(timer, SIGNAL(timeout()), this, SLOT(askServer()));
     timer->start(askInterval);
 
@@ -15,32 +16,54 @@ CloProxy::CloProxy(Configurator *config) {
 
 
 void CloProxy::connectDev(DevProxy *dv) {
-    dev = dv;
+    devList.push_back(dv);
+    // dev = dv;
+}
+
+void CloProxy::dispatchMessage(Message m) {
+    DevProxy *dev;
+    // Extract name from message key
+    QString name = m.key.section('|', 0, 0);
+
+    // Find the mapping in the devices table
+    dev = devList[configurator->devNamesToNumbers[name]];
+    // Prepare some payload
+    QVector<Message> payload;
+    m.key = m.key.section('|', 1);
+    payload.push_back(m);
+    dev->ioDevice->write(payload);
 }
 
 void CloProxy::askServer() {
    qDebug() << "Asking server..";
 
+   // sensors -> cloud
    if (!que.isEmpty()) {
-    Message qs = que.dequeue();
-    // qs.value = "100";
-    qDebug() << "Trying to send to server: " << qs.value;
+       Message qs = que.dequeue();
+       // qs.value = "100";
+       qDebug() << "Trying to send to server: " << qs.value;
 
-    if (!ioDevice->isBusy()) {
-        QVector<Message> msgs;
-        msgs.push_back(qs);
-        qDebug() << "Sending to server..";
-        ioDevice->write(msgs);
-    } else {
-        qDebug() << "Server busy.";
-    }
-}
+       if (!ioDevice->isBusy()) {
+           QVector<Message> msgs;
+           msgs.push_back(qs);
+           qDebug() << "Sending to server..";
+           ioDevice->write(msgs);
+       } else {
+           qDebug() << "Server busy.";
+       }
+   }
 
+
+   // cloud -> sensors
+   // Some stuff should be downloaded here..
 
    Message msg("status", "100");
-   QVector<Message> wiadomosci;
-   wiadomosci.push_back(msg);
-   dev->ioDevice->write(wiadomosci);
+   QVector<Message> incoming;
+   incoming.push_back(msg);
+
+   for (int i = 0; i < incoming.size(); i++) {
+        dispatchMessage(incoming[i]);
+   }
 }
 
 void CloProxy::queue(Message payload) {

@@ -5,7 +5,8 @@
 
 MockDev::MockDev() {}
 
-MockDev::MockDev(Configurator *config) {
+MockDev::MockDev(Configurator *config, int no) {
+    number = no;
     timer = new QTimer(this);
     askInterval = 5 * 1000; // 5 sekund
     connect(timer, SIGNAL(timeout()), this, SLOT(fakeSignal()));
@@ -13,19 +14,19 @@ MockDev::MockDev(Configurator *config) {
     timer->start(askInterval);
  }
 
-DevConnection* MockDev::create(Configurator *config) {
-    return new MockDev(config);
+DevConnection* MockDev::create(Configurator *config, int no) {
+    return new MockDev(config, no);
 }
 
-DevConnection* MockDev::clone(Configurator *config) {
-    return new MockDev(config);
+DevConnection* MockDev::clone(Configurator *config, int no) {
+    return new MockDev(config, no);
 }
 
 MockDev::~MockDev() {
 }
 
 void MockDev::fakeSignal() {
-    qDebug() << "MockDevice received fake data";
+    qDebug() << "Mock sensor number:" << number << "sending fake data";
     emit readyToRead();
 }
 
