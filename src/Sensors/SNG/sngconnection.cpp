@@ -110,6 +110,7 @@ SngFrameType SngConnection::parseFrameType(QString& s)
 
 Message SngConnection::translateFrameToMessage(SngFrame & frame)
 {
+
     return Message(sngFrameTypeNames[frame.type], frame.value);
 }
 
