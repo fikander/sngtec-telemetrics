@@ -1,12 +1,18 @@
 <!DOCTYPE TelemetronConfig>
 
 <telemetron>
-  <cloud type="pachube" 
+  <cloud type="mock" 
          feedno="42213" 
          apikey="7p1iGBicjYRQS20cEDjFdr3SnTldEyq-kL2XabP6iXw" />
 
-  <device type="sng">
-    <commserver address="127.0.0.1" 
-                port="7171" />
+  <device type="mock" name="alpha">
+    <mappings address="adress_1000"
+              port="123" />
   </device>
+
+  <device type="mock" name="beta">
+    <mappings address="adress_2000"
+              port="456" />
+  </device>
+
 </telemetron>

@@ -17,6 +17,7 @@ public:
 
     virtual CloConnection* create(Configurator *config) = 0;
     virtual CloConnection* clone(Configurator *config) = 0;
+    virtual void connect() = 0;
     virtual ~CloConnection() = 0;
     virtual void write(QVector<Message>) = 0;
     virtual QVector<Message> readAll() = 0;

@@ -25,6 +25,7 @@ SOURCES += src/main.cpp \
     src/Cloud/Pachube/pachubexml.cpp \
     src/Cloud/Pachube/pachubecloud.cpp \
     src/Cloud/Pachube/pachubetime.cpp \
+    src/Cloud/TopologyCloud/topologycloud.cpp \
     src/Sensors/devconnection.cpp \
     src/Sensors/Mock/mockdev.cpp \
     src/Sensors/SNG/sngconnection.cpp \
@@ -45,6 +46,7 @@ HEADERS += src/Sensors/devproxy.h \
     src/Cloud/Pachube/pachubexml.h \
     src/Cloud/Pachube/pachubecloud.h \
     src/Cloud/Pachube/pachubetime.h \
+    src/Cloud/TopologyCloud/topologycloud.h \
     src/Sensors/devconnection.h \
     src/Sensors/Mock/mockdev.h \
     src/Sensors/SNG/sngphysicaladdress.h \

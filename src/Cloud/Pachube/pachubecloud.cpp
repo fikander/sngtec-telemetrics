@@ -9,12 +9,18 @@
 
 
 PachubeCloud::PachubeCloud(Configurator* config)
-    : currentPachubeXml(config->getFeed()), sendFeed(config->getFeed()), apiKey(config->getApiKey()) {
+    : currentPachubeXml(config->getFeed()), sendFeed(config->getFeed()), apiKey(config->getApiKey()),
+      last_time(QDateTime::currentDateTime()){
+    busy = false;
+    ordersFeed = sendFeed;
+}
+
+PachubeCloud::PachubeCloud(QString feed, QString sendfeed, QString key)
+    : currentPachubeXml(feed), sendFeed(feed), apiKey(key), last_time(QDateTime::currentDateTime()){
     busy = false;
     ordersFeed = sendFeed;
 }
      
-
 CloConnection* PachubeCloud::create(Configurator* config) {
     return new PachubeCloud(config);
 }
@@ -25,6 +31,8 @@ CloConnection* PachubeCloud::clone(Configurator* config) {
 
 PachubeCloud::~PachubeCloud() {
 }
+
+void PachubeCloud::connect() {}
 
 void PachubeCloud::write(QVector<Message> messages) {
     PachubeXml pxml(sendFeed);
@@ -63,8 +71,8 @@ void PachubeCloud::send() {
     busy = true;
 
     //connect(&http, SIGNAL(sslEBBrrors),  this, SLOT(catchSslErrors));
-    connect(&http, SIGNAL(sslErrors(const QList<QSslError> &)),  &http, SLOT(ignoreSslErrors()));
-    connect(&http, SIGNAL(done(bool)), this, SLOT(done(bool)));
+    QObject::connect(&http, SIGNAL(sslErrors(const QList<QSslError> &)),  &http, SLOT(ignoreSslErrors()));
+    QObject::connect(&http, SIGNAL(done(bool)), this, SLOT(done(bool)));
 
     QHttpRequestHeader header("PUT", "/v2/feeds/" + sendFeed + ".xml");
     header.setValue("Host", "api.pachube.com");
@@ -78,7 +86,7 @@ void PachubeCloud::send() {
 
 
 void PachubeCloud::getOrders() {
-    connect(&orderHttp, SIGNAL(done(bool)), this, SLOT(ordersDone(bool)));
+    QObject::connect(&orderHttp, SIGNAL(done(bool)), this, SLOT(ordersDone(bool)));
     QHttpRequestHeader header("GET", "/v2/feeds/" + ordersFeed + ".xml");
     header.setValue("Host", "api.pachube.com");
     header.setValue("X-PachubeApiKey", apiKey);
@@ -89,11 +97,13 @@ void PachubeCloud::getOrders() {
 
 void PachubeCloud::ordersDone(bool error) {
     if(error) {
-        qDebug() << "PachubeCloud oreders receive error: " <<  orderHttp.errorString();
+        qDebug() << "PachubeCloud orders receive error: " <<  orderHttp.errorString();
     }
     else {
         PachubeXml ordersXml = PachubeXml::PachubeFromXml(orderHttp.readAll());
         QVector<Message> messages = ordersXml.getMessages();
+        removeOldOrders(messages);
+        updateOrders(messages);
         emit orderReceived(messages);
     }
 }
@@ -107,5 +117,24 @@ void PachubeCloud::catchSslErrors ( const QList<QSslError> & errors ) {
     for(QList<QSslError>::const_iterator it = errors.begin();
             it != errors.end(); ++it) {
         qDebug() << it->errorString();
+    }
+}
+
+void PachubeCloud::removeOldOrders(QVector<Message> &messages) {
+    for(QVector<Message>::iterator it = messages.begin();
+        it != messages.end(); ++it) {
+        if((last_messages.contains(it->key) &&
+           last_messages.find(it->key)->timestamp == it->timestamp) ||
+           it->timestamp < last_time) {
+            messages.erase(it);
+        }
+    }
+}
+
+void PachubeCloud::updateOrders(const QVector<Message> &messages) {
+    last_messages.clear();
+    for(QVector<Message>::const_iterator it = messages.begin();
+        it != messages.end(); ++it) {
+        last_messages.insert(it->key, *it);
     }
 }

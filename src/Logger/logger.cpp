@@ -12,7 +12,7 @@ Logger::Logger() {
     fileNo = 0;
 
     timer = new QTimer(this);
-    askInterval = 2 * 1000;
+    askInterval = 100;
     connect(timer, SIGNAL(timeout()), this, SLOT(processQueue()));
 
     logFile = new QFile(this->fileNames[this->fileNo]);
@@ -52,10 +52,10 @@ Logger* Logger::getInstance() {
 }
 
 void Logger::processQueue() {
-    int MAX_LINES = 10;
+    int MAX_LINES = 1000;
 
     QTextStream errStream(stderr);
-    errStream << "processing queue" << endl;
+  //  errStream << "processing queue" << endl;
 
     if (!this->queue.empty()) {
 
@@ -108,6 +108,6 @@ QString Logger::processMessage(QtMsgType type, QString msg) {
 }
 
 void Logger::pushMessage(QtMsgType type, QString msg) {
-timer->start(askInterval);
+    timer->start(askInterval);
     this->queue.append(QPair<QtMsgType, QString>(type, msg));
 }

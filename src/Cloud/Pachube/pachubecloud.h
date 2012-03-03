@@ -4,6 +4,7 @@
 #include "Cloud/cloconnection.h"
 #include "pachubexml.h"
 #include <QHttp>
+#include <QMap>
 #include "Message/message.h"
 
 class Configurator;
@@ -17,8 +18,10 @@ class PachubeCloud: public CloConnection{
     
 public:
     PachubeCloud(Configurator*);
+    PachubeCloud(QString feed, QString sendfeed, QString key);
     virtual CloConnection* create(Configurator*);
     virtual CloConnection* clone(Configurator*);
+    virtual void connect();
     virtual ~PachubeCloud();
     virtual void write(QVector<Message>);
     virtual QVector<Message> readAll();
@@ -27,6 +30,8 @@ public:
 
 private:
     void send();
+    void removeOldOrders(QVector<Message> &);
+    void updateOrders(const QVector<Message> &);
 
     PachubeXml currentPachubeXml;
     QString sendFeed;
@@ -35,6 +40,8 @@ private:
     bool busy;
     QHttp http;
     QHttp orderHttp;
+    QMap <QString, Message> last_messages;
+    QDateTime last_time;
 
 public slots:
     void done(bool);
