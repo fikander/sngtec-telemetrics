@@ -15,6 +15,7 @@ class Logger : public QObject
 public:
     static void loggingHandler(QtMsgType type, const char *msg);
     static Logger* getInstance();
+    QVector<QString> giveLogs();
     // static Logger& getInstance(Configurator *config);
 
 private:
