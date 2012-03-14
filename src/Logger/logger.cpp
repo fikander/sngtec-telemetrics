@@ -23,6 +23,43 @@ Logger::Logger() {
 
 }
 
+
+QVector<QString> Logger::giveLogs() {
+    QVector<QString> res;
+    int oldFileNo = (this->fileNo + 1) % this->fileNames.size();
+    int newFileNo = this->fileNo;
+    QFile oldFile(this->fileNames[oldFileNo]);
+    QFile newFile(this->fileNames[newFileNo]);
+    QString line;
+    // Read old?
+    oldFile.open(QIODevice::ReadOnly | QIODevice::Text);
+    QTextStream oldStream(&oldFile);
+
+    while (!oldStream.atEnd()) {
+        res.push_back(oldStream.readLine());
+    }
+
+    oldFile.close();
+    // Read new
+    newFile.open(QIODevice::ReadOnly | QIODevice::Text);
+    QTextStream newStream(&newFile);
+
+    while (!newStream.atEnd()) {
+        res.push_back(newStream.readLine());
+    }
+
+    newFile.close();
+
+    // Read queue
+    QListIterator<QPair<QtMsgType, QString> > it(this->queue);
+    while(it.hasNext()) {
+        QPair<QtMsgType, QString> msg = it.next();
+        res.push_back(processMessage(msg.first, msg.second));
+    }
+
+    return res;
+}
+
 void Logger::loggingHandler(QtMsgType type, const char *msg) {
     // Put on queue
     QString message(msg);
@@ -58,7 +95,6 @@ void Logger::processQueue() {
   //  errStream << "processing queue" << endl;
 
     if (!this->queue.empty()) {
-
         QTextStream fileStream(logFile);
 
         while (!this->queue.empty()) {   

@@ -110,10 +110,6 @@ bool SngMsgParser::parseOnOff(char * msg, QString & res)
         return true;
     }
 
-//    int val = msg[0];
-//    val = (val+256)%256;
-
-//    res.sprintf("%d", val);
     return checkZeros(&msg[1], 3);
 }
 
