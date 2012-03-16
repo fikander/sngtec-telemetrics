@@ -13,3 +13,9 @@ moc_*.*
 
 #ignore qtcreator settings
 *.pro.user
+
+#ignore tex logs
+*.aux *.toc /docs/konfiguracja.log
+
+#temp files
+*~

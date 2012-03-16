@@ -1,0 +1,67 @@
+\documentclass[11pt]{article}
+\usepackage[MeX]{polski}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{verbatim}
+
+\title{Projekt telemetryczny \\ Opis konfiguracji}
+\author{Marcin Fatyga \and Karol Polok \and Szymon Starzycki \and Piotr Szcześniak}
+
+\begin{document}
+\begin{titlepage}
+
+\maketitle
+
+\thispagestyle{empty}
+\end{titlepage}
+
+\tableofcontents
+
+\newpage
+
+\section{Wstęp}
+Niniejszy dokument zawiera opis konfiguracji Modułu Telemetrycznego.
+
+\section{Ogólnie o konfiguracji}
+
+\section{Konfiguracja chmury}
+
+\subsection{Pachube}
+
+\section{Konfiguracja sensorów}
+
+\subsection{Modbus}
+
+\subsection{SNG}
+
+\subsubsection{CommServer}
+Komunikacja pomiędzy Modułem Telemetrycznym a fizycznymi urządzeniami odbywa się przy pomocy
+programu CommServer. Połączenie z CommServerem odbywa się przy pomocy protokołu TCP/IP.
+W związku z tym podczas konfigurowania należy ustawić odpowiedni adres (zmienna \verb|address|)
+i numer portu (\verb|port|) serwera.
+
+\subsubsection{Przesyłanie do czujników}
+Aby otrzymaną od chmury wiadomość o kluczu \verb|key| przesłać do fizycznego urządzenia,
+należy ustawić odpowiadający jej adres rozgłoszeniowy (na którym nasłuchuje urządzenie), 
+oraz typ ramki. Adresy w SNG są 3-bajtowe, bajty oddzialane są kropkami. 
+Możliwe typy przesyłanych wartości to:\\
+\verb|OnOff, Dimm, Time, Date, Temp, Value|
+
+\subsubsection{Odbieranie od czujników}
+Aby wiadomość otrzymaną od czujnika przesłać do chmury, należy ustawić adresy na których urządzenie telemetryczne
+ma nasłuchiwać, oraz które wartości otrzymywane nas interesują. Do każdego takiego adresu i typu wartości
+należy przypisać klucz z chmury.
+
+\subsubsection{Przykład}
+\begin{verbatim}
+  <device type="sng" name="beta">
+    <mappings address="192.168.1.1"
+              port="8888"
+               />
+  </device>
+\end{verbatim}
+
+
+\section{Łączenie urządzeń w topologię}
+
+\end{document}
