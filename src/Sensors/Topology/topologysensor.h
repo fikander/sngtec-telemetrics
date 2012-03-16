@@ -1,17 +1,22 @@
 #ifndef TOPOLOGYSENSOR_H
 #define TOPOLOGYSENSOR_H
 
-#include <QObject>
+#include "Sensors/devconnection.h"
 
-class TopologySensor : public QObject
+class TopologySensor : public DevConnection
 {
     Q_OBJECT
+
 public:
-    explicit TopologySensor(QObject *parent = 0);
+    virtual DevConnection* create(Configurator *config, int no) = 0;
+    virtual DevConnection* clone(Configurator *config, int no) = 0;
+    virtual ~DevConnection() = 0;
+
+    virtual void write(QVector<Message>) = 0;
+    virtual QVector<Message> readAll() = 0;
 
 signals:
-
-public slots:
+    void readyToRead();
 
 };
 
