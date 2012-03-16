@@ -14,6 +14,9 @@ CloConnection* MockCloud::clone(Configurator*) {
 MockCloud::~MockCloud() {
 }
 
+void MockCloud::connect() {
+}
+
 void MockCloud::write(QVector<Message> messages) {
     for(MessagesSet::const_iterator it = messages.begin();
         it != messages.end(); ++it){
