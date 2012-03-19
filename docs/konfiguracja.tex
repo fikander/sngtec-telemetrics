@@ -32,6 +32,17 @@ Niniejszy dokument zawiera opis konfiguracji Modułu Telemetrycznego.
 
 \subsection{Modbus}
 
+\subsubsection{Port}
+Urządzenie Telemetryczne komunikuje się z sensorami za pomocą RS-485. W konfiguracji wymagane
+jest podanie właściwej nazwy portu szeregowego.
+
+\subsubsection{Komunikacja z chmurą}
+Format wiadomości Message w obu kierunkach (do i od) między chmurą i Urządzeniem Telemetrycznym jest identyczny.
+Pod wartością \verb|key| znajdują się 2 bity - adres urządzenia / nr funkcji. Wartość \verb|value| to z kolei dane
+dla tej funkcji (w przypadku komunikacji od chmury do urządzenia) lub zwrócone przez tę funkcję (w przeciwnym kierunku).
+Wszelkie wartości powinny być podawane w formacie szesnastkowym.
+
+
 \subsection{SNG}
 
 \subsubsection{CommServer}
