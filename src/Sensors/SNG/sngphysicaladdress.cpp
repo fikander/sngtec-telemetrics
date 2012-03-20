@@ -15,6 +15,36 @@ SngPhysicalAddress::SngPhysicalAddress(QString addr)
     }
 }
 
+void SngPhysicalAddress::make(QString addr)
+{
+    QStringList parsedAdrr = addr.split(".");
+    for (int i = 0; i < 3; i++)
+    {
+        bytes[i] = parsedAdrr[i].toInt();
+    }
+}
+
+bool SngPhysicalAddress::isWrongAddr(QString & addr)
+{
+    QStringList parsedAdrr = addr.split(".");
+    if (parsedAdrr.length() != 3)
+    {
+        return true;
+    }
+    bool ok = true;
+
+    for (int i = 0; i < 3; i++)
+    {
+        parsedAdrr[i].toInt(&ok, 10);
+        if (!ok)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 char SngPhysicalAddress::getByteAt(int i)
 {
     return bytes[i];

@@ -11,6 +11,11 @@
 
 #define SNG_FRAME_SIZE 14
 
+static const QString addresKey = "address";
+static const QString portKey = "port";
+static const QString physicalAddressKey = "physicalAddress";
+static const QString separator = "__";
+
 class SngConnection : public DevConnection
 {
     Q_OBJECT
@@ -33,23 +38,23 @@ public slots:
 
 private:
 
-    SngConnection(Configurator*);
+    SngConnection(Configurator*,int);
 
     // methods used when sending a message to sensor
     void sendMessage(Message&);
 
-    SngFrame translateMessageToFrame(Message&);
-    SngFrameType parseFrameType(QString&);
+    bool translateMessageToFrame(Message&, SngFrame&);
+    bool parseFrameType(QString&, SngFrameType&);
     Message translateFrameToMessage(SngFrame&);
 
     Configurator* conf;
+    int no;
 
     QString commServerHostName;
     qint16 port;
 
     QTcpSocket* commServer;
     SngPhysicalAddress physicalAddress;
-    SngPhysicalAddress defaultDest;
 
     SngMsgCreator msgCreator;
     SngMsgParser msgParser;

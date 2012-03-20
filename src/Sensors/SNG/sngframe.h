@@ -6,7 +6,7 @@
 
 enum SngFrameType
 {
-    SngOnOff, SngDimm, SngTime, SngDate, SngTemp, SngValue
+    SngOnOff = 0, SngDimm = 1, SngTime = 2, SngDate = 3, SngTemp = 4, SngValue = 5
 };
 
 static QString sngFrameTypeNames[] = {"OnOff", "Dimm", "Time", "Date", "Temp", "Value"};
