@@ -45,7 +45,7 @@ private:
 
     bool translateMessageToFrame(Message&, SngFrame&);
     bool parseFrameType(QString&, SngFrameType&);
-    Message translateFrameToMessage(SngFrame&);
+    bool translateFrameToMessage(SngFrame&, Message&);
 
     Configurator* conf;
     int no;

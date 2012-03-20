@@ -35,7 +35,6 @@ Powinien on rozpoczynać sie tagiem: (\verb|<!DOCTYPE TelemetronConfig>|). Cała
 \end{verbatim}
 
 
-
 \section{Konfiguracja chmury}
 
 \subsection{Pachube}
@@ -61,6 +60,8 @@ Opis powinien wyglądać jak:
 \end{verbatim}
 
 Klucze i wartości zdefiniowane są przez konkretne rodzaje sensorów. Mock nie jest konfigurowany.
+W kluczach i wartościach podwójne podkreślenie \verb|__| jest używane jako separator i nie
+powinno być używane w innych celach.
 
 
 \subsection{Modbus}
@@ -82,28 +83,69 @@ Aby skorzystać z sensora tego typu, należy w konfiguracji podać jako typ \ver
 Komunikacja pomiędzy Modułem Telemetrycznym a fizycznymi urządzeniami odbywa się przy pomocy
 programu CommServer. Połączenie z CommServerem odbywa się przy pomocy protokołu TCP/IP.
 W związku z tym podczas konfigurowania należy ustawić odpowiedni adres (zmienna \verb|address|)
-i numer portu (\verb|port|) serwera.
+i numer portu (\verb|port|) serwera. Należy ponadto podać fizyczny adres urządzenia w sieci 
+SNG (szczegóły niżej) jako parametr \verb|physicalAddress|.
 
 \subsubsection{Przesyłanie do czujników}
-Aby otrzymaną od chmury wiadomość o kluczu \verb|key| przesłać do fizycznego urządzenia,
+Aby otrzymaną od chmury wiadomość o pewnym kluczu przesłać do fizycznego urządzenia,
 należy ustawić odpowiadający jej adres rozgłoszeniowy (na którym nasłuchuje urządzenie), 
 oraz typ ramki. Adresy w SNG są 3-bajtowe, bajty oddzialane są kropkami. 
 Możliwe typy przesyłanych wartości to:\\
-\verb|OnOff, Dimm, Time, Date, Temp, Value|
+\verb|OnOff, Dimm, Time, Date, Temp, Value|\\
+Wartości te należy oddzielić separatorem \verb|__| (2 podkreślenia).\\
+\\
+Przykładowo chcąc aby wartość o kluczu \verb|sciemnianie| była przesyłana na adres
+grupowy \verb|1.2.3| i traktowana jako typ \verb|Dimm| należy ustawić:\\
+\verb|sciemnianie="1.2.3__Dimm"|\\
+\\
+Natomiast jeśli klucz \verb|steruj_swiatlem| ma odpowiadać za sterowanie poziomem oświetlenia,
+za te funkcje odpowiada adres grupowy \verb|2.3.4|, a wartość oczekiwana jest wartością typy
+\verb|Value| to w konfiguracji powinno się znaleźć:\\
+\verb|steruj_swiatlem="2.3.4__Value"|\\
+
 
 \subsubsection{Odbieranie od czujników}
-Aby wiadomość otrzymaną od czujnika przesłać do chmury, należy ustawić adresy na których urządzenie telemetryczne
-ma nasłuchiwać, oraz które wartości otrzymywane nas interesują. Do każdego takiego adresu i typu wartości
-należy przypisać klucz z chmury.
+Aby wiadomość otrzymaną od czujnika przesłać do chmury, należy ustawić adres urządzenia od którego odbieramy,
+adres na których urządzenie telemetryczne ma nasłuchiwać, oraz które wartości otrzymywane nas interesują i 
+przypisać do nich klucz z chmury.\\
+\\
+Aby móc odbierać sygnał o udanym włączeniu światła przez fizyczny obwód o adresie \verb|1.1.1|,
+który rozgłasza tę informację na adres grupowy \verb|1.2.5| i przekazac jako wiadomosc 
+\verb|swiatlo_wlaczono| do chmury powinniśmy skonfigurować moduł następująco:\\
+\verb|1.1.1__1.2.5__OnOff="swiatlo_wlaczono"|\\
+\\
+Jeśli czujnik temperatury o adresie fizycznym \verb|1.3.4| został skonfigurowany tak, że po przekroczeniu
+pewnej temperatury w pomieszczeniu rozsyła na adres grupowy \verb|1.0.0| informację o tej temperaturze,
+my zaś chcemy to odebrać i przesłać do chmury informację o kluczu \verb|temp_podniesiona| to powinniśmy w
+pliku konfiguracyjnym dodać wpis:\\
+\verb|1.3.4__1.0.0__Temp="temp_podniesiona"|  
 
 \subsubsection{Przykład}
+Przykładowa część pliku konfiguracyjnego dotycząca SNG może wyglądać tak:
 \begin{verbatim}
   <device type="sng" name="beta">
     <mappings address="192.168.1.1"
               port="8888"
+              physicalAddress="4.5.6"
+              sciemnianie="1.2.3__Dimm"
+              steruj_swiatlem="2.3.4__Value"
+              1.1.1__1.2.5__OnOff="swiatlo_wlaczono"
+              1.3.4__1.0.0__Temp="temp_podniesiona"
                />
   </device>
 \end{verbatim}
+
+\subsubsection{Format danych w SNG}
+Poprawne formaty wartości, obsługiwane w protokole SNG to:
+\begin{itemize}
+
+\item OnOff: \verb|on|, \verb|off|
+\item Dimm: \verb|inc|, \verb|endInc|, \verb|dec|, \verb|endDec|
+\item Time: \verb|hh:mm:ss|
+\item Date: \verb|dd.mm.yyyy|, przy czym rok jest liczony modulo 256 i w takiej też postaci jest odsyłany
+\item Temp: \verb|[-]A.B| , gdzie A należy do 0-255, B należy do 0-9,  minus opcjonalnie
+\item Value: \verb|0-255| 
+\end{itemize}
 
 
 \section{Łączenie urządzeń w topologię}

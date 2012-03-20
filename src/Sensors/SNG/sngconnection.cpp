@@ -60,13 +60,20 @@ void SngConnection::readFromSensor()
 
     if (msgParser.parseMsg(msg, frame))
     {
-        qDebug() << "SngConn::readFromSensor(): error in parsing\n";
+        qDebug() << "SngConnection::readFromSensor(): error in parsing\n";
         return;
     }
 
-    qDebug() << "SngConn::readFromSensor(): parsing OK\n";
+    qDebug() << "SngConnection::readFromSensor(): parsing frame OK\n";
 
-    msgQue.push_back(translateFrameToMessage(frame));
+    Message m;
+    if (translateFrameToMessage(frame, m))
+    {
+        qDebug() << "SngConnection::readFromSensor(): no configuration for frame, dropped: " << frame.toString();
+        return;
+    }
+
+    msgQue.push_back(m);
 
     qDebug() << "SngConn::readFromSensor(): get message ("
              << msgQue[msgQue.size()-1].key << ", " << msgQue[msgQue.size()-1].value
@@ -144,9 +151,19 @@ bool SngConnection::parseFrameType(QString& s, SngFrameType& frameType)
     return true;
 }
 
-Message SngConnection::translateFrameToMessage(SngFrame & frame)
+bool SngConnection::translateFrameToMessage(SngFrame & frame, Message& msg)
 {
+    QString src = frame.src.toString();
+    QString dest = frame.src.toString();
+    QString type = sngFrameTypeNames[frame.type];
 
-    return Message(sngFrameTypeNames[frame.type], frame.value);
+    QString key = conf->deviceTranslate(no, src + "__" + dest + "__" + type);
+
+    if (key.isEmpty())
+        return true;
+
+    msg.key = key;
+    msg.value = frame.value;
+    return false;
 }
 

@@ -172,8 +172,29 @@ bool SngMsgParser::parseTime(char * msg, QString & res)
 
 bool SngMsgParser::parseDate(char * msg, QString & res)
 {
-    // TODO
-    return true;
+    QString days = byteToString(msg[0]);
+    QString months = byteToString(msg[1]);
+    QString years = byteToString(msg[2]);
+    int d = days.toInt();
+    int m = months.toInt();
+
+    if ((d > 31) || (d == 0))
+        return true;
+    else if (d < 10)
+        res.append("0");
+    else
+        res.append(days).append(".");
+
+    if ((m > 12) || (m == 0))
+        return true;
+    else if (m < 10)
+        res.append("0");
+
+    res.append(months).append(".");
+
+    res.append(years);
+
+    return checkZeros(&msg[3], 1);
 }
 
 bool SngMsgParser::parseTemp(char * msg, QString & res)
