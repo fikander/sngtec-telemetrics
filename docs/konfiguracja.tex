@@ -23,15 +23,48 @@
 Niniejszy dokument zawiera opis konfiguracji Modułu Telemetrycznego.
 
 \section{Ogólnie o konfiguracji}
+Plik konfigurujacy powinien znajdować się w tym samym katalogu co binarka i nazywać się config.xml.
+
+Powinien on rozpoczynać sie tagiem: (\verb|<!DOCTYPE TelemetronConfig>|). Cała jego zawartość powinna znajdować się wewnątrz tagu (\verb|<telemetron>|); powinien on wyglądać mniej więcej tak:
+\begin{verbatim}
+<!DOCTYPE TelemetronConfig>
+<telemetron>
+        <!-- opis chmury -->
+        <!-- opisy sensorow -->
+</telemetron>
+\end{verbatim}
+
+
 
 \section{Konfiguracja chmury}
 
 \subsection{Pachube}
 
+Przykładowa konfiguracja dla chmury typu:
+\begin{verbatim}
+  <cloud type="pachube" 
+         feedno="42213" 
+         apikey="7p1iGBicjYRQS20cEDjFdr3SnTldEyq-kL2XabP6iXw" />
+\end{verbatim}
+
+
+
 \section{Konfiguracja sensorów}
+Obsługujemy sensory typów: sng, modbus, mock.
+
+Opis powinien wyglądać jak:
+\begin{verbatim}
+<device type="typ" name="nazwa">
+<mappings klucz="wartosc"
+          inny_klucz="inna_wartosc">
+</device>
+\end{verbatim}
+
+Klucze i wartości zdefiniowane są przez konkretne rodzaje sensorów. Mock nie jest konfigurowany.
+
 
 \subsection{Modbus}
-
+Aby skorzystać z sensora tego typu, należy w konfiguracji podać jako typ \verb|modbus|
 \subsubsection{Port}
 Urządzenie Telemetryczne komunikuje się z sensorami za pomocą RS-485. W konfiguracji wymagane
 jest podanie właściwej nazwy portu szeregowego.
@@ -44,7 +77,7 @@ Wszelkie wartości powinny być podawane w formacie szesnastkowym.
 
 
 \subsection{SNG}
-
+Aby skorzystać z sensora tego typu, należy w konfiguracji podać jako typ \verb|sng|
 \subsubsection{CommServer}
 Komunikacja pomiędzy Modułem Telemetrycznym a fizycznymi urządzeniami odbywa się przy pomocy
 programu CommServer. Połączenie z CommServerem odbywa się przy pomocy protokołu TCP/IP.
@@ -74,5 +107,12 @@ należy przypisać klucz z chmury.
 
 
 \section{Łączenie urządzeń w topologię}
+
+\section{Logowanie}
+
+Logi zapisywane są na zmianę do plików \verb|logs_1| i \verb|logs_2|. Po osiągnięciu limitu 1000 linii, obecny plik z logami jest zamykany. Następnie program otwiera drugi plik, czyści jego zawartość i kontynuuje tam zapis. 
+
+%% Ponadto komunikaty debugu są wypisywane na standardowe wyjście błędów.
+
 
 \end{document}

@@ -7,6 +7,7 @@
 #include "Sensors/SNG/sngconnection.h"
 #include "Sensors/Modbus/modbus.h"
 #include "Cloud/Pachube/pachubecloud.h"
+#include "Cloud/TopologyCloud/topologycloud.h"
 
 #include "Message/message.h"
 #include "Configurator/configurator.h"
@@ -69,8 +70,11 @@ Configurator::Configurator() {
 CloConnection* Configurator::giveCloud() { 
     CloConnection* cloud;
 
-    if (cloudType == "pachube")
+    if (cloudType == "pachube") {
         cloud = new PachubeCloud(this);
+    } else if (cloudType == "topology") {
+        cloud = new TopologyCloud(this);
+    }
     else {
         qWarning("Using mock cloud..");
         cloud = new MockCloud();
