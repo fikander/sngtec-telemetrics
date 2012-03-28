@@ -74,6 +74,10 @@ QVector<Message> TopologySensor::readAll()
 
 void TopologySensor::handleConnection()
 {
+    if (clientConnection != 0)
+    {
+        clientConnection->disconnectFromHost();
+    }
     clientConnection = tcpServer->nextPendingConnection();
     connect(clientConnection, SIGNAL(disconnected()), this, SLOT(deleteConnection()));
     connect(clientConnection, SIGNAL(readyRead()), this, SLOT(readData()));
