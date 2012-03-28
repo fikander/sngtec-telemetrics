@@ -2,25 +2,47 @@
 #define TOPOLOGYSENSOR_H
 
 #include "Sensors/devconnection.h"
+#include <QTcpServer>
+#include <QTcpSocket>
 
 class TopologySensor : public DevConnection
 {
     Q_OBJECT
 
 public:
-    virtual DevConnection* create(Configurator *config, int no)=0;
-    virtual DevConnection* clone(Configurator *config, int no)=0;
-    virtual ~TopologySensor() = 0;
+    virtual DevConnection* create(Configurator *, int);
+    virtual DevConnection* clone(Configurator *, int);
+    virtual ~TopologySensor();
 
-    virtual void write(QVector<Message>)=0;
-    virtual QVector<Message> readAll()=0;
+    virtual void write(QVector<Message>);
+    virtual QVector<Message> readAll();
 
 signals:
     void readyToRead();
 
+private slots:
+    void handleConnection();
+    void readData();
+    void deleteConnection();
+    void handleError(QAbstractSocket::SocketError);
+
 private:
+    TopologySensor(Configurator*, int);
+    void sendMsg();
 
+    QTcpServer *tcpServer;
+    QTcpSocket *clientConnection;
+    qint16 port;
 
+    QVector<Message> msgQue;
+    QVector<Message> msgToSend;
+    enum ReadingState { READ_key = 0,  READ_value = 1,  READ_timestamp = 2,  READ_max = 3};
+    static int max_messages;
+    static int max_messages_size;
+
+    int messages_toread;
+    QString read_values[3];
+    int read_state;
 };
 
 #endif // TOPOLOGYSENSOR_H

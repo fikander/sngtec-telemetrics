@@ -30,6 +30,7 @@ SOURCES += src/main.cpp \
     src/Sensors/Mock/mockdev.cpp \
     src/Sensors/SNG/sngconnection.cpp \
     src/Sensors/SNG/sngphysicaladdress.cpp \
+    src/Sensors/Topology/topologysensor.cpp \
     src/Sensors/Modbus/modbus.cpp \
     src/Sensors/Modbus/modbusrtuframe.cpp \
     src/Logger/loggingHandler.cpp \
@@ -51,6 +52,7 @@ HEADERS += src/Sensors/devproxy.h \
     src/Sensors/Mock/mockdev.h \
     src/Sensors/SNG/sngphysicaladdress.h \
     src/Sensors/SNG/sngconnection.h \
+    src/Sensors/Topology/topologysensor.h \
     src/Sensors/Modbus/modbus.h \
     src/Sensors/Modbus/modbusrtuframe.h \
     src/Logger/loggingHandler.h \
