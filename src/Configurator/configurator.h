@@ -22,6 +22,11 @@ public:
     CloConnection* giveCloud();
     QString getFeed();
     QString getApiKey();
+    QString getReceiveFeed();
+    QString getSendFeed();
+    QString getCloudAddress();
+    int getCloudPort();
+
 
     int devicesAmount;
     QString deviceTranslate(int no, QString msg);
@@ -38,6 +43,8 @@ private:
     QDomElement root;
     DevConnection* readDevice(QDomElement &devPointer);
     QVector<QHash<QString, QString> > devDicts;
+    QString receiveFeed, sendFeed, cloudAddress;
+    int cloudPort;
     QString feedNo;
     QString apiKey;
     QString cloudType, devType;
