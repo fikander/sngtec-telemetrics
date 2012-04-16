@@ -42,8 +42,14 @@ Configurator::Configurator() {
             cloudType = e.attribute("type", "");
 
             if (cloudType == "pachube") {
-                feedNo = e.attribute("feedno", "");
+                sendFeed = e.attribute("sendFeed", "");
+                receiveFeed = e.attribute("receiveFeed", "");
                 apiKey = e.attribute("apikey", "");
+            }
+
+            if (cloudType == "topology") {
+                cloudPort = e.attribute("port", "").toInt();
+                cloudAddress = e.attribute("address", "");
             }
         }
     }
@@ -139,6 +145,22 @@ QString Configurator::deviceTranslate(int no, QString key) {
     } else {
         return devDicts[no][key];
     }
+}
+
+QString Configurator::getReceiveFeed() {
+    return receiveFeed;
+}
+
+QString Configurator::getSendFeed() {
+    return sendFeed;
+}
+
+QString Configurator::getCloudAddress() {
+    return cloudAddress;
+}
+
+int Configurator::getCloudPort() {
+    return cloudPort;
 }
 
 
