@@ -165,6 +165,30 @@ Poprawne formaty wartości, obsługiwane w protokole SNG to:
 
 
 \section{Łączenie urządzeń w topologię}
+Urządzenia można łączyć w topologię gwiazdy przy użyciu sieci lokalnej. Sytuacja taka może mieć zastosowanie np w przypadku
+gdy tylko jedno urządzenie posiada modem GPS. Urządzenie to nazwiemy urządzeniem \textit{master} do którego podłączamy urządzenie typu
+\textit{slave}. Do jednego urządzenia \textit{master} można podłączyć wiele urządzeń typu \textit{slave}, z których każde może być podłączone
+tylko do jednego urządzenia \textit{master}.
+
+\subsection{Konfiguracja urządzenia typu master}
+W konfiguracji takiego urządzenia należy zadeklarować jeden z czujników jako sensor typu \verb|topology|. W konfiguracji
+należy określi parametr \verb|port| - port na którym ma się odbywać komunikacja. Na tym porcie odbywa się nasłuchiwanie.
+Przykładowy plik konfiguracyjny:
+\begin{verbatim}
+  <device type="topology" name="czujnik_topologia">
+    <mappings port="8888"/>
+  </device>
+\end{verbatim}
+
+\subsection{Konfiguracja urządzenia typu slave}
+W konfiguracji takiego urządzenia należy zadeklarować chumre typu \verb|topology|. W konfiguracji
+należy określi parametr \verb|port| - port na którym ma się odbywać komunikacja. Na tym porcie \textit{slave} próbuje połączyć
+się z \textit{master}. Przykładowy plik konfiguracyjny:
+\begin{verbatim}
+  <cloud type="topology" 
+         port="8888" />
+\end{verbatim}
+
 
 \section{Logowanie}
 
