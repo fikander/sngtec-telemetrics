@@ -17,7 +17,8 @@ SET( TELEMETRON_SRCS
   src/Cloud/cloconnection.cpp
   src/Cloud/Mock/mockcloud.cpp
   src/Cloud/Pachube/pachubexml.cpp 
-  src/Cloud/Pachube/pachubecloud.cpp 
+  src/Cloud/Pachube/pachubecloud.cpp
+  src/Cloud/Pachube/pachubetime.cpp 
   src/Sensors/Mock/mockdev.cpp
   src/Sensors/devproxy.cpp
   src/Sensors/devconnection.cpp 
@@ -28,6 +29,9 @@ SET( TELEMETRON_SRCS
   src/Sensors/SNG/sngmsgparser.cpp
   src/Sensors/Modbus/modbus.cpp
   src/Sensors/Modbus/modbusrtuframe.cpp
+  src/Sensors/Modbus/crc-count.cpp
+  src/Sensors/Topology/topologysensor.cpp
+  src/Cloud/TopologyCloud/topologycloud.cpp
 )
 
 # another list, this time it includes all header files that should be treated with moc
@@ -42,7 +46,8 @@ SET( TELEMETRON_MOC_HDRS
   src/Cloud/cloproxy.h 
   src/Cloud/Mock/mockcloud.h 
   src/Cloud/Pachube/pachubexml.h 
-  src/Cloud/Pachube/pachubecloud.h 
+  src/Cloud/Pachube/pachubecloud.h
+  src/Cloud/Pachube/pachubetime.h 
   src/Configurator/configurator.h 
   src/Sensors/devconnection.h 
   src/Sensors/SNG/sngconnection.h 
@@ -53,6 +58,9 @@ SET( TELEMETRON_MOC_HDRS
   src/Sensors/Mock/mockdev.h 
   src/Sensors/Modbus/modbus.h
   src/Sensors/Modbus/modbusrtuframe.h
+  src/Sensors/Modbus/crc-count.h
+  src/Cloud/TopologyCloud/topologycloud.h
+  src/Sensors/Topology/topologysensor.h
 )
 
 # enable warnings

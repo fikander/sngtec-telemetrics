@@ -1,5 +1,5 @@
 #include "modbusrtuframe.h"
-
+#include "Sensors/Modbus/crc-count.h"
 #include <QByteArray>
 #include <QDebug>
 #include <string>
@@ -8,7 +8,7 @@
 ModbusRtuFrame::ModbusRtuFrame(unsigned char new_function, int new_data_length){
     function = new_function;
     data_length = new_data_length;
-    data = new unsigned char[data_length + 1]; // 1 for '\0'
+    data = new unsigned char[data_length + 1];
     setAddr('1');
 }
 
@@ -43,9 +43,8 @@ void ModbusRtuFrame::countCRC(){
     tmp[0] = addr;
     tmp[1] = function;
     memcpy(&tmp[2], data, data_length);
-    tmp[data_length + 2] = '\0'; // to zatem niepotrzebne!
-    crc = qChecksum((char*) tmp, data_length + 2);
-    //qDebug() << "Nowe crc ramki: " << crc;
+    tmp[data_length + 2] = '\0';
+    crc = modbusCRC(tmp, data_length + 2);
     delete []tmp;
 }
 
@@ -58,7 +57,7 @@ unsigned char** ModbusRtuFrame::toSend(){
     return to_send;
 }
 
-void ModbusRtuFrame::destroyFrame(){
+void ModbusRtuFrame::destroyFrame(){ // to powinien być destruktor!
     delete []data;
 }
 

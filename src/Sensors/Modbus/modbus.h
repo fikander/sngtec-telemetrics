@@ -30,8 +30,6 @@ class Modbus : public DevConnection {
         void write(QVector<Message> messages);
         QVector<Message> readAll();
 
-        int connect(unsigned char addr);
-
   signals: // Device should connect this
         void readyToRead();
 
@@ -44,7 +42,6 @@ class Modbus : public DevConnection {
                              int answer_size, int take_byte_count, unsigned short crc);
         int preparePort(std::string port);
 
-        std::set<unsigned char> sensor_addr;
         int fd;
         QSocketNotifier* portNotifier;
         Configurator * config;
