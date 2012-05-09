@@ -1,13 +1,13 @@
 #include "topologycloud.h"
 #include "Message/message.h"
+#include "Configurator/configurator.h"
 
 
 int TopologyCloud::max_messages = 200;
 int TopologyCloud::max_messages_size = 600;
 
-TopologyCloud::TopologyCloud(Configurator*): messages_toread(0) {
+TopologyCloud::TopologyCloud(Configurator *config): addres(config->getCloudAddress()), port(config->getCloudPort()), messages_toread(0) {
     // Configurator: addr, port
-    qCritical() << "Not implemented";
 }
 
 TopologyCloud::TopologyCloud(QString addr, int port): addres(addr), port(port), messages_toread(0) {
