@@ -157,7 +157,7 @@ bool SngConnection::translateFrameToMessage(SngFrame & frame, Message& msg)
     QString dest = frame.src.toString();
     QString type = sngFrameTypeNames[frame.type];
 
-    QString key = conf->deviceTranslate(no, src + "__" + dest + "__" + type);
+    QString key = conf->deviceTranslate(no, "__" + src + "__" + dest + "__" + type);
 
     if (key.isEmpty())
         return true;
