@@ -32,6 +32,7 @@ void CloProxy::dispatchMessage(Message m) {
     m.key = m.key.section('|', 1);
     payload.push_back(m);
     dev->ioDevice->write(payload);
+    qDebug() << "Sent to device number:" << configurator->devNamesToNumbers[name] << " " << m.key << ";" << m.value3;
 }
 
 void CloProxy::askServer() {

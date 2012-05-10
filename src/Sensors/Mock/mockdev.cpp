@@ -26,7 +26,7 @@ MockDev::~MockDev() {
 
 void MockDev::fakeSignal() {
     qDebug() << "Mock sensor number:" << number << "sending fake data";
-    emit readyToRead2();
+    emit readyToRead();
 
 }
 

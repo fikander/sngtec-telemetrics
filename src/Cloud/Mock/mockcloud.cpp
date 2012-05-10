@@ -28,7 +28,7 @@ void MockCloud::write(QVector<Message> messages) {
 
 QVector<Message> MockCloud::readAll() {
     QVector<Message> incoming;
-    incoming.push_back(Message("cloud", "ok"));
+    incoming.push_back(Message("alpha|cloud", "ok"));
     return incoming;
 }
 
