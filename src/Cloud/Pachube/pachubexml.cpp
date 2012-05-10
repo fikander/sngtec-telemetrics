@@ -1,5 +1,5 @@
 #include "pachubexml.h"
-#include "src/Message/message.h"
+#include "Message/message.h"
 #include <QDebug>
 #include "pachubetime.h"
 

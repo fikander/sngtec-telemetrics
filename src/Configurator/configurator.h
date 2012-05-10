@@ -10,6 +10,7 @@
 #include <QHash>
 #include <QVector>
 #include <QDebug>
+//#include "Sensors/devconnection.h"
 
 class DevConnection;
 class CloConnection;

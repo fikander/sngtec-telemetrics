@@ -10,7 +10,7 @@ int main(int argc, char *argv[]) {
     // Since we don't have a debug build configuration,
     // this is commented for more convenient development
     // qInstallMsgHandler(Logger::getInstance()->loggingHandler);
-    /*QCoreApplication a(argc, argv);
+    QCoreApplication a(argc, argv);
 
     Configurator config;
     CloProxy cloud(&config);
@@ -24,7 +24,9 @@ int main(int argc, char *argv[]) {
     }
 
     qDebug() << "running..";
-    return a.exec(); */
+    return a.exec();
+
+    /*
     QCoreApplication a(argc, argv);
     Configurator config;
     Modbus* m = new Modbus(&config);
@@ -55,4 +57,5 @@ int main(int argc, char *argv[]) {
     //qDebug() << (int) s.at(1).toAscii();
     qDebug() << "running..";
     return a.exec();
+    */
 }
