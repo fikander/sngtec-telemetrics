@@ -3,8 +3,11 @@
 
 #include <QObject>
 #include <QVector>
-#include "src/Configurator/configurator.h"
-#include "src/Message/message.h"
+#include "Configurator/configurator.h"
+#include "Message/message.h"
+
+class DevConnection;
+class Message;
 
 //Iterface for various sensors
 class DevConnection : public QObject
@@ -12,7 +15,9 @@ class DevConnection : public QObject
     Q_OBJECT
 
 public:
-    virtual DevConnection* create(Configurator *config, int no) = 0;
+    //DevConnection* create(Configurator *config, int no); // = 0;
+
+    virtual DevConnection* create(Configurator *config, int no) = 0; // = 0;
     virtual DevConnection* clone(Configurator *config, int no) = 0;
     virtual ~DevConnection() = 0;
 
@@ -20,7 +25,7 @@ public:
     virtual QVector<Message> readAll() = 0;
 
 signals:
-    void readyToRead();
+    void readyToRead2();
 };
 
 #endif // DEVCONNECTION_H

@@ -16,7 +16,8 @@ public:
 
     virtual void write(QVector<Message>);
     virtual QVector<Message> readAll();
-
+    TopologySensor(Configurator*, int);
+    TopologySensor();
 signals:
     void readyToRead();
 
@@ -27,7 +28,7 @@ private slots:
     void handleError(QAbstractSocket::SocketError);
 
 private:
-    TopologySensor(Configurator*, int);
+
     void sendMsg();
 
     QTcpServer *tcpServer;

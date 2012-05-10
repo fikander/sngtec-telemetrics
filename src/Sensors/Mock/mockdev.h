@@ -21,8 +21,8 @@ public:
     virtual void write(QVector<Message>);
     virtual QVector<Message> readAll();
 
-signals:
-    void readyToRead();
+//signals:
+//    void readyToRead();
 
 public slots:
     void fakeSignal();

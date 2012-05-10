@@ -27,7 +27,9 @@ void MockCloud::write(QVector<Message> messages) {
 }
 
 QVector<Message> MockCloud::readAll() {
-    return QVector<Message>();
+    QVector<Message> incoming;
+    incoming.push_back(Message("cloud", "ok"));
+    return incoming;
 }
 
 bool MockCloud::isBusy() {

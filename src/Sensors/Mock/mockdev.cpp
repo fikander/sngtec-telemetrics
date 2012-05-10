@@ -8,9 +8,9 @@ MockDev::MockDev() {}
 MockDev::MockDev(Configurator *config, int no) {
     number = no;
     timer = new QTimer(this);
+    QSignalSpy spy(this, SIGNAL(readyToRead2()));
     askInterval = 5 * 1000; // 5 sekund
     connect(timer, SIGNAL(timeout()), this, SLOT(fakeSignal()));
-
     timer->start(askInterval);
  }
 
@@ -27,7 +27,8 @@ MockDev::~MockDev() {
 
 void MockDev::fakeSignal() {
     qDebug() << "Mock sensor number:" << number << "sending fake data";
-    emit readyToRead();
+    emit readyToRead2();
+
 }
 
 

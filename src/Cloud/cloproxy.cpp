@@ -57,12 +57,12 @@ void CloProxy::askServer() {
    // cloud -> sensors
    // Some stuff should be downloaded here..
 
-   Message msg("status", "100");
-   QVector<Message> incoming;
-   incoming.push_back(msg);
 
+   QVector<Message> incoming;
+   incoming = ioDevice->readAll();
    for (int i = 0; i < incoming.size(); i++) {
-        dispatchMessage(incoming[i]);
+       qDebug() << "Read from cloud" << incoming[i].key << " " << incoming[i].value;
+       dispatchMessage(incoming[i]);
    }
 }
 
