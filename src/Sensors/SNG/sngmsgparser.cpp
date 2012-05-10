@@ -19,7 +19,9 @@ bool SngMsgParser::parseMsg(char * msg, SngFrame& frame)
 
     if (getFrameType(msg, type))
     {
-        qDebug() << "SngMsgParser::parseMsg: wrong frame type; got 0x" << (int)msg[8] << "\n";
+        QString ft;
+        ft.sprintf("%#X", msg[8]);
+        qDebug() << "SngMsgParser::parseMsg: wrong frame type; got" << ft << "\n";
         return true;
     }
 

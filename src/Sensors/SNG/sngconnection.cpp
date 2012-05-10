@@ -111,7 +111,7 @@ bool SngConnection::translateMessageToFrame(Message& msg, SngFrame& frame)
 
     if (ls.length() != 2)
     {
-        qDebug() << "SngConnection::translateMessageToFrame: wrong configuration of device no " << no
+        qDebug() << "SngConnection::translateMessageToFrame: wrong configuration of device no" << no
                  << "with key: " << msg.key;
         return true;
     }
@@ -121,15 +121,15 @@ bool SngConnection::translateMessageToFrame(Message& msg, SngFrame& frame)
     SngFrameType frameType;
     if (parseFrameType(typ, frameType))
     {
-        qDebug() << "SngConnection::translateMessageToFrame: wrong configuration of device no " << no
-                 <<  ". Cannot parse frame type: " << typ;
+        qDebug() << "SngConnection::translateMessageToFrame: wrong configuration of device no" << no
+                 <<  ". Cannot parse frame type:" << typ;
         return true;
     }
 
     if (physicalAddress.isWrongAddr(addr))
     {
-        qDebug() << "SngConnection::translateMessageToFrame: wrong configuration of device no " << no
-                 <<  ". Cannot parse SNG address: " << addr;
+        qDebug() << "SngConnection::translateMessageToFrame: wrong configuration of device no" << no
+                 <<  ". Cannot parse SNG address:" << addr;
         return true;
     }
 
@@ -172,7 +172,10 @@ bool SngConnection::translateFrameToMessage(SngFrame & frame, Message& msg)
 QString SngConnection::printMsg(char *msg)
 {
     QString res = "";
-    for (int i = 0; i < 14; i++)
-        res += res.sprintf("%#x", (int) ((msg[i]+256)%256)) ;
+    for (int i = 0; i < 14; i++) {
+        QString s = "";
+        s.sprintf("%#X", (int) ((msg[i]+256)%256));
+        res += s;
+    }
     return res;
 }
