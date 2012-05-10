@@ -76,7 +76,7 @@ void CosmCloud::send() {
 
     QHttpRequestHeader header("PUT", "/v2/feeds/" + sendFeed + ".xml");
     header.setValue("Host", "api.cosm.com");
-    header.setValue("X-CosmApiKey", apiKey);
+    header.setValue("X-ApiKey", apiKey);
     header.setContentType("application/xml");
 
     http.setHost("api.cosm.com", QHttp::ConnectionModeHttps);
