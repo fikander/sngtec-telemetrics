@@ -51,10 +51,10 @@ QVector<Message> SngConnection::readAll()
 
 void SngConnection::readFromSensor()
 {
-    qDebug() << "SngConnection::readFromSensor(): read from sensor\n";
+    //qDebug() << "SngConnection::readFromSensor(): read from sensor\n";
     char msg[SNG_FRAME_SIZE];
     int errNo = commServer->read(msg, SNG_FRAME_SIZE);
-    qDebug() << "SngConnection::readFromSensor(): read " << errNo << " bytes\n";
+    qDebug() << "SngConnection::readFromSensor(): read " << errNo << " bytes";
 
     SngFrame frame;
 
@@ -64,7 +64,7 @@ void SngConnection::readFromSensor()
         return;
     }
 
-    qDebug() << "SngConnection::readFromSensor(): parsing frame OK\n";
+    qDebug() << "SngConnection::readFromSensor(): parsing frame OK";
 
     Message m;
     if (translateFrameToMessage(frame, m))
@@ -75,9 +75,9 @@ void SngConnection::readFromSensor()
 
     msgQue.push_back(m);
 
-    qDebug() << "SngConn::readFromSensor(): get message ("
+    qDebug() << "SngConnection::readFromSensor(): message ("
              << msgQue[msgQue.size()-1].key << ", " << msgQue[msgQue.size()-1].value
-             << ")\n";
+             << ") ready for cloud";
 
     emit readyToRead();
 }
@@ -93,7 +93,7 @@ void SngConnection::sendMessage(Message& msg)
     if (translateMessageToFrame(msg, frame))
     {
         qDebug() << "SngConnection::sendMessage: cannot translate msg to frame; dropping msg ("
-                 << msg.key << ", " << msg.value << ")\n";
+                 << msg.key << ", " << msg.value << ")";
         return;
     }
 
@@ -102,7 +102,7 @@ void SngConnection::sendMessage(Message& msg)
     msgCreator.prepareMsg(frame, msgToSend);
 
     qint64 dataLength = commServer->write(msgToSend, SNG_FRAME_SIZE);
-    qDebug() << "SngConnection::sendMessage(): sent " << dataLength << " bytes of data to sensor" << "\n";
+    qDebug() << "SngConnection::sendMessage(): sent " << dataLength << " bytes of data to sensor";
 }
 
 bool SngConnection::translateMessageToFrame(Message& msg, SngFrame& frame)
@@ -174,7 +174,7 @@ QString SngConnection::printMsg(char *msg)
     QString res = "";
     for (int i = 0; i < 14; i++) {
         QString s = "";
-        s.sprintf("%#X", (int) ((msg[i]+256)%256));
+        s.sprintf("%#X ", (int) ((msg[i]+256)%256));
         res += s;
     }
     return res;

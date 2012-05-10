@@ -9,25 +9,23 @@ bool SngMsgParser::parseMsg(char * msg, SngFrame& frame)
 {
     SngFrameType type;
     QString value;
-//    SngPhysicalAddress src, dest;
 
     if (checkBeginAndEndOfFrame(msg))
     {
-        qDebug() << "SngMsgParser::parseMsg: wrong begin and/or end of frame\n";
+        qDebug() << "SngMsgParser::parseMsg: wrong begin and/or end of frame";
         return true;
     }
 
     if (getFrameType(msg, type))
     {
         QString ft;
-        ft.sprintf("%#X", msg[8]);
-        qDebug() << "SngMsgParser::parseMsg: wrong frame type; got" << ft << "\n";
+        qDebug() << "SngMsgParser::parseMsg: wrong frame type";
         return true;
     }
 
     if (getValue(type, msg, value))
     {
-        qDebug() << "SngMsgParser::parseMsg: wrong value\n";
+        qDebug() << "SngMsgParser::parseMsg: wrong value";
         return true;
     }
 
