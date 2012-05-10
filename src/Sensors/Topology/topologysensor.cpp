@@ -8,14 +8,21 @@ TopologySensor::TopologySensor(Configurator * config, int no) :
 {
     port = config->deviceTranslate(no, "port").toInt();
 
-    connect(tcpServer, SIGNAL(newConnection()), this, SLOT(handleConnection()));
     tcpServer = new QTcpServer(this);
+
+    connect(tcpServer, SIGNAL(newConnection()), this, SLOT(handleConnection()));
 
     if (!tcpServer->listen(QHostAddress::Any, port)) {
         qCritical() << "Unable to start the server: " << tcpServer->errorString();
         return;
     }
 }
+
+
+TopologySensor::TopologySensor() {
+}
+
+
 
 DevConnection* TopologySensor::create(Configurator *config, int no)
 {

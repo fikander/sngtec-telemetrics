@@ -5,14 +5,13 @@
          feedno="42213" 
          apikey="7p1iGBicjYRQS20cEDjFdr3SnTldEyq-kL2XabP6iXw" />
 
-  <device type="mock" name="alpha">
-    <mappings address="adress_1000"
-              port="123" />
+  <device type="sng" name="alpha">
+    <mappings address="localhost"
+              port="8888"
+              physicalAddress="4.5.6"
+              __0.0.0__0.0.0__OnOff="wlacznik"
+              __0.0.0__0.0.0__Temp="temperatura"
+              __0.0.0__0.0.0__Value="wartosc"
+               />
   </device>
-
-  <device type="mock" name="beta">
-    <mappings address="adress_2000"
-              port="456" />
-  </device>
-
 </telemetron>

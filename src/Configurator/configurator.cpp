@@ -5,6 +5,7 @@
 #include "Cloud/Mock/mockcloud.h"
 #include "Sensors/Mock/mockdev.h"
 #include "Sensors/SNG/sngconnection.h"
+#include "Sensors/Topology/topologysensor.h"
 #include "Sensors/Modbus/modbus.h"
 #include "Cloud/Cosm/cosmcloud.h"
 #include "Cloud/TopologyCloud/topologycloud.h"
@@ -94,20 +95,6 @@ DevConnection* Configurator::readDevice(QDomElement &devPointer) {
     QDomElement e = devPointer;
     QString devType = e.attribute("type", "");
     QString devName = e.attribute("name", "");
-    // Create device
-    if (devType == "sng") {
-        device = new SngConnection();
-    } else if (devType == "modbus") {
-        device = new Modbus(this);
-    } else {
-        qWarning("Using mock device");
-        device = new MockDev();
-    }
-
-    devNamesToNumbers[devName] = devNo;
-    devNumbersToNames[devNo] = devName;
-
-    // Put key-mappings-stuff into dictionary
     QDomElement m = e.firstChildElement("mappings");
 
     if (!m.isNull()) {
@@ -115,10 +102,29 @@ DevConnection* Configurator::readDevice(QDomElement &devPointer) {
 
         for (int i = 0; i < mappings.size(); i++) {
             QDomNode nd = mappings.item(i);
-//            qDebug() << devNo << nd.nodeName() << nd.nodeValue();
+ //         qDebug() << devNo << nd.nodeName() << nd.nodeValue();
             devDicts[devNo].insert(nd.nodeName(), nd.nodeValue());
         }
     }
+
+    devNamesToNumbers[devName] = devNo;
+    devNumbersToNames[devNo] = devName;
+
+
+    // Create device
+    if (devType == "sng") {
+        device = new SngConnection();
+    } else if (devType == "topology") {
+        device = new TopologySensor();
+    } else if (devType == "modbus") {
+        device = new Modbus(this);
+    } else {
+        qWarning("Using mock device");
+        device = new MockDev();
+    }
+
+
+    // Put key-mappings-stuff into dictionary
 
 
     devPtrs.push_back(device);

@@ -1,5 +1,5 @@
 #include "cosmxml.h"
-#include "src/Message/message.h"
+#include "Message/message.h"
 #include <QDebug>
 #include "cosmtime.h"
 

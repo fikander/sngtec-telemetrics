@@ -9,31 +9,28 @@ bool SngMsgParser::parseMsg(char * msg, SngFrame& frame)
 {
     SngFrameType type;
     QString value;
-//    SngPhysicalAddress src, dest;
 
     if (checkBeginAndEndOfFrame(msg))
     {
-        qDebug() << "SngMsgParser::parseMsg: wrong begin and/or end of frame\n";
+        qDebug() << "SngMsgParser::parseMsg: wrong begin and/or end of frame";
         return true;
     }
 
     if (getFrameType(msg, type))
     {
-        qDebug() << "SngMsgParser::parseMsg: wrong frame type\n";
+        QString ft;
+        qDebug() << "SngMsgParser::parseMsg: wrong frame type";
         return true;
     }
 
     if (getValue(type, msg, value))
     {
-        qDebug() << "SngMsgParser::parseMsg: wrong value\n";
+        qDebug() << "SngMsgParser::parseMsg: wrong value";
         return true;
     }
 
-//    qDebug() << "SngMsgParser::parseMsg: begin, end, type, value OK\n";
-
     getSrcAddr(msg, frame.src);
     getDestAddr(msg, frame.dest);
-//    qDebug() << "wyluskalem adresy: " << frame.src.toString() << " " << frame.dest.toString() << "\n";
 
     frame.type = type;
     frame.value = value;

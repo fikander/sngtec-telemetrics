@@ -1,8 +1,8 @@
 #ifndef MODBUS_H
 #define MODBUS_H
 
-#include "src/Message/message.h"
-#include "src/Sensors/devconnection.h"
+#include "Message/message.h"
+#include "Sensors/devconnection.h"
 #include "modbusrtuframe.h"
 
 #include <QObject>

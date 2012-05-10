@@ -8,7 +8,8 @@ DevProxy::DevProxy() {}
 
 DevProxy::DevProxy(Configurator* config) {
     ioDevice = config->giveDevice();
-    connect(ioDevice, SIGNAL(readyToRead()), this, SLOT(readDevice()));
+    bool sukces = connect(ioDevice, SIGNAL(readyToRead2()), this, SLOT(readDevice()));
+    qDebug() << sukces;
 
 //    connect(ioDevice, SIGNAL(error(QAbstractSocket::SocketError)),
 //            this, SLOT(displayError(QAbstractSocket::SocketError)));
@@ -23,6 +24,7 @@ void DevProxy::connectCloud(CloProxy *cl) {
 }
 
 void DevProxy::readDevice() {
+    qDebug() << "Attempting read from device..";
     QVector<Message> payload = ioDevice->readAll();
     qDebug() << "Read data from device: " << payload[0].key << " " << payload[0].value;
     Message msg = payload[0];

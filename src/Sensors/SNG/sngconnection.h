@@ -1,7 +1,7 @@
 #ifndef SNGCONNECTION_H
 #define SNGCONNECTION_H
 
-#include "src/Sensors/devconnection.h"
+#include "Sensors/devconnection.h"
 #include "sngphysicaladdress.h"
 #include "sngframe.h"
 #include "sngmsgcreator.h"
@@ -46,6 +46,7 @@ private:
     bool translateMessageToFrame(Message&, SngFrame&);
     bool parseFrameType(QString&, SngFrameType&);
     bool translateFrameToMessage(SngFrame&, Message&);
+    QString printMsg(char* msg);
 
     Configurator* conf;
     int no;
