@@ -1,4 +1,4 @@
-#include "pachubecloud.h"
+#include "cosmcloud.h"
 #include <QDebug>
 #include <QVector>
 #include <QTimer>
@@ -8,65 +8,65 @@
 #include "Configurator/configurator.h"
 
 
-PachubeCloud::PachubeCloud(Configurator* config)
-    : currentPachubeXml(config->getFeed()), sendFeed(config->getFeed()), apiKey(config->getApiKey()),
+CosmCloud::CosmCloud(Configurator* config)
+    : currentCosmXml(config->getFeed()), sendFeed(config->getFeed()), apiKey(config->getApiKey()),
       last_time(QDateTime::currentDateTime()){
     busy = false;
     ordersFeed = sendFeed;
 }
 
-PachubeCloud::PachubeCloud(QString feed, QString sendfeed, QString key)
-    : currentPachubeXml(feed), sendFeed(feed), apiKey(key), last_time(QDateTime::currentDateTime()){
+CosmCloud::CosmCloud(QString feed, QString sendfeed, QString key)
+    : currentCosmXml(feed), sendFeed(feed), apiKey(key), last_time(QDateTime::currentDateTime()){
     busy = false;
     ordersFeed = sendFeed;
 }
      
-CloConnection* PachubeCloud::create(Configurator* config) {
-    return new PachubeCloud(config);
+CloConnection* CosmCloud::create(Configurator* config) {
+    return new CosmCloud(config);
 }
 
-CloConnection* PachubeCloud::clone(Configurator* config) {
-    return new PachubeCloud(config);
+CloConnection* CosmCloud::clone(Configurator* config) {
+    return new CosmCloud(config);
 }
 
-PachubeCloud::~PachubeCloud() {
+CosmCloud::~CosmCloud() {
 }
 
-void PachubeCloud::connect() {}
+void CosmCloud::connect() {}
 
-void PachubeCloud::write(QVector<Message> messages) {
-    PachubeXml pxml(sendFeed);
+void CosmCloud::write(QVector<Message> messages) {
+    CosmXml pxml(sendFeed);
     for(MessagesSet::const_iterator it = messages.begin(); it != messages.end(); ++it) {
         pxml.addData(*it);
     }
-    currentPachubeXml = pxml;
+    currentCosmXml = pxml;
     send();
 }
 
-QVector<Message> PachubeCloud::readAll() {
+QVector<Message> CosmCloud::readAll() {
     return QVector<Message>();
 }
 
-bool PachubeCloud::isBusy() {
+bool CosmCloud::isBusy() {
     return busy;
 }
 
-void PachubeCloud::done(bool error) {
+void CosmCloud::done(bool error) {
     if (error) {
-        qDebug() << "PachubeCloud send error: " <<  http.errorString();
+        qDebug() << "CosmCloud send error: " <<  http.errorString();
         QTimer::singleShot(100000, this, SLOT(retry()));
     }
     else {
         busy = false;
-        qDebug() << "pachube cloud done" << http.readAll();
+        qDebug() << "cosm cloud done" << http.readAll();
         emit readyToWrite();
     }
 }
-void PachubeCloud::retry(){
+void CosmCloud::retry(){
     send();
 }
 
-void PachubeCloud::send() {
+void CosmCloud::send() {
     qDebug() << "sending";
     busy = true;
 
@@ -75,32 +75,32 @@ void PachubeCloud::send() {
     QObject::connect(&http, SIGNAL(done(bool)), this, SLOT(done(bool)));
 
     QHttpRequestHeader header("PUT", "/v2/feeds/" + sendFeed + ".xml");
-    header.setValue("Host", "api.pachube.com");
-    header.setValue("X-PachubeApiKey", apiKey);
+    header.setValue("Host", "api.cosm.com");
+    header.setValue("X-CosmApiKey", apiKey);
     header.setContentType("application/xml");
 
-    http.setHost("api.pachube.com", QHttp::ConnectionModeHttps);
-    //http.setHost("api.pachube.com");
-    http.request(header, currentPachubeXml.getXml().toString().toUtf8());
+    http.setHost("api.cosm.com", QHttp::ConnectionModeHttps);
+    //http.setHost("api.cosm.com");
+    http.request(header, currentCosmXml.getXml().toString().toUtf8());
 }
 
 
-void PachubeCloud::getOrders() {
+void CosmCloud::getOrders() {
     QObject::connect(&orderHttp, SIGNAL(done(bool)), this, SLOT(ordersDone(bool)));
     QHttpRequestHeader header("GET", "/v2/feeds/" + ordersFeed + ".xml");
-    header.setValue("Host", "api.pachube.com");
-    header.setValue("X-PachubeApiKey", apiKey);
+    header.setValue("Host", "api.cosm.com");
+    header.setValue("X-CosmApiKey", apiKey);
 
-    orderHttp.setHost("api.pachube.com", QHttp::ConnectionModeHttps);
+    orderHttp.setHost("api.cosm.com", QHttp::ConnectionModeHttps);
     orderHttp.request(header);
 }
 
-void PachubeCloud::ordersDone(bool error) {
+void CosmCloud::ordersDone(bool error) {
     if(error) {
-        qDebug() << "PachubeCloud orders receive error: " <<  orderHttp.errorString();
+        qDebug() << "CosmCloud orders receive error: " <<  orderHttp.errorString();
     }
     else {
-        PachubeXml ordersXml = PachubeXml::PachubeFromXml(orderHttp.readAll());
+        CosmXml ordersXml = CosmXml::CosmFromXml(orderHttp.readAll());
         QVector<Message> messages = ordersXml.getMessages();
         removeOldOrders(messages);
         updateOrders(messages);
@@ -108,19 +108,19 @@ void PachubeCloud::ordersDone(bool error) {
     }
 }
 
-void PachubeCloud::getOrdersSlot() {
+void CosmCloud::getOrdersSlot() {
     getOrders();
 }
 
-void PachubeCloud::catchSslErrors ( const QList<QSslError> & errors ) {
-    qDebug() << "PachubeCloud ssl errors: ";
+void CosmCloud::catchSslErrors ( const QList<QSslError> & errors ) {
+    qDebug() << "CosmCloud ssl errors: ";
     for(QList<QSslError>::const_iterator it = errors.begin();
             it != errors.end(); ++it) {
         qDebug() << it->errorString();
     }
 }
 
-void PachubeCloud::removeOldOrders(QVector<Message> &messages) {
+void CosmCloud::removeOldOrders(QVector<Message> &messages) {
     for(QVector<Message>::iterator it = messages.begin();
         it != messages.end(); ++it) {
         if((last_messages.contains(it->key) &&
@@ -131,7 +131,7 @@ void PachubeCloud::removeOldOrders(QVector<Message> &messages) {
     }
 }
 
-void PachubeCloud::updateOrders(const QVector<Message> &messages) {
+void CosmCloud::updateOrders(const QVector<Message> &messages) {
     last_messages.clear();
     for(QVector<Message>::const_iterator it = messages.begin();
         it != messages.end(); ++it) {

@@ -16,9 +16,9 @@ SET( TELEMETRON_SRCS
   src/Cloud/cloproxy.cpp
   src/Cloud/cloconnection.cpp
   src/Cloud/Mock/mockcloud.cpp
-  src/Cloud/Pachube/pachubexml.cpp 
-  src/Cloud/Pachube/pachubecloud.cpp
-  src/Cloud/Pachube/pachubetime.cpp 
+  src/Cloud/Cosm/cosmxml.cpp 
+  src/Cloud/Cosm/cosmcloud.cpp
+  src/Cloud/Cosm/cosmtime.cpp 
   src/Sensors/Mock/mockdev.cpp
   src/Sensors/devproxy.cpp
   src/Sensors/devconnection.cpp 
@@ -45,9 +45,9 @@ SET( TELEMETRON_MOC_HDRS
   src/Cloud/cloconnection.h
   src/Cloud/cloproxy.h 
   src/Cloud/Mock/mockcloud.h 
-  src/Cloud/Pachube/pachubexml.h 
-  src/Cloud/Pachube/pachubecloud.h
-  src/Cloud/Pachube/pachubetime.h 
+  src/Cloud/Cosm/cosmxml.h 
+  src/Cloud/Cosm/cosmcloud.h
+  src/Cloud/Cosm/cosmtime.h 
   src/Configurator/configurator.h 
   src/Sensors/devconnection.h 
   src/Sensors/SNG/sngconnection.h 

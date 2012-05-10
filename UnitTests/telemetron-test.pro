@@ -26,9 +26,9 @@ LIBS += ../build/.obj/modbusrtuframe.o \
         ../build/.obj/cloconnection.o \
         ../build/.obj/cloproxy.o \
         ../build/.obj/devproxy.o \
-        ../build/.obj/pachubexml.o \
-        ../build/.obj/pachubecloud.o \
-        ../build/.obj/pachubetime.o \
+        ../build/.obj/cosmxml.o \
+        ../build/.obj/cosmcloud.o \
+        ../build/.obj/cosmtime.o \
         ../build/.obj/message.o \
         ../build/.obj/configurator.o \
         ../build/.obj/loggingHandler.o \
@@ -37,7 +37,7 @@ LIBS += ../build/.obj/modbusrtuframe.o \
         ../build/.obj/moc_mockdev.o \
         ../build/.obj/moc_devconnection.o \
         ../build/.obj/mockdev.o \
-        ../build/.obj/moc_pachubecloud.o \
+        ../build/.obj/moc_cosmcloud.o \
         ../build/.obj/moc_sngconnection.o \
         ../build/.obj/moc_cloproxy.o \
         ../build/.obj/mockcloud.o \
@@ -47,8 +47,8 @@ LIBS += ../build/.obj/modbusrtuframe.o \
 TEMPLATE = app
 SOURCES += main.cpp \
     sampletest.cpp \
-    Cloud/Pachube/pachubexmltest.cpp \
-    Cloud/Pachube/pachubetimetest.cpp \
+    Cloud/Cosm/cosmxmltest.cpp \
+    Cloud/Cosm/cosmtimetest.cpp \
     Sensors/Modbus/modbusframetest.cpp \
     Sensors/Modbus/modbustest.cpp \
     Sensors/Sng/sngtest.cpp \
@@ -58,8 +58,8 @@ SOURCES += main.cpp \
 
 HEADERS += AutoTest.h \
     sampletest.h \
-    Cloud/Pachube/pachubetimetest.h \
-    Cloud/Pachube/pachubexmltest.h \
+    Cloud/Cosm/cosmtimetest.h \
+    Cloud/Cosm/cosmxmltest.h \
     Sensors/Modbus/modbusframetest.h \
     Sensors/Modbus/modbustest.h \
     Sensors/Sng/sngtest.h \

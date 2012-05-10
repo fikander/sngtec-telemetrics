@@ -1,12 +1,12 @@
-#include "pachubetime.h"
+#include "cosmtime.h"
 #include <QDate>
 #include <QTime>
 
 
-PachubeTime::PachubeTime() : time (QDateTime::currentDateTime()) {
+CosmTime::CosmTime() : time (QDateTime::currentDateTime()) {
 }
 
-PachubeTime::PachubeTime(const QString &timeString) {
+CosmTime::CosmTime(const QString &timeString) {
     int year = timeString.mid(0, 4).toInt();
     int month = timeString.mid(5, 2).toInt();
     int day = timeString.mid(8, 2).toInt();
@@ -21,40 +21,40 @@ PachubeTime::PachubeTime(const QString &timeString) {
     this->time = QDateTime(date, time);
 }
 
-PachubeTime::PachubeTime(const QDateTime &time): time(time) { }
+CosmTime::CosmTime(const QDateTime &time): time(time) { }
 
-QString PachubeTime::toString() {
+QString CosmTime::toString() {
     return time.toString("dd.MM.yyyy hh:mm:ss.zzz");
 }
 
-QString PachubeTime::toPachubeFormat() {
+QString CosmTime::toCosmFormat() {
     return time.toString("yyyy-MM-ddThh:mm:ss.zzz000Z");
 }
 
-QDateTime PachubeTime::getDateTime() {
+QDateTime CosmTime::getDateTime() {
     return time;
 }
 
-bool PachubeTime::operator == (const PachubeTime &rtime) {
+bool CosmTime::operator == (const CosmTime &rtime) {
     return this->time == rtime.time;
 }
 
-bool PachubeTime::operator != (const PachubeTime & rtime){
+bool CosmTime::operator != (const CosmTime & rtime){
     return this->time != rtime.time;
 }
 
-bool PachubeTime::operator <= (const PachubeTime & rtime) {
+bool CosmTime::operator <= (const CosmTime & rtime) {
     return this->time <= rtime.time;
 }
 
-bool PachubeTime::operator < (const PachubeTime & rtime) {
+bool CosmTime::operator < (const CosmTime & rtime) {
     return this->time < rtime.time;
 }
 
-bool PachubeTime::operator > (const PachubeTime & rtime) {
+bool CosmTime::operator > (const CosmTime & rtime) {
     return this->time > rtime.time;
 }
 
-bool PachubeTime::operator >= (const PachubeTime & rtime) {
+bool CosmTime::operator >= (const CosmTime & rtime) {
     return this->time >= rtime.time;
 }
