@@ -6,7 +6,7 @@
 #include "Sensors/Mock/mockdev.h"
 #include "Sensors/SNG/sngconnection.h"
 #include "Sensors/Modbus/modbus.h"
-#include "Cloud/Pachube/pachubecloud.h"
+#include "Cloud/Cosm/cosmcloud.h"
 #include "Cloud/TopologyCloud/topologycloud.h"
 
 #include "Message/message.h"
@@ -41,7 +41,7 @@ Configurator::Configurator() {
         if (e.tagName() == "cloud") {
             cloudType = e.attribute("type", "");
 
-            if (cloudType == "pachube") {
+            if (cloudType == "cosm") {
                 sendFeed = e.attribute("sendFeed", "");
                 receiveFeed = e.attribute("receiveFeed", "");
                 apiKey = e.attribute("apikey", "");
@@ -76,8 +76,8 @@ Configurator::Configurator() {
 CloConnection* Configurator::giveCloud() { 
     CloConnection* cloud;
 
-    if (cloudType == "pachube") {
-        cloud = new PachubeCloud(this);
+    if (cloudType == "cosm") {
+        cloud = new CosmCloud(this);
     } else if (cloudType == "topology") {
         cloud = new TopologyCloud(this);
     }

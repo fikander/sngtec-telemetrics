@@ -6,7 +6,7 @@
 #include <QDebug>
 #include <QObject>
 
-class Pachube: public QObject{
+class Cosm: public QObject{
     Q_OBJECT
     private:
         const QString feed;
@@ -18,7 +18,7 @@ class Pachube: public QObject{
         void done(bool);
 
     public:
-        Pachube(const QString &apikey, const QString &feed, const QDomDocument &);
+        Cosm(const QString &apikey, const QString &feed, const QDomDocument &);
 
     signals:
         void aborted();

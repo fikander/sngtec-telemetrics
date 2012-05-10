@@ -1,53 +1,53 @@
-#include "pachubetimetest.h"
-#include "src/Cloud/Pachube/pachubetime.h"
+#include "cosmtimetest.h"
+#include "src/Cloud/Cosm/cosmtime.h"
 #include <QDateTime>
 #include <QDate>
 #include <QTime>
 
-void PachubetimeTest::stringconstructor_data(){
+void CosmtimeTest::stringconstructor_data(){
     QTest::addColumn<QString>("string");
     QTest::addColumn<QDateTime>("datetime");
 
-    QTest::newRow("pachube format") << "2012-01-21T15:55:58.930000Z"
+    QTest::newRow("cosm format") << "2012-01-21T15:55:58.930000Z"
         << QDateTime( QDate(2012, 1, 21), QTime(15,55,58,930));
 }
 
-void PachubetimeTest::stringconstructor() {
+void CosmtimeTest::stringconstructor() {
     QFETCH(QString, string);
     QFETCH(QDateTime, datetime);
-    PachubeTime time(string);
+    CosmTime time(string);
     QCOMPARE(time.getDateTime(), datetime);
 }
 
-void PachubetimeTest::toPachubeFormat_data() {
+void CosmtimeTest::toCosmFormat_data() {
     QTest::addColumn<QString>("string");
     QTest::addColumn<QDateTime>("datetime");
 
-    QTest::newRow("pachube format") << "2012-01-21T15:55:58.930000Z"
+    QTest::newRow("cosm format") << "2012-01-21T15:55:58.930000Z"
         << QDateTime( QDate(2012, 1, 21), QTime(15,55,58,930));
 }
 
-void PachubetimeTest::toPachubeFormat() {
+void CosmtimeTest::toCosmFormat() {
     QFETCH(QString, string);
     QFETCH(QDateTime, datetime);
-    PachubeTime time(datetime);
-    QCOMPARE(time.toPachubeFormat(), string);
+    CosmTime time(datetime);
+    QCOMPARE(time.toCosmFormat(), string);
 
 }
 
 
-void PachubetimeTest::compare_data(){
+void CosmtimeTest::compare_data(){
     QTest::addColumn<QString>("string");
     QTest::addColumn<QDateTime>("datetime");
 
-    QTest::newRow("pachube format") << "2012-01-21T15:55:58.930000Z"
+    QTest::newRow("cosm format") << "2012-01-21T15:55:58.930000Z"
         << QDateTime( QDate(2012, 1, 21), QTime(15,55,58,930));
 }
-void PachubetimeTest::compare() {
+void CosmtimeTest::compare() {
     QFETCH(QString, string);
     QFETCH(QDateTime, datetime);
 
-    PachubeTime time1(string);
-    PachubeTime time2(datetime);
+    CosmTime time1(string);
+    CosmTime time2(datetime);
     QVERIFY(time1 == time2);
 }

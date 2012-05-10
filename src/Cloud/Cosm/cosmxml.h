@@ -11,17 +11,17 @@
 
 class Message;
 
-class PachubeXml {
+class CosmXml {
 public:
-    PachubeXml(QString feed);
-    static PachubeXml PachubeFromXml(QString xml);
+    CosmXml(QString feed);
+    static CosmXml CosmFromXml(QString xml);
     QVector<Message> getMessages();
-    //PachubeXml(const PachubeXml &);
+    //CosmXml(const CosmXml &);
     QDomDocument getXml();
     void addData(const Message &);
 
 protected:
-    PachubeXml(QString *xml);
+    CosmXml(QString *xml);
 
 private:
     QDomElement messageToNode(const Message &);
@@ -34,9 +34,9 @@ private:
 };
 
 inline
-PachubeXml PachubeXml::PachubeFromXml(QString xml){
+CosmXml CosmXml::CosmFromXml(QString xml){
     //qDebug() << xml;
-    return PachubeXml(&xml);
+    return CosmXml(&xml);
 }
 
 #endif

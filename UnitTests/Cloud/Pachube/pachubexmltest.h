@@ -4,7 +4,7 @@
 #include <QObject>
 #include "AutoTest.h"
 
-class PachubexmlTest : public QObject{
+class CosmxmlTest : public QObject{
     Q_OBJECT
 
     private slots:
@@ -14,7 +14,7 @@ class PachubexmlTest : public QObject{
 };
 
 #ifdef PACHUBE_XML
-DECLARE_TEST(PachubexmlTest);
+DECLARE_TEST(CosmxmlTest);
 #endif
 
 #endif

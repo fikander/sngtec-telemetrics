@@ -1,9 +1,9 @@
-#include "pachubexml.h"
+#include "cosmxml.h"
 #include "src/Message/message.h"
 #include <QDebug>
-#include "pachubetime.h"
+#include "cosmtime.h"
 
-PachubeXml::PachubeXml(QString feed): feed(feed) {
+CosmXml::CosmXml(QString feed): feed(feed) {
     QDomElement eeml = xml.createElement("eeml");
     eeml.setAttribute("xmlns", "http://www.eeml.org/xsd/0.5.1");
     eeml.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
@@ -17,8 +17,8 @@ PachubeXml::PachubeXml(QString feed): feed(feed) {
     
 }
 
-//Pachube from xml
-PachubeXml::PachubeXml(QString *xmlString) { 
+//Cosm from xml
+CosmXml::CosmXml(QString *xmlString) { 
     QString errorMsg = 0;
     int errorLine = 0;
     int errorColumn = 0;
@@ -26,21 +26,21 @@ PachubeXml::PachubeXml(QString *xmlString) {
 }
 
 
-//PachubeXml::PachubeXml(const PachubeXml &px): feed(px.feed), xml(px.xml), environment(px. environment){
+//CosmXml::CosmXml(const CosmXml &px): feed(px.feed), xml(px.xml), environment(px. environment){
 //}
 
 
-void PachubeXml::addData(const Message &message){
+void CosmXml::addData(const Message &message){
     environment.appendChild(messageToNode(message));
 }
 
-QDomDocument PachubeXml::getXml(){
+QDomDocument CosmXml::getXml(){
     //qDebug() << "got xml" << xml.toString();
     return xml;
 }
 
 inline
-QDomElement PachubeXml::messageToNode(const Message &message){
+QDomElement CosmXml::messageToNode(const Message &message){
     QDomElement data = xml.createElement("data");
     data.setAttribute("id", message.key);
 
@@ -54,11 +54,11 @@ QDomElement PachubeXml::messageToNode(const Message &message){
 }
 
 inline
-QDomNodeList PachubeXml::getData() {
+QDomNodeList CosmXml::getData() {
     return xml.elementsByTagName("data");
 }
 
-QVector<Message> PachubeXml::getMessages() {
+QVector<Message> CosmXml::getMessages() {
     QDomNodeList dataNodes = getData();
     QVector<Message> messages;
     for(int i = 0; i < dataNodes.count(); ++i) {
@@ -70,7 +70,7 @@ QVector<Message> PachubeXml::getMessages() {
                 QString timestamp = current_value.attribute("at");
                 QString value = current_value.text();
                 Message message = Message(id, value);
-                message.timestamp = PachubeTime(timestamp).getDateTime();
+                message.timestamp = CosmTime(timestamp).getDateTime();
                 messages.push_back(message);
             }
         }
