@@ -37,7 +37,6 @@ public slots:
     void handleError(QAbstractSocket::SocketError);
 
 private:
-
     SngConnection(Configurator*,int);
 
     // methods used when sending a message to sensor
@@ -47,6 +46,10 @@ private:
     bool parseFrameType(QString&, SngFrameType&);
     bool translateFrameToMessage(SngFrame&, Message&);
     QString printMsg(char* msg);
+
+    // handle SNG 'heartbeat'
+    bool checkHeartBeat(char*msg);
+    int heartBeatNo;
 
     Configurator* conf;
     int no;

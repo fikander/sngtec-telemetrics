@@ -1,10 +1,13 @@
 #include "sngconnection.h"
 
+const char * heartBeatFrame = "\xff\xff\x00\x00\x00\xff\xff\xff\xff\x00\x00\x00\x00\xfe";
+const int heartBeatInterval = 60;
+
 SngConnection::SngConnection()
 {
 }
 
-SngConnection::SngConnection(Configurator *config, int n) : no(n)
+SngConnection::SngConnection(Configurator *config, int n) : heartBeatNo(0), no(n)
 {
     this->conf = config;
     commServer = new QTcpSocket(this);
@@ -51,9 +54,20 @@ QVector<Message> SngConnection::readAll()
 
 void SngConnection::readFromSensor()
 {
-    //qDebug() << "SngConnection::readFromSensor(): read from sensor\n";
     char msg[SNG_FRAME_SIZE];
     int errNo = commServer->read(msg, SNG_FRAME_SIZE);
+
+    if (errNo != 14)
+    {
+        qDebug() << "SngConnection::readFromSensor(): wrong frame size; expected 14 got" << errNo << " bytes";
+        return;
+    }
+
+    if (checkHeartBeat(msg))
+    {
+        return;
+    }
+
     qDebug() << "SngConnection::readFromSensor(): read " << errNo << " bytes";
 
     SngFrame frame;
@@ -178,4 +192,20 @@ QString SngConnection::printMsg(char *msg)
         res += s;
     }
     return res;
+}
+
+bool SngConnection::checkHeartBeat(char *msg)
+{
+    for (int i = 0; i < 14; i++)
+    {
+        if (msg[i] != heartBeatFrame[i]) return false;
+    }
+
+    heartBeatNo++;
+    if (heartBeatNo%heartBeatInterval == 0)
+    {
+        qDebug() << "SngConnection: got SNG >heartbeat< number" << heartBeatNo;
+    }
+
+    return true;
 }
