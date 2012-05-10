@@ -17,10 +17,10 @@ int main(int argc, char *argv[]) {
     QVector<DevProxy*> devices(config.devicesAmount);
 
     for (int i = 0; i < config.devicesAmount; i++) {
-        DevProxy device(&config);
-        device.connectCloud(&cloud);
-        cloud.connectDev(&device);
-        devices[i] = &device;
+        DevProxy *device = new DevProxy(&config);
+        device->connectCloud(&cloud);
+        cloud.connectDev(device);
+        devices[i] = device;
     }
 
     qDebug() << "running..";
