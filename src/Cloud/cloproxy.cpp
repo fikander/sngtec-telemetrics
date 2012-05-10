@@ -38,7 +38,7 @@ void CloProxy::askServer() {
    qDebug() << "Asking server..";
 
    // sensors -> cloud
-   if (!que.isEmpty()) {
+   while (!que.isEmpty()) {
        Message qs = que.dequeue();
        // qs.value = "100";
        qDebug() << "Trying to send to server: " << qs.value;
