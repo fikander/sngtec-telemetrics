@@ -25,7 +25,7 @@ public:
     virtual QVector<Message> readAll() = 0;
 
 signals:
-    void readyToRead2();
+    void readyToRead();
 };
 
 #endif // DEVCONNECTION_H
