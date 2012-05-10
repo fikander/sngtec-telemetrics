@@ -1,5 +1,5 @@
-#ifndef PACHUBEXMLTEST_H
-#define PACHUBEXMLTEST_H
+#ifndef COSMXMLTEST_H
+#define COSMXMLTEST_H
 
 #include <QObject>
 #include "AutoTest.h"
@@ -13,7 +13,7 @@ class CosmxmlTest : public QObject{
         
 };
 
-#ifdef PACHUBE_XML
+#ifdef COSM_XML
 DECLARE_TEST(CosmxmlTest);
 #endif
 

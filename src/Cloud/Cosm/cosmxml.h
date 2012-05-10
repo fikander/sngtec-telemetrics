@@ -1,5 +1,5 @@
-#ifndef PACHUBE_XML_H
-#define PACHUBE_XML_H
+#ifndef COSM_XML_H
+#define COSM_XML_H
 
 #include <QDomDocument>
 #include <QString>

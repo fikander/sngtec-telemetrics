@@ -1,5 +1,5 @@
-#ifndef PACHUBETIMETEST_H
-#define PACHUBETIMETEST_H
+#ifndef COSMTIMETEST_H
+#define COSMTIMETEST_H
 
 #include <QObject>
 #include "AutoTest.h"
@@ -17,7 +17,7 @@ class CosmtimeTest : public QObject{
         
 };
 
-#ifdef PACHUBE_TIME
+#ifdef COSM_TIME
 DECLARE_TEST(CosmtimeTest);
 #endif
 

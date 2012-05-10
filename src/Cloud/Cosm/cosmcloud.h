@@ -1,5 +1,5 @@
-#ifndef PACHUBE_CLOUD_H
-#define PACHUBE_CLOUD_H
+#ifndef COSM_CLOUD_H
+#define COSM_CLOUD_H
 
 #include "Cloud/cloconnection.h"
 #include "cosmxml.h"

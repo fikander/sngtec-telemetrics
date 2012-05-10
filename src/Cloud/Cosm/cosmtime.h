@@ -1,5 +1,5 @@
-#ifndef PACHUBETIME_H
-#define PACHUBETIME_H
+#ifndef COSMTIME_H
+#define COSMTIME_H
 
 #include <QDateTime>
 #include <QString>

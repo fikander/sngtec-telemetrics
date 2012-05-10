@@ -1,5 +1,5 @@
-#ifndef PACHUBE_H
-#define PACHUBE_H
+#ifndef COSM_H
+#define COSM_H
 #include <QHttp>
 #include <QtXml>
 #include <QString>
