@@ -60,7 +60,7 @@ void SngConnection::readFromSensor()
 
     if (msgParser.parseMsg(msg, frame))
     {
-        qDebug() << "SngConnection::readFromSensor(): error in parsing\n";
+        qDebug() << "SngConnection::readFromSensor(): error in parsing; dropping message: " << printMsg(msg);
         return;
     }
 
@@ -92,6 +92,8 @@ void SngConnection::sendMessage(Message& msg)
     SngFrame frame;
     if (translateMessageToFrame(msg, frame))
     {
+        qDebug() << "SngConnection::sendMessage: cannot translate msg to frame; dropping msg ("
+                 << msg.key << ", " << msg.value << ")\n";
         return;
     }
 
@@ -167,3 +169,10 @@ bool SngConnection::translateFrameToMessage(SngFrame & frame, Message& msg)
     return false;
 }
 
+QString SngConnection::printMsg(char *msg)
+{
+    QString res = "";
+    for (int i = 0; i < 14; i++)
+        res += res.sprintf("%#x", (int) ((msg[i]+256)%256)) ;
+    return res;
+}

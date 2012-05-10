@@ -19,7 +19,7 @@ bool SngMsgParser::parseMsg(char * msg, SngFrame& frame)
 
     if (getFrameType(msg, type))
     {
-        qDebug() << "SngMsgParser::parseMsg: wrong frame type\n";
+        qDebug() << "SngMsgParser::parseMsg: wrong frame type; got 0x" << (int)msg[8] << "\n";
         return true;
     }
 
@@ -29,11 +29,8 @@ bool SngMsgParser::parseMsg(char * msg, SngFrame& frame)
         return true;
     }
 
-//    qDebug() << "SngMsgParser::parseMsg: begin, end, type, value OK\n";
-
     getSrcAddr(msg, frame.src);
     getDestAddr(msg, frame.dest);
-//    qDebug() << "wyluskalem adresy: " << frame.src.toString() << " " << frame.dest.toString() << "\n";
 
     frame.type = type;
     frame.value = value;

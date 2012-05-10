@@ -46,6 +46,7 @@ private:
     bool translateMessageToFrame(Message&, SngFrame&);
     bool parseFrameType(QString&, SngFrameType&);
     bool translateFrameToMessage(SngFrame&, Message&);
+    QString printMsg(char* msg);
 
     Configurator* conf;
     int no;
