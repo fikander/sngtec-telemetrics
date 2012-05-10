@@ -89,7 +89,7 @@ void CosmCloud::getOrders() {
     QObject::connect(&orderHttp, SIGNAL(done(bool)), this, SLOT(ordersDone(bool)));
     QHttpRequestHeader header("GET", "/v2/feeds/" + ordersFeed + ".xml");
     header.setValue("Host", "api.cosm.com");
-    header.setValue("X-CosmApiKey", apiKey);
+    header.setValue("X-ApiKey", apiKey);
 
     orderHttp.setHost("api.cosm.com", QHttp::ConnectionModeHttps);
     orderHttp.request(header);
