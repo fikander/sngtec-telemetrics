@@ -92,6 +92,14 @@ Pod wartością \verb|key| znajdują się 2 bity - adres urządzenia / nr funkcj
 dla tej funkcji (w przypadku komunikacji od chmury do urządzenia) lub zwrócone przez tę funkcję (w przeciwnym kierunku).
 Wszelkie wartości powinny być podawane w formacie szesnastkowym.
 
+\subsubsection{Przykład}
+Część pliku konfiguracyjnego dotycząca Modbusa powinna wyglądać tak:
+\begin{verbatim}
+  <device type="modbus" name="beta">
+    <mappings port="/dev/ttyS0" />
+  </device>
+\end{verbatim}
+
 
 \subsection{SNG}
 Aby skorzystać z sensora tego typu, należy w konfiguracji podać jako typ \verb|sng|
