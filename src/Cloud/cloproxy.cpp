@@ -12,6 +12,7 @@ CloProxy::CloProxy(Configurator *config) {
     timer->start(askInterval);
 
     ioDevice = config->giveCloud();
+    ioDevice->connect();
 }
 
 

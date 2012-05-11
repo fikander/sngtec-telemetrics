@@ -1,0 +1,18 @@
+<!DOCTYPE TelemetronConfig>
+
+<telemetron>
+  <cloud type="topology" 
+         port="32061"
+         address="127.0.0.1"
+          />
+
+  <device type="mock" name="alpha">
+    <mappings address="a_1"
+              port="a_2" />
+  </device>
+
+  <!-- <device type="mock" name="beta"> -->
+  <!--   <mappings address="b_1" -->
+  <!--             port="b_2" /> -->
+  <!-- </device> -->
+</telemetron>

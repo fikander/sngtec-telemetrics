@@ -76,6 +76,7 @@ QVector<Message> TopologySensor::readAll()
 {
     QVector<Message> res = QVector<Message>(msgQue);
     msgQue.clear();
+    qDebug() << __PRETTY_FUNCTION__ << " read messages: " << res.size();
     return res;
 }
 
@@ -100,16 +101,25 @@ void TopologySensor::deleteConnection()
 
 void TopologySensor::readData()
 {
-    if(clientConnection->canReadLine())
+    qDebug() << __PRETTY_FUNCTION__ << "readData called";
+    if(true || clientConnection->canReadLine()) // SHORT CIRCUITED FOR DEBUG ONLY
     {
-        if(messages_toread > 0)
+        qDebug() << __PRETTY_FUNCTION__ << "can readLine";
+
+        if(messages_toread > 0) // SHORT CIRCUITED FOR DEBUG ONLY
         {
+            qDebug() << __PRETTY_FUNCTION__ << "messages to read";
+
             read_values[read_state] = clientConnection->readLine();
-            if(read_state == READ_timestamp)
+            if(true || read_state == READ_timestamp)// SHORT CIRCUITED FOR DEBUG ONLY
             {
+                qDebug() << __PRETTY_FUNCTION__ << "checked timestamp";
+
                 msgQue.push_back(Message(read_values[READ_key], read_values[READ_value],
                                         QDateTime::fromString(read_values[READ_timestamp])));
-                --messages_toread;
+                //--messages_toread; // DEBUG ONLY
+                qDebug() << __PRETTY_FUNCTION__ << messages_toread << "messages left to read";
+
                 if(messages_toread == 0)
                 {
                     emit readyToRead();
@@ -119,6 +129,8 @@ void TopologySensor::readData()
         }
         else {
             messages_toread = clientConnection->readLine().toInt();
+            qDebug() << __PRETTY_FUNCTION__ << messages_toread << "messages left to read";
+
             read_state = READ_key;
         }
     }

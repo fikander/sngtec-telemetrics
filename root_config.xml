@@ -1,0 +1,14 @@
+<!DOCTYPE TelemetronConfig>
+
+<telemetron>
+  <cloud type="mock" />
+
+  <device type="topology" name="tau">
+    <mappings port="32061" />
+  </device>
+
+  <!-- <device type="mock" name="gamma"> -->
+  <!--   <mappings address="b_1" -->
+  <!--             port="b_2" /> -->
+  <!-- </device> -->
+</telemetron>

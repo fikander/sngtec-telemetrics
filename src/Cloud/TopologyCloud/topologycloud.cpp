@@ -24,9 +24,9 @@ CloConnection* TopologyCloud::clone(Configurator* configurator) {
 TopologyCloud::~TopologyCloud() {}
 
 void TopologyCloud::connect() {
-        QObject::connect(&connection, SIGNAL(connected()), this, SLOT(conneted()));
+        QObject::connect(&connection, SIGNAL(connected()), this, SLOT(connected()));
         QObject::connect(&connection, SIGNAL(connectionClosed()), this, SLOT(disconnected()));
-        QObject::connect(&connection, SIGNAL(error(int)), this, SLOT(error(int)));
+        QObject::connect(&connection, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(error(QAbstractSocket::SocketError)));
         QObject::connect(&connection, SIGNAL(readyRead()), this, SLOT(readyRead()));
 
         connection.connectToHost(addres, port);
@@ -43,7 +43,7 @@ void TopologyCloud::disconnected() {
     this->connect();
 }
 
-void TopologyCloud::error() {
+void TopologyCloud::error(QAbstractSocket::SocketError) {
     qWarning() << "Error during cloud connection: " << connection.error();
 }
 
@@ -54,7 +54,7 @@ void TopologyCloud::write(QVector<Message> messages) {
         if(messages_tosend.size() > max_messages) {
             qCritical() << "no connection and a lot of messages to send";
             if(messages_tosend.size() > max_messages_size) { 
-                qCritical() << "to many messages int queue, delteting";
+                qCritical() << "too many messages int queue, delteting";
                 messages_tosend.remove(0, max_messages_size / 2);
             }
         }
