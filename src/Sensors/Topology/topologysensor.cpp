@@ -106,7 +106,7 @@ void TopologySensor::readData()
     {
         qDebug() << __PRETTY_FUNCTION__ << "can readLine";
 
-        if(messages_toread > 0) // SHORT CIRCUITED FOR DEBUG ONLY
+        if(true || messages_toread > 0) // SHORT CIRCUITED FOR DEBUG ONLY
         {
             qDebug() << __PRETTY_FUNCTION__ << "messages to read";
 
