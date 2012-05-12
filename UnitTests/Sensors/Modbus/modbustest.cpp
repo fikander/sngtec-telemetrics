@@ -1,5 +1,6 @@
 #include "modbustest.h"
 #include "src/Sensors/Modbus/modbus.h"
+#include "src/Sensors/Modbus/crc-count.h"
 #include "src/Configurator/configurator.h"
 #include "src/Message/message.h"
 
@@ -14,7 +15,7 @@ int readed;
 unsigned short crc;
 
 unsigned short ModbusTest::countCRC(unsigned char *array, int array_length){
-    return qChecksum((char*) array, array_length);
+    return modbusCRC((unsigned char*) array, array_length);
 }
 
 void ModbusTest::testPort(){
@@ -44,8 +45,8 @@ void ModbusTest::f1_2_3_4_Snd()
     QFETCH(QString, function);
     QFETCH(QString, msg_data);
     testPort();
-    Modbus* m = new Modbus(new Configurator());
-    m->connect(addr);
+    Modbus* m = new Modbus(new Configurator(), 1);
+
     Message* mesg = new Message(function, msg_data);
     QVector<Message>* messages = new QVector<Message>();
     messages->append(*mesg);
@@ -86,8 +87,7 @@ void ModbusTest::errorRec(){
     QFETCH(QString, function);
     QFETCH(unsigned char, error);
     testPort();
-    Modbus* m = new Modbus(new Configurator());
-    m->connect(addr);
+    Modbus* m = new Modbus(new Configurator(), 1);
     unsigned char* response = new unsigned char[3];
     response[0] = addr;
     response[1] = function.at(0).toAscii();
@@ -130,8 +130,8 @@ void ModbusTest::f1_2_3_4_Rec(){
     QFETCH(unsigned char, data5);
     QFETCH(unsigned char, data6);
     testPort();
-    Modbus* m = new Modbus(new Configurator());
-    m->connect(addr);
+    Modbus* m = new Modbus(new Configurator(), 1);
+
     unsigned char* response = new unsigned char[9];
     response[0] = addr;
     response[1] = function.at(0).toAscii();
@@ -191,8 +191,8 @@ void ModbusTest::f7_11_12_Snd(){
     QFETCH(unsigned char, addr);
     QFETCH(QString, function);
     testPort();
-    Modbus* m = new Modbus(new Configurator());
-    m->connect(addr);
+    Modbus* m = new Modbus(new Configurator(), 1);
+
     Message* mesg = new Message(function, "");
     QVector<Message>* messages = new QVector<Message>();
     messages->append(*mesg);
@@ -227,8 +227,8 @@ void ModbusTest::f5_6_11_15_Rec(){
     QFETCH(unsigned char, data3);
     QFETCH(unsigned char, data4);
     testPort();
-    Modbus* m = new Modbus(new Configurator());
-    m->connect(addr);
+    Modbus* m = new Modbus(new Configurator(), 1);
+
     unsigned char* response = new unsigned char[6];
     response[0] = addr;
     response[1] = function.at(0).toAscii();
@@ -282,8 +282,8 @@ void ModbusTest::f7_Rec(){
     QFETCH(QString, function);
     QFETCH(unsigned char, data1);
     testPort();
-    Modbus* m = new Modbus(new Configurator());
-    m->connect(addr);
+    Modbus* m = new Modbus(new Configurator(), 1);
+
     unsigned char* response = new unsigned char[3];
     response[0] = addr;
     response[1] = function.at(0).toAscii();
@@ -329,8 +329,8 @@ void ModbusTest::f0C_Rec(){
     QFETCH(unsigned char, data11);
     QFETCH(unsigned char, data12);
     testPort();
-    Modbus* m = new Modbus(new Configurator());
-    m->connect(addr);
+    Modbus* m = new Modbus(new Configurator(), 1);
+
     unsigned char* response = new unsigned char[15];
     response[0] = addr;
     response[1] = function.at(0).toAscii();
@@ -410,8 +410,8 @@ void ModbusTest::f8_Rec(){
     QFETCH(unsigned char, data3);
     QFETCH(unsigned char, data4);
     testPort();
-    Modbus* m = new Modbus(new Configurator());
-    m->connect(addr);
+    Modbus* m = new Modbus(new Configurator(), 1);
+
     unsigned char* response = new unsigned char[6];
     response[0] = addr;
     response[1] = function.at(0).toAscii();
@@ -451,8 +451,8 @@ void ModbusTest::f8_Snd(){
     QFETCH(QString, function);
     QFETCH(QString, data);
     testPort();
-    Modbus* m = new Modbus(new Configurator());
-    m->connect(addr);
+    Modbus* m = new Modbus(new Configurator(), 1);
+
     Message* mesg = new Message(function, data);
     QVector<Message>* messages = new QVector<Message>();
     messages->append(*mesg);
@@ -488,8 +488,8 @@ void ModbusTest::f18_Rec(){
     QFETCH(unsigned char, data5);
     QFETCH(unsigned char, data6);
     testPort();
-    Modbus* m = new Modbus(new Configurator());
-    m->connect(addr);
+    Modbus* m = new Modbus(new Configurator(), 1);
+
     unsigned char* response = new unsigned char[10];
     response[0] = addr;
     response[1] = function.at(0).toAscii();
@@ -551,8 +551,8 @@ void ModbusTest::f0F_10_Snd() {
     QFETCH(QString, msg_data);
     QFETCH(int, size);
     testPort();
-    Modbus* m = new Modbus(new Configurator());
-    m->connect(addr);
+    Modbus* m = new Modbus(new Configurator(), 1);
+
     Message* mesg = new Message(function, msg_data);
     //qDebug() << "s" << msg_data.size();
     //qDebug() << "Ma byc val:" << mesg->value;

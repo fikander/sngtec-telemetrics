@@ -13,21 +13,21 @@
 
 
 
-const std::string serial_port_name = "/dev/ttyS0";
+//const std::string serial_port_name = "/dev/ttyS0";
 
 Modbus* Modbus::create(Configurator *config, int no){
-    return new Modbus(config);
+    return new Modbus(config, no);
 }
 
 Modbus* Modbus::clone(Configurator *config, int no){
 
-    return new Modbus(config);
+    return new Modbus(config, no);
 }
 
-Modbus::Modbus(Configurator* new_config){
+Modbus::Modbus(Configurator* new_config, int no){
         config = new_config;
-        // numer portu z konfiguratora!
-        preparePort(serial_port_name); //.toStdString().c_str());
+        QString serial_port_name = config->deviceTranslate(no, QString("port"));
+        preparePort(serial_port_name.toStdString().c_str()); //.toStdString().c_str());
         portNotifier = new QSocketNotifier(fd, QSocketNotifier::Read);
         QObject::connect(portNotifier, SIGNAL(activated(int)), this, SLOT(readFromSensor()), Qt::DirectConnection);
 }

@@ -17,6 +17,7 @@ MOC_DIR = ../build/.moc-test
 RCC_DIR = ../build/.rcc-test
 LIBS += ../build/.obj/modbusrtuframe.o \
         ../build/.obj/modbus.o \
+        ../build/.obj/crc-count.o \
         ../build/.obj/sngconnection.o \
         ../build/.obj/sngphysicaladdress.o \
         ../build/.obj/sngframe.o\
@@ -26,12 +27,16 @@ LIBS += ../build/.obj/modbusrtuframe.o \
         ../build/.obj/cloconnection.o \
         ../build/.obj/cloproxy.o \
         ../build/.obj/devproxy.o \
+        ../build/.obj/topologycloud.o \
+        ../build/.obj/topologysensor.o \
         ../build/.obj/cosmxml.o \
         ../build/.obj/cosmcloud.o \
         ../build/.obj/cosmtime.o \
         ../build/.obj/message.o \
         ../build/.obj/configurator.o \
         ../build/.obj/loggingHandler.o \
+        ../build/.obj/moc_topologycloud.o \
+        ../build/.obj/moc_topologysensor.o \
         ../build/.obj/moc_cloconnection.o \
         ../build/.obj/moc_devproxy.o \
         ../build/.obj/moc_mockdev.o \
