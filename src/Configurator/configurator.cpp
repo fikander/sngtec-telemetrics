@@ -117,7 +117,7 @@ DevConnection* Configurator::readDevice(QDomElement &devPointer) {
     } else if (devType == "topology") {
         device = new TopologySensor();
     } else if (devType == "modbus") {
-        device = new Modbus(this, 1); // poprawka Karola! - dałem 1
+        device = new Modbus(this, devNo);
     } else {
         qWarning("Using mock device");
         device = new MockDev();
