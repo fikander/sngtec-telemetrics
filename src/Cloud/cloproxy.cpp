@@ -33,25 +33,25 @@ void CloProxy::dispatchMessage(Message m) {
     m.key = m.key.section('|', 1);
     payload.push_back(m);
     dev->ioDevice->write(payload);
-    qDebug() << __PRETTY_FUNCTION__  << "Sent to device number:" << configurator->devNamesToNumbers[name] << " " << m.key << ";" << m.value;
+    //qDebug() << __PRETTY_FUNCTION__  << "Sent to device number:" << configurator->devNamesToNumbers[name] << " " << m.key << ";" << m.value;
 }
 
 void CloProxy::askServer() {
-   qDebug() << __PRETTY_FUNCTION__ << "Asking server..";
+   //qDebug() << __PRETTY_FUNCTION__ << "Asking server..";
 
    // sensors -> cloud
    while (!que.isEmpty()) {
        Message qs = que.dequeue();
        // qs.value = "100";
-       qDebug() << __PRETTY_FUNCTION__ << "Trying to send to server: " << qs.value;
+       //qDebug() << __PRETTY_FUNCTION__ << "Trying to send to server: " << qs.value;
 
        if (!ioDevice->isBusy()) {
            QVector<Message> msgs;
            msgs.push_back(qs);
-           qDebug() << __PRETTY_FUNCTION__ << "Sending to server..";
+           //qDebug() << __PRETTY_FUNCTION__ << "Sending to server..";
            ioDevice->write(msgs);
        } else {
-           qDebug() << __PRETTY_FUNCTION__ << "Server busy.";
+           //qDebug() << __PRETTY_FUNCTION__ << "Server busy.";
        }
    }
 
@@ -63,7 +63,7 @@ void CloProxy::askServer() {
    QVector<Message> incoming;
    incoming = ioDevice->readAll();
    for (int i = 0; i < incoming.size(); i++) {
-       qDebug() << __PRETTY_FUNCTION__ << "Read from cloud" << incoming[i].key << " " << incoming[i].value;
+       //qDebug() << __PRETTY_FUNCTION__ << "Read from cloud" << incoming[i].key << " " << incoming[i].value;
        dispatchMessage(incoming[i]);
    }
 }

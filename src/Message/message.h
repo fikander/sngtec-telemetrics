@@ -12,6 +12,10 @@ public:
     QString key;
     QString value;
     QDateTime timestamp;
+
+    QByteArray toByteArray();
+    bool fromByteArray(QByteArray&);
+    QString toString();
 };
 
 #endif // MESSAGE_H

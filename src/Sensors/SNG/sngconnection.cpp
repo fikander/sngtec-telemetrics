@@ -1,7 +1,7 @@
 #include "sngconnection.h"
 
 const char * heartBeatFrame = "\xff\xff\x00\x00\x00\xff\xff\xff\xff\x00\x00\x00\x00\xfe";
-const int heartBeatInterval = 60;
+const int heartBeatInterval = 10;
 
 SngConnection::SngConnection()
 {

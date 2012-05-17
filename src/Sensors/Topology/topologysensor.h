@@ -29,21 +29,21 @@ private slots:
 
 private:
 
-    void sendMsg();
+//    void sendMsg();
 
     QTcpServer *tcpServer;
     QTcpSocket *clientConnection;
     qint16 port;
 
     QVector<Message> msgQue;
-    QVector<Message> msgToSend;
-    enum ReadingState { READ_key = 0,  READ_value = 1,  READ_timestamp = 2,  READ_max = 3};
-    static int max_messages;
-    static int max_messages_size;
+//    QVector<Message> msgToSend;
+//    enum ReadingState { READ_key = 0,  READ_value = 1,  READ_timestamp = 2,  READ_max = 3};
+//    static int max_messages;
+//    static int max_messages_size;
 
-    int messages_toread;
-    QString read_values[3];
-    int read_state;
+//    int messages_toread;
+//    QString read_values[3];
+//    int read_state;
 };
 
 #endif // TOPOLOGYSENSOR_H

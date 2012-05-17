@@ -24,9 +24,9 @@ void DevProxy::connectCloud(CloProxy *cl) {
 }
 
 void DevProxy::readDevice() {
-    qDebug() << __PRETTY_FUNCTION__  << "Attempting read from device..";
+    //qDebug() << __PRETTY_FUNCTION__  << "Attempting read from device..";
     QVector<Message> payload = ioDevice->readAll();
-    qDebug() << __PRETTY_FUNCTION__  << "Read data from device: " << payload[0].key << " " << payload[0].value;
+    //qDebug() << __PRETTY_FUNCTION__  << "Read data from device: " << payload[0].key << " " << payload[0].value;
     Message msg = payload[0];
 
     emit enque(msg);
