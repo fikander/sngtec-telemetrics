@@ -1,19 +1,18 @@
 #include <QCoreApplication>
-#include "src/Cloud/Cosm/cosmcloud.h"
-#include "src/Cloud/Cosm/cosmxml.h"
-#include "src/Cloud/cloconnection.h"
-#include "src/Message/message.h"
-#include "src/Configurator/configurator.h"
+#include "Cloud/Cosm/cosmcloud.h"
+#include "Cloud/Cosm/cosmxml.h"
+#include "Cloud/cloconnection.h"
+#include "Message/message.h"
+#include "Configurator/configurator.h"
 #include <QTime>
 
 int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
-    Configurator config;
-    CloConnection *cloud = new CosmCloud(&config);
+    CloConnection *cloud = new CosmCloud( "49041" , "49041" , "KGt1d_erNyuyZ1ObC4TOMEIZMlKNQSoWRUfMjKn5Vh0");
     CloConnection::MessagesSet mess; 
     Message message;
-    message.key = "1";
+    message.key = "key5";
     message.value = "70";
     mess.append(message);
     cloud->write(mess);

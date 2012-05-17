@@ -26,7 +26,6 @@ public:
     virtual void write(QVector<Message>);
     virtual QVector<Message> readAll();
     virtual bool isBusy();
-    void getOrders();
 
 private:
     void send();
@@ -44,6 +43,7 @@ private:
     QDateTime last_time;
 
 public slots:
+    void getOrders();
     void done(bool);
     void ordersDone(bool);
     void retry();

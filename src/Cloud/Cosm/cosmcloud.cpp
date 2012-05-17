@@ -11,14 +11,22 @@
 CosmCloud::CosmCloud(Configurator* config)
     : currentCosmXml(config->getFeed()), sendFeed(config->getFeed()), apiKey(config->getApiKey()),
       last_time(QDateTime::currentDateTime()){
+    QObject::connect(&http, SIGNAL(sslErrors(const QList<QSslError> &)),  &http, SLOT(ignoreSslErrors()));
+    QObject::connect(&http, SIGNAL(done(bool)), this, SLOT(done(bool)));
+    QObject::connect(&orderHttp, SIGNAL(done(bool)), this, SLOT(ordersDone(bool)));
     busy = false;
     ordersFeed = sendFeed;
+    last_time = last_time.addSecs(-2 * 60 * 60);
 }
 
 CosmCloud::CosmCloud(QString feed, QString sendfeed, QString key)
     : currentCosmXml(feed), sendFeed(feed), apiKey(key), last_time(QDateTime::currentDateTime()){
+    QObject::connect(&http, SIGNAL(sslErrors(const QList<QSslError> &)),  &http, SLOT(ignoreSslErrors()));
+    QObject::connect(&http, SIGNAL(done(bool)), this, SLOT(done(bool)));
+    QObject::connect(&orderHttp, SIGNAL(done(bool)), this, SLOT(ordersDone(bool)));
     busy = false;
     ordersFeed = sendFeed;
+    last_time = last_time.addSecs(-2 * 60 * 60);
 }
      
 CloConnection* CosmCloud::create(Configurator* config) {
@@ -67,12 +75,9 @@ void CosmCloud::retry(){
 }
 
 void CosmCloud::send() {
-    qDebug() << "sending";
     busy = true;
 
     //connect(&http, SIGNAL(sslEBBrrors),  this, SLOT(catchSslErrors));
-    QObject::connect(&http, SIGNAL(sslErrors(const QList<QSslError> &)),  &http, SLOT(ignoreSslErrors()));
-    QObject::connect(&http, SIGNAL(done(bool)), this, SLOT(done(bool)));
 
     QHttpRequestHeader header("PUT", "/v2/feeds/" + sendFeed + ".xml");
     header.setValue("Host", "api.cosm.com");
@@ -86,7 +91,6 @@ void CosmCloud::send() {
 
 
 void CosmCloud::getOrders() {
-    QObject::connect(&orderHttp, SIGNAL(done(bool)), this, SLOT(ordersDone(bool)));
     QHttpRequestHeader header("GET", "/v2/feeds/" + ordersFeed + ".xml");
     header.setValue("Host", "api.cosm.com");
     header.setValue("X-ApiKey", apiKey);
@@ -121,20 +125,26 @@ void CosmCloud::catchSslErrors ( const QList<QSslError> & errors ) {
 }
 
 void CosmCloud::removeOldOrders(QVector<Message> &messages) {
+    //qDebug() << "Message count " << messages.size();
     for(QVector<Message>::iterator it = messages.begin();
-        it != messages.end(); ++it) {
+        it != messages.end();) {
         if((last_messages.contains(it->key) &&
            last_messages.find(it->key)->timestamp == it->timestamp) ||
            it->timestamp < last_time) {
+            //qDebug() << "Deleting message: " << it->timestamp << ", last time: " << last_time << endl;
             messages.erase(it);
+        }
+        else {
+            //qDebug() << "Not Deleting message: " << it->timestamp << ", last time: " << last_time << endl;
+            ++it;
         }
     }
 }
 
 void CosmCloud::updateOrders(const QVector<Message> &messages) {
-    last_messages.clear();
     for(QVector<Message>::const_iterator it = messages.begin();
         it != messages.end(); ++it) {
+        last_messages.remove(it->key);
         last_messages.insert(it->key, *it);
     }
 }
