@@ -35,6 +35,7 @@ SOURCES += src/main.cpp \
     src/Sensors/Modbus/modbusrtuframe.cpp \
     src/Logger/loggingHandler.cpp \
     src/Logger/logger.cpp \
+    src/LogSender/HTTPLogSender/httplogsender.cpp \
     src/Sensors/SNG/sngframe.cpp \
     src/Sensors/SNG/sngmsgcreator.cpp \
     src/Sensors/SNG/sngmsgparser.cpp \
@@ -58,6 +59,8 @@ HEADERS += src/Sensors/devproxy.h \
     src/Sensors/Modbus/modbusrtuframe.h \
     src/Logger/loggingHandler.h \
     src/Logger/logger.h \
+    src/LogSender/HTTPLogSender/httplogsender.h \
+    src/LogSender/logsender.h \
     src/Sensors/SNG/sngframe.h \
     src/Sensors/SNG/sngmsgcreator.h \
     src/Sensors/SNG/sngmsgparser.h \

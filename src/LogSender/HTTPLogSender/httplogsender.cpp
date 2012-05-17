@@ -3,16 +3,39 @@
 #include <QUrl>
 #include <QDebug>
 
+HTTPLogSender::HTTPLogSender() {
+    QObject::connect(&http, SIGNAL(sslErrors(const QList<QSslError> &)),  &http, SLOT(ignoreSslErrors()));
+    QObject::connect(&http, SIGNAL(done(bool)), this, SLOT(done(bool)));
+}
+
+void HTTPLogSender::sendLogs(QString address, QVector<QString> log) {
+    int size = 0;
+    QString dataFile;
+    for(QVector<QString>::const_iterator it = log.begin(); it < log.end(); ++it) {
+        size = it->size();
+    }
+    dataFile.reserve(size);
+    for(QVector<QString>::const_iterator it = log.begin(); it < log.end(); ++it) {
+        dataFile += *it;
+    }
+
+    QUrl url(address);
+    QHttpRequestHeader header("PUT", address);
+    header.setValue("Host", url.host());
+
+    http.setHost(url.host(), QHttp::ConnectionModeHttps);
+    http.request(header, dataFile.toAscii());
+
+}
+
 void HTTPLogSender::sendLogs(QString address, QFile file) {
 
     QUrl url(address);
     QHttpRequestHeader header("PUT", address);
     header.setValue("Host", url.host());
 
-    QObject::connect(&http, SIGNAL(sslErrors(const QList<QSslError> &)),  &http, SLOT(ignoreSslErrors()));
-    QObject::connect(&http, SIGNAL(done(bool)), this, SLOT(done(bool)));
 
-    http.setHost("api.cosm.com", QHttp::ConnectionModeHttps);
+    http.setHost(url.host(), QHttp::ConnectionModeHttps);
     http.request(header, &file);
 
 }

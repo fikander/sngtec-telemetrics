@@ -10,7 +10,7 @@ class LogSender : public QObject {
     Q_OBJECT
 
 public:
-    virtual void sendLogs(QString, QFile) = 0;
+    virtual void sendLogs(QString, QVector<QString>) = 0;
 
 signals:
     void statusUpdate (Message);
