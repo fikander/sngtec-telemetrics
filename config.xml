@@ -14,4 +14,10 @@
               __0.0.0__0.0.0__Value="wartosc"
                />
   </device>
+  <device type="modbus" name="beta">
+    <mappings port="/dev/ttyS0"
+              parity="Even"
+              bandwidth="9600"
+              />
+  </device>
 </telemetron>

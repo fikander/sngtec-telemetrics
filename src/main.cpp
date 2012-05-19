@@ -22,6 +22,7 @@ int main(int argc, char *argv[]) {
         cloud.connectDev(device);
         devices[i] = device;
     }
+    Modbus* m = new Modbus(&config, 0);
 
     qDebug() << "running..";
     return a.exec();

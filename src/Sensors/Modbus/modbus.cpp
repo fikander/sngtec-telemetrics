@@ -26,18 +26,50 @@ Modbus* Modbus::clone(Configurator *config, int no){
 
 Modbus::Modbus(Configurator* new_config, int no){
         config = new_config;
+        qDebug() << "Modbus chce sie inicjalizowac";
         QString serial_port_name = config->deviceTranslate(no, QString("port"));
-        preparePort(serial_port_name.toStdString().c_str()); //.toStdString().c_str());
+        qDebug() << "a";
+        QString bandwidth = config->deviceTranslate(no, QString("bandwidth"));
+        qDebug() << "b";
+        QString parity = config->deviceTranslate(no, QString(parity));
+        qDebug() << "Modbus chce zadzialac";
+        preparePort(serial_port_name.toStdString().c_str(), bandwidth, parity); //.toStdString().c_str());
         portNotifier = new QSocketNotifier(fd, QSocketNotifier::Read);
         QObject::connect(portNotifier, SIGNAL(activated(int)), this, SLOT(readFromSensor()), Qt::DirectConnection);
 }
 
 
-int Modbus::preparePort(std::string port){
+int Modbus::preparePort(std::string port, QString bandwidth, QString parity){
         if ((fd = open(port.c_str(), O_RDWR | O_NOCTTY)) < 0)
             qDebug() << "Modbus: Opening port " << fd << " failure. Errno: " << errno << " !!!";
         termios* port_param = new termios;
-        port_param->c_cflag = B9600 | CS8 | PARENB | CREAD | CLOCAL;
+        port_param->c_cflag = CS8 | PARENB | CREAD | CLOCAL;
+        if (!bandwidth.compare(QString("600")))
+            port_param->c_cflag = port_param->c_cflag | B600;
+        else if (!bandwidth.compare(QString("1200")))
+            port_param->c_cflag = port_param->c_cflag | B1200;
+        else if (!bandwidth.compare(QString("1800")))
+            port_param->c_cflag = port_param->c_cflag | B1800;
+        else if (!bandwidth.compare(QString("2400")))
+            port_param->c_cflag = port_param->c_cflag | B2400;
+        else if (!bandwidth.compare(QString("4800")))
+            port_param->c_cflag = port_param->c_cflag | B4800;
+        else if (!bandwidth.compare(QString("9600")))
+            port_param->c_cflag = port_param->c_cflag | B9600;
+        else if (!bandwidth.compare(QString("19200")))
+            port_param->c_cflag = port_param->c_cflag | B19200;
+        else if (!bandwidth.compare(QString("38400")))
+            port_param->c_cflag = port_param->c_cflag | B38400;
+        else if (!bandwidth.compare(QString("57600")))
+            port_param->c_cflag = port_param->c_cflag | B57600;
+        else if (!bandwidth.compare(QString("115200")))
+            port_param->c_cflag = port_param->c_cflag | B115200;
+        else {
+            qDebug() << "Unknown parity was set, using default - 9600";
+            port_param->c_cflag = port_param->c_cflag | B9600;
+        }
+        if (!parity.compare(QString("ODD"))) //otherwise parity is even
+            port_param->c_cflag = port_param->c_cflag | PARODD;
         port_param->c_iflag = IGNBRK | IGNPAR;
         port_param->c_oflag = 0;
         port_param->c_lflag = 0;
