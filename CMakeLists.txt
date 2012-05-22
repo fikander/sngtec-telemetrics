@@ -19,6 +19,7 @@ SET( TELEMETRON_SRCS
   src/Cloud/Cosm/cosmxml.cpp 
   src/Cloud/Cosm/cosmcloud.cpp
   src/Cloud/Cosm/cosmtime.cpp 
+  src/LogSender/HTTPLogSender/httplogsender.cpp
   src/Sensors/Mock/mockdev.cpp
   src/Sensors/devproxy.cpp
   src/Sensors/devconnection.cpp 
@@ -49,6 +50,8 @@ SET( TELEMETRON_MOC_HDRS
   src/Cloud/Cosm/cosmcloud.h
   src/Cloud/Cosm/cosmtime.h 
   src/Configurator/configurator.h 
+  src/LogSender/HTTPLogSender/httplogsender.h
+  src/LogSender/logsender.h
   src/Sensors/devconnection.h 
   src/Sensors/SNG/sngconnection.h 
   src/Sensors/SNG/sngphysicaladdress.h 

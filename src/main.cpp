@@ -27,10 +27,7 @@ int main(int argc, char *argv[]) {
     qDebug() << "running..";
     return a.exec();
 
-    /*
-    QCoreApplication a(argc, argv);
-    Configurator config;
-    Modbus* m = new Modbus(&config);
+/*
     //qDebug() << "%02X" << addr;
     //qDebug() << addr;
     //Message* mesg = new Message("\x02\x07", "");
@@ -58,5 +55,5 @@ int main(int argc, char *argv[]) {
     //qDebug() << (int) s.at(1).toAscii();
     qDebug() << "running..";
     return a.exec();
-    */
+*/
 }

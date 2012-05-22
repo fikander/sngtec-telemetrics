@@ -28,18 +28,21 @@ Modbus::Modbus() {}
 
 Modbus::Modbus(Configurator* new_config, int no){
         config = new_config;
-        QString serial_port_name = config->deviceTranslate(no, QString("port"));
-        QString bandwidth = config->deviceTranslate(no, "bandwidth");
-        QString parity = config->deviceTranslate(no, "parity");
-        preparePort(serial_port_name.toStdString().c_str(), bandwidth, parity); //.toStdString().c_str());
+        //qDebug() << "Starting modbus initialization";
+        QString serial_port_name = config->deviceTranslate(no, QString("port")); //QString("/dev/ttyS0"); //
+        //qDebug() << "After some translation";
+        QString bandwidth = config->deviceTranslate(no, "bandwidth"); //QString("9600"); //
+        QString parity = config->deviceTranslate(no, "parity"); //QString("Even"); //
+        //qDebug() << "And sth was done!";
+        preparePort(serial_port_name.toAscii().data(), bandwidth, parity); //.toStdString().c_str());
         portNotifier = new QSocketNotifier(fd, QSocketNotifier::Read);
         QObject::connect(portNotifier, SIGNAL(activated(int)), this, SLOT(readFromSensor()), Qt::DirectConnection);
         qDebug() << __PRETTY_FUNCTION__ << "Modbus init complete!";
 }
 
 
-int Modbus::preparePort(std::string port, QString bandwidth, QString parity){
-        if ((fd = open(port.c_str(), O_RDWR | O_NOCTTY)) < 0)
+int Modbus::preparePort(char* port, QString bandwidth, QString parity){
+        if ((fd = open(port, O_RDWR | O_NOCTTY)) < 0)
             qDebug() << "Modbus: Opening port " << fd << " failure. Errno: " << errno << " !!!";
         termios* port_param = new termios;
         port_param->c_cflag = CS8 | PARENB | CREAD | CLOCAL;

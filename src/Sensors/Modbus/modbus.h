@@ -40,7 +40,7 @@ class Modbus : public DevConnection {
         ModbusRtuFrame* decodeMessage(Message msg);
         int checkResponseCRC(unsigned char* answer, unsigned char* answer_data,
                              int answer_size, int take_byte_count, unsigned short crc);
-        int preparePort(std::string port, QString bandwidth, QString parity);
+        int preparePort(char* port, QString bandwidth, QString parity);
 
         int fd;
         QSocketNotifier* portNotifier;
