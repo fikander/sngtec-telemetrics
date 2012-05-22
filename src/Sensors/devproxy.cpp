@@ -27,9 +27,11 @@ void DevProxy::readDevice() {
     //qDebug() << __PRETTY_FUNCTION__  << "Attempting read from device..";
     QVector<Message> payload = ioDevice->readAll();
     //qDebug() << __PRETTY_FUNCTION__  << "Read data from device: " << payload[0].key << " " << payload[0].value;
-    Message msg = payload[0];
 
-    emit enque(msg);
+    for (int i = 0; i < payload.size(); i++) {
+        Message msg = payload[i];
+        emit enque(msg);
+    }
 
     return;
 }
