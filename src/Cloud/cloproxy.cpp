@@ -3,6 +3,9 @@
 #include "Cloud/cloconnection.h"
 #include "Message/message.h"
 #include "Sensors/devconnection.h"
+#include "LogSender/logsender.h"
+#include "LogSender/HTTPLogSender/httplogsender.h"
+
 
 CloProxy::CloProxy(Configurator *config) {
     configurator = config;
@@ -13,6 +16,8 @@ CloProxy::CloProxy(Configurator *config) {
 
     ioDevice = config->giveCloud();
     ioDevice->connect();
+    sender = new HTTPLogSender();
+    connect(sender, SIGNAL(statusUpdate(Message)), this, SLOT(queue(Message)));
 }
 
 
@@ -25,6 +30,15 @@ void CloProxy::dispatchMessage(Message m) {
     DevProxy *dev;
     // Extract name from message key
     QString name = m.key.section('|', 0, 0);
+
+    if (name == configurator->logPushCommand) {
+        QString address = m.value;
+        if (address == "") {
+            address = configurator->logPushAddress;
+        }
+        sender->sendLogs(address,
+                         Logger::getInstance()->giveLogs());
+    }
 
     // Find the mapping in the devices table
     dev = devList[configurator->devNamesToNumbers[name]];

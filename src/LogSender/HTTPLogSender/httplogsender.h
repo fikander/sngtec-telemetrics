@@ -6,7 +6,7 @@
 #include <QFile>
 #include <QHttp>
 
-class HTTPLogSender : LogSender {
+class HTTPLogSender : public LogSender {
     Q_OBJECT
 
 private:
