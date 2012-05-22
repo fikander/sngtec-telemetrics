@@ -93,7 +93,8 @@ void SngConnection::readFromSensor()
              << msgQue[msgQue.size()-1].key << ", " << msgQue[msgQue.size()-1].value
              << ") ready for cloud";
 
-    emit readyToRead();
+    if (msgQue.size() > 0)
+        emit readyToRead();
 }
 
 void SngConnection::handleError(QAbstractSocket::SocketError error)

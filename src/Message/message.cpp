@@ -5,6 +5,7 @@
 #include <QByteArray>
 
 Message::Message() {
+    timestamp = QDateTime::currentDateTime();
 }
 
 Message::Message(QString k, QString v) {
@@ -34,7 +35,7 @@ bool Message::fromByteArray(QByteArray& buf)
 
     if (/*s[0] != '#' || s[1] != '#' || s[s.size()-1] != '#' || s[s.size()-2] != '#' ||*/ lista.size() != 3)
     {
-        qDebug() << "Message::fromString: bad message. got: " << s;
+        //qDebug() << "Message::fromString: bad message. got: " << s;
         return false;
     }
 
