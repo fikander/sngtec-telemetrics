@@ -25,7 +25,6 @@ void HTTPLogSender::sendLogs(QString address, QVector<QString> log) {
 
     http.setHost(url.host(), QHttp::ConnectionModeHttps);
     http.request(header, dataFile.toAscii());
-
 }
 
 void HTTPLogSender::sendLogs(QString address, QFile file) {
@@ -37,7 +36,6 @@ void HTTPLogSender::sendLogs(QString address, QFile file) {
 
     http.setHost(url.host(), QHttp::ConnectionModeHttps);
     http.request(header, &file);
-
 }
 
 void HTTPLogSender::done(bool error) {
@@ -52,7 +50,6 @@ void HTTPLogSender::done(bool error) {
     }
 
     emit statusUpdate(message);
-
 }
 
 void HTTPLogSender::catchSslErrors ( const QList<QSslError> & errors ) {

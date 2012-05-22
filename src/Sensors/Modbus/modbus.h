@@ -24,7 +24,7 @@ class Modbus : public DevConnection {
         Modbus* create(Configurator *config, int no);
         Modbus* clone(Configurator *config, int no);
         ~Modbus(); // was virtual
-
+        Modbus();
         Modbus(Configurator* config, int no);
 
         void write(QVector<Message> messages);

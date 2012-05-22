@@ -24,18 +24,17 @@ Modbus* Modbus::clone(Configurator *config, int no){
     return new Modbus(config, no);
 }
 
+Modbus::Modbus() {}
+
 Modbus::Modbus(Configurator* new_config, int no){
         config = new_config;
-        qDebug() << "Modbus chce sie inicjalizowac";
         QString serial_port_name = config->deviceTranslate(no, QString("port"));
-        qDebug() << "a";
-        QString bandwidth = config->deviceTranslate(no, QString("bandwidth"));
-        qDebug() << "b";
-        QString parity = config->deviceTranslate(no, QString(parity));
-        qDebug() << "Modbus chce zadzialac";
+        QString bandwidth = config->deviceTranslate(no, "bandwidth");
+        QString parity = config->deviceTranslate(no, "parity");
         preparePort(serial_port_name.toStdString().c_str(), bandwidth, parity); //.toStdString().c_str());
         portNotifier = new QSocketNotifier(fd, QSocketNotifier::Read);
         QObject::connect(portNotifier, SIGNAL(activated(int)), this, SLOT(readFromSensor()), Qt::DirectConnection);
+        qDebug() << __PRETTY_FUNCTION__ << "Modbus init complete!";
 }
 
 
