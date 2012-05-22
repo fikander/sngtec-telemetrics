@@ -9,13 +9,12 @@
 
 
 CosmCloud::CosmCloud(Configurator* config)
-    : currentCosmXml(config->getFeed()), sendFeed(config->getFeed()), apiKey(config->getApiKey()),
+    : currentCosmXml(config->getSendFeed()), sendFeed(config->getSendFeed()), ordersFeed(config->getReceiveFeed()), apiKey(config->getApiKey()),
       last_time(QDateTime::currentDateTime()){
     QObject::connect(&http, SIGNAL(sslErrors(const QList<QSslError> &)),  &http, SLOT(ignoreSslErrors()));
     QObject::connect(&http, SIGNAL(done(bool)), this, SLOT(done(bool)));
     QObject::connect(&orderHttp, SIGNAL(done(bool)), this, SLOT(ordersDone(bool)));
     busy = false;
-    ordersFeed = sendFeed;
     last_time = last_time.addSecs(-2 * 60 * 60);
 }
 

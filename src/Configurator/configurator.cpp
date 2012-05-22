@@ -175,11 +175,6 @@ int Configurator::getCloudPort() {
     return cloudPort;
 }
 
-
-QString Configurator::getFeed() {
-    return feedNo;
-}
-
 QString Configurator::getApiKey() {
     return apiKey;
 }
