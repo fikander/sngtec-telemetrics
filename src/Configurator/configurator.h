@@ -21,7 +21,6 @@ public:
     Configurator();
     DevConnection* giveDevice();
     CloConnection* giveCloud();
-    QString getFeed();
     QString getApiKey();
     QString getReceiveFeed();
     QString getSendFeed();
@@ -47,7 +46,6 @@ private:
     QVector<QHash<QString, QString> > devDicts;
     QString receiveFeed, sendFeed, cloudAddress;
     int cloudPort;
-    QString feedNo;
     QString apiKey;
     QString cloudType, devType;
     QDomElement devPointer;
