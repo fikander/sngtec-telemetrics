@@ -10,6 +10,7 @@
 #include "Message/message.h"
 #include "Configurator/configurator.h"
 #include "Logger/logger.h"
+#include "LogSender/logsender.h"
 
 class CloConnection;
 class DevProxy;
@@ -27,6 +28,7 @@ private:
     QQueue<Message> que;
     void dispatchMessage(Message m);
     QVector<DevProxy*> devList;
+    LogSender *sender;
 
 public:
     CloProxy(Configurator *config);

@@ -72,6 +72,12 @@ Configurator::Configurator() {
     devNo = 0;
 
     devDicts.resize(devicesAmount);
+
+
+    // Log push
+    e = root.firstChildElement("logger");
+    logPushCommand = e.attribute("command");
+    logPushAddress = e.attribute("address");
 }
 
 CloConnection* Configurator::giveCloud() { 
