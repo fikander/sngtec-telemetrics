@@ -65,9 +65,9 @@ Przykładowa konfiguracja dla chmury typu:
 
 
 \section{Konfiguracja sensorów}
-Obsługujemy sensory typów: sng, modbus, mock.
+Obsługujemy sensory typów: sng, modbus, mock.\\
 
-Opis powinien wyglądać jak:
+Opis powinien wyglądać tak:
 \begin{verbatim}
 <device type="typ" name="nazwa">
 <mappings klucz="wartosc"
@@ -77,7 +77,9 @@ Opis powinien wyglądać jak:
 
 Klucze i wartości zdefiniowane są przez konkretne rodzaje sensorów. Mock nie jest konfigurowany.
 W kluczach i wartościach podwójne podkreślenie \verb|__| jest używane jako separator i nie
-powinno być używane w innych celach.
+powinno być używane w innych celach. Format XML nie obsługuje atrybutów zaczynających się od cyfry,
+należy więc go poprzedzić separatorem. W szczególności niepoprawny jest wpis: \verb|1.1.1="wartosc"|,
+poprawna wersja to: \verb|__1.1.1="wartosc"|
 
 
 \subsection{Modbus}
@@ -131,18 +133,24 @@ za te funkcje odpowiada adres grupowy \verb|2.3.4|, a wartość oczekiwana jest 
 \subsubsection{Odbieranie od czujników}
 Aby wiadomość otrzymaną od czujnika przesłać do chmury, należy ustawić adres urządzenia od którego odbieramy,
 adres na których urządzenie telemetryczne ma nasłuchiwać, oraz które wartości otrzymywane nas interesują i 
-przypisać do nich klucz z chmury.\\
+przypisać do nich klucz z chmury. Istnieje możliwość nasłuchiwania tylko na konkretnym adresie grupowym,
+bez uwzględniania adresu fizycznego nadawcy. Należy w tym celu w konfiguracji jako adres fizyczny
+podać \verb|0.0.0|.\\
+\\
+Chcąc monitorować temperaturę z wielu czujników, które wysyłają je na adres grupowy \verb|3.4.5| i wysyłać chmurze
+jako wiadomość \verb|nowa_temp|, w konfiguracji powinien znaleźć się wpis:\\
+\verb|__0.0.0__3.4.5__Temp="nowa_temp"|\\
 \\
 Aby móc odbierać sygnał o udanym włączeniu światła przez fizyczny obwód o adresie \verb|1.1.1|,
 który rozgłasza tę informację na adres grupowy \verb|1.2.5| i przekazac jako wiadomosc 
 \verb|swiatlo_wlaczono| do chmury powinniśmy skonfigurować moduł następująco:\\
-\verb|1.1.1__1.2.5__OnOff="swiatlo_wlaczono"|\\
+\verb|__1.1.1__1.2.5__OnOff="swiatlo_wlaczono"|\\
 \\
 Jeśli czujnik temperatury o adresie fizycznym \verb|1.3.4| został skonfigurowany tak, że po przekroczeniu
 pewnej temperatury w pomieszczeniu rozsyła na adres grupowy \verb|1.0.0| informację o tej temperaturze,
 my zaś chcemy to odebrać i przesłać do chmury informację o kluczu \verb|temp_podniesiona| to powinniśmy w
 pliku konfiguracyjnym dodać wpis:\\
-\verb|1.3.4__1.0.0__Temp="temp_podniesiona"|  
+\verb|__1.3.4__1.0.0__Temp="temp_podniesiona"|  
 
 \subsubsection{Przykład}
 Przykładowa część pliku konfiguracyjnego dotycząca SNG może wyglądać tak:
@@ -153,8 +161,9 @@ Przykładowa część pliku konfiguracyjnego dotycząca SNG może wyglądać tak
               physicalAddress="4.5.6"
               sciemnianie="1.2.3__Dimm"
               steruj_swiatlem="2.3.4__Value"
-              1.1.1__1.2.5__OnOff="swiatlo_wlaczono"
-              1.3.4__1.0.0__Temp="temp_podniesiona"
+              __0.0.0__3.4.5__Temp="nowa_temp"
+              __1.1.1__1.2.5__OnOff="swiatlo_wlaczono"
+              __1.3.4__1.0.0__Temp="temp_podniesiona"
                />
   </device>
 \end{verbatim}
