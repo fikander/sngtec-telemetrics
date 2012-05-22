@@ -76,8 +76,14 @@ Configurator::Configurator() {
 
     // Log push
     e = root.firstChildElement("logger");
-    logPushCommand = e.attribute("command");
-    logPushAddress = e.attribute("address");
+    if (!e.isNull()) {
+        logPushCommand = e.attribute("command");
+        logPushAddress = e.attribute("address");
+    } else {
+        logPushCommand = "";
+        logPushAddress = "";
+        qWarning() << "No data for pushing logs provided!";
+    }
 }
 
 CloConnection* Configurator::giveCloud() { 
