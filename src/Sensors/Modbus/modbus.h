@@ -23,7 +23,7 @@ class Modbus : public DevConnection {
   public:
         Modbus* create(Configurator *config, int no);
         Modbus* clone(Configurator *config, int no);
-        ~Modbus(); // was virtual
+        ~Modbus();
         Modbus();
         Modbus(Configurator* config, int no);
 
@@ -41,6 +41,9 @@ class Modbus : public DevConnection {
         int checkResponseCRC(unsigned char* answer, unsigned char* answer_data,
                              int answer_size, int take_byte_count, unsigned short crc);
         int preparePort(char* port, QString bandwidth, QString parity);
+
+        //Protects from read problems & makes timeout
+        int tryRead(unsigned char* buffer, int size);
 
         int fd;
         QSocketNotifier* portNotifier;
