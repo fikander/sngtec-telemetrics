@@ -13,8 +13,12 @@ ModbusRtuFrame::ModbusRtuFrame(unsigned char new_function, int new_data_length){
 }
 
 void ModbusRtuFrame::setAddr(unsigned char new_addr){
+    qDebug() << __PRETTY_FUNCTION__ << "new address is:" << new_addr;
+    qDebug() << __PRETTY_FUNCTION__ << "old address is:" << addr;
     addr = new_addr;
+    qDebug() << __PRETTY_FUNCTION__ << ": succesful set address.." << addr << new_addr;
     countCRC();
+
 }
 
 void ModbusRtuFrame::setData(unsigned char* new_data, short new_data_length){

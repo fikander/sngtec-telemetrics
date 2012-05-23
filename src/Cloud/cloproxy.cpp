@@ -41,12 +41,17 @@ void CloProxy::dispatchMessage(Message m) {
     }
 
     // Find the mapping in the devices table
-    dev = devList[configurator->devNamesToNumbers[name]];
-    // Prepare some payload
-    QVector<Message> payload;
-    m.key = m.key.section('|', 1);
-    payload.push_back(m);
-    dev->ioDevice->write(payload);
+    if (configurator->devNamesToNumbers.contains(name)) {
+        dev = devList[configurator->devNamesToNumbers[name]];
+        // Prepare some payload
+        QVector<Message> payload;
+        m.key = m.key.section('|', 1);
+        payload.push_back(m);
+        dev->ioDevice->write(payload);
+        return;
+    } else {
+        qWarning() << "Ignoring unexpected message:" << m.key << " " << m.value;
+    }
     //qDebug() << __PRETTY_FUNCTION__  << "Sent to device number:" << configurator->devNamesToNumbers[name] << " " << m.key << ";" << m.value;
 }
 
