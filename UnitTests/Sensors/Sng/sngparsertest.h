@@ -1,9 +1,9 @@
 #ifndef SNGMSGPARSERTEST_H
 #define SNGMSGPARSERTEST_H
 
-#include "AutoTest.h"
+#include "TestsManager.h"
 #include <QString>
-#include "src/Sensors/SNG/sngmsgparser.h"
+#include "Sensors/SNG/sngmsgparser.h"
 
 class SngMsgParserTest : public QObject
 {

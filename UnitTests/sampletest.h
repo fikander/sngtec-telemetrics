@@ -1,7 +1,7 @@
 #ifndef SAMPLETEST_H
 #define SAMPLETEST_H
 
-#include "AutoTest.h"
+#include "TestsManager.h"
 
 class SampleTest : public QObject
 {

@@ -1,8 +1,8 @@
 #ifndef SNGPHYSICALADDRESSTEST_H
 #define SNGPHYSICALADDRESSTEST_H
 
-#include "AutoTest.h"
-#include "src/Sensors/SNG/sngphysicaladdress.h"
+#include "TestsManager.h"
+#include "Sensors/SNG/sngphysicaladdress.h"
 
 class SngPhysicalAddressTest : public QObject
 {

@@ -2,7 +2,7 @@
 #define COSMTIMETEST_H
 
 #include <QObject>
-#include "AutoTest.h"
+#include "TestsManager.h"
 
 class CosmtimeTest : public QObject{
     Q_OBJECT

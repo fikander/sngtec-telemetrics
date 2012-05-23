@@ -10,7 +10,8 @@ TARGET = telemetron-test
 CONFIG += console
 CONFIG -= app_bundle
 
-INCLUDEPATH += ../
+INCLUDEPATH += ../src/ \
+               ../
 
 OBJECTS_DIR = ../build/.obj-test
 MOC_DIR = ../build/.moc-test
@@ -61,7 +62,7 @@ SOURCES += main.cpp \
     Sensors/Sng/sngphysicaladdresstest.cpp \
     Sensors/Sng/sngparsertest.cpp
 
-HEADERS += AutoTest.h \
+HEADERS += \
     sampletest.h \
     Cloud/Cosm/cosmtimetest.h \
     Cloud/Cosm/cosmxmltest.h \
@@ -70,4 +71,5 @@ HEADERS += AutoTest.h \
     Sensors/Sng/sngtest.h \
     Sensors/Sng/sngmsgcreatortest.h \
     Sensors/Sng/sngphysicaladdresstest.h \ 
-    Sensors/Sng/sngparsertest.h
+    Sensors/Sng/sngparsertest.h \
+    TestsManager.h

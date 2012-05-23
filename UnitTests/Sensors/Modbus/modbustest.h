@@ -2,7 +2,7 @@
 #define MODBUSTEST_H
 
 
-#include "AutoTest.h"
+#include "TestsManager.h"
 
 class ModbusTest : public QObject
 {

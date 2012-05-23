@@ -1,9 +1,9 @@
 #ifndef SNGMSGCREATORTEST_H
 #define SNGMSGCREATORTEST_H
 
-#include "AutoTest.h"
+#include "TestsManager.h"
 #include <QString>
-#include "src/Sensors/SNG/sngmsgcreator.h"
+#include "Sensors/SNG/sngmsgcreator.h"
 
 class SngMsgCreatorTest : public QObject
 {

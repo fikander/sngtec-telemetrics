@@ -2,7 +2,7 @@
 #define COSMXMLTEST_H
 
 #include <QObject>
-#include "AutoTest.h"
+#include "TestsManager.h"
 
 class CosmxmlTest : public QObject{
     Q_OBJECT

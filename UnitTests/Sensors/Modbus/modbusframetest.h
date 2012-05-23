@@ -1,7 +1,7 @@
 #ifndef MODBUSFRAMETEST_H
 #define MODBUSFRAMETEST_H
 
-#include "AutoTest.h"
+#include "TestsManager.h"
 
 class ModbusFrameTest : public QObject
 {

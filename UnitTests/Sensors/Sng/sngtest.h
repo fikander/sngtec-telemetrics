@@ -2,8 +2,8 @@
 #define SNGTEST_H
 
 #include <QObject>
-#include "AutoTest.h"
-#include "src/Sensors/SNG/sngconnection.h"
+#include "TestsManager.h"
+#include "Sensors/SNG/sngconnection.h"
 
 class SngTest : public QObject
 {

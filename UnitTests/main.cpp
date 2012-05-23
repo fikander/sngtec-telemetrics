@@ -1,7 +1,7 @@
-#include "AutoTest.h"
+#include "TestsManager.h"
 #include <QDebug>
 
 int main(int argc, char *argv[])
 {
-    return AutoTest::run(argc, argv);
+    return runTests(argc, argv);
 }
