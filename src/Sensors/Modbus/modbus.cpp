@@ -202,7 +202,7 @@ int Modbus::tryRead(unsigned char* buffer, int size){
 void Modbus::readFromSensor(){
     //qDebug() <<"Mamy czytac!";
     // answer[0] = address, [1] = function, [2] = byte count
-    unsigned char answer[3]; //= new unsigned char[3]; //na statica
+    unsigned char answer[3];
     unsigned char* answer_data = NULL;
     unsigned short crc;
     unsigned short sent_crc;
