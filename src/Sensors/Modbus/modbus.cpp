@@ -138,7 +138,7 @@ ModbusRtuFrame* Modbus::decodeMessage(Message msg){
         frame->setData(msg.value.toAscii());
     } else {
         qDebug() << "Modbus can't send massage !";
-        return;
+        return NULL;
     }
     frame->setAddr(sensor_address);
     //qDebug() << "koniec decoda";
@@ -148,18 +148,21 @@ ModbusRtuFrame* Modbus::decodeMessage(Message msg){
 void Modbus::write( QVector<Message> messages){
         for (QVector<Message>::iterator it = messages.begin(); it < messages.end(); it++) {
                 ModbusRtuFrame* frame = decodeMessage(*it);
-                unsigned char** data = frame->toSend();
-                for (int j = 0; j < 2; j++) {
-                    if ((::write(fd, data[j], 1)) < 0)
-                        qDebug() << "Modbus: write error!" << errno;
-                }
-                if ((::write(fd, data[2], frame->showSize())) < 0)
-                    qDebug() << "Modbus: data write error";
-                if ((::write(fd, data[3], sizeof(short))) < 0)
-                    qDebug() << "Modbus: crc write error";
-                delete []data;
-                delete frame;
-                ::sleep(1); //important for RTU frames
+                if (frame != NULL) {
+                    unsigned char** data = frame->toSend();
+                    for (int j = 0; j < 2; j++) {
+                        if ((::write(fd, data[j], 1)) < 0)
+                            qDebug() << "Modbus: write error!" << errno;
+                    }
+                    if ((::write(fd, data[2], frame->showSize())) < 0)
+                        qDebug() << "Modbus: data write error";
+                    if ((::write(fd, data[3], sizeof(short))) < 0)
+                        qDebug() << "Modbus: crc write error";
+                    delete []data;
+                    delete frame;
+                    ::sleep(1); //important for RTU frames
+                } else
+                    qDebug() << "Got wrong message!";
         }
         qDebug() << "Modbus writing finished ";
 }

@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
 
     // For Modbus tests:
 
-    //Modbus* m = (Modbus*) devices[1]->ioDevice;
+    //Modbus* m = (Modbus*) devices[0]->ioDevice;
     //QVector<Message>* messages = new QVector<Message>();
     //Message* mesg = new Message("\x02\x03", QString::fromAscii("\x00\x07\x00\x04", 4));
     //Message* mesg2 = new Message("\x02\x03", QString::fromAscii("\x00\x07\x00\x07", 4));
