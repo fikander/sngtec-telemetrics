@@ -38,8 +38,8 @@ public:
     QHash<QString, int> devNamesToNumbers;
     QHash<int, QString> devNumbersToNames;
     QVector<DevConnection*> devPtrs;
+    QString logPushResponse;
     QString logPushCommand;
-    QString logPushAddress;
 private:
     QDomElement root;
     DevConnection* readDevice(QDomElement &devPointer);

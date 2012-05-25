@@ -38,6 +38,7 @@ public:
 public slots:
     void askServer();
     void queue(Message payload);
+    void senderResponse(Message payload);
 };
 
 #endif // CLOPROXY_H

@@ -77,11 +77,11 @@ Configurator::Configurator() {
     // Log push
     e = root.firstChildElement("logger");
     if (!e.isNull()) {
+        logPushResponse = e.attribute("response");
         logPushCommand = e.attribute("command");
-        logPushAddress = e.attribute("address");
     } else {
+        logPushResponse= "";
         logPushCommand = "";
-        logPushAddress = "";
         qWarning() << "No data for pushing logs provided!";
     }
 }

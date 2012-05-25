@@ -17,7 +17,7 @@ CloProxy::CloProxy(Configurator *config) {
     ioDevice = config->giveCloud();
     ioDevice->connect();
     sender = new HTTPLogSender();
-    connect(sender, SIGNAL(statusUpdate(Message)), this, SLOT(queue(Message)));
+    connect(sender, SIGNAL(statusUpdate(Message)), this, SLOT(senderResponse(Message)));
 }
 
 
@@ -33,11 +33,9 @@ void CloProxy::dispatchMessage(Message m) {
 
     if (name == configurator->logPushCommand) {
         QString address = m.value;
-        if (address == "") {
-            address = configurator->logPushAddress;
-        }
         sender->sendLogs(address,
                          Logger::getInstance()->giveLogs());
+        return;
     }
 
     // Find the mapping in the devices table
@@ -90,3 +88,9 @@ void CloProxy::askServer() {
 void CloProxy::queue(Message payload) {
     que.enqueue(payload);
 }
+
+void CloProxy::senderResponse(Message payload) {
+    payload.key = configurator->logPushResponse;
+    que.enqueue(payload);
+}
+
