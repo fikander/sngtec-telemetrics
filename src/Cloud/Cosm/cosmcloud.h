@@ -5,6 +5,7 @@
 #include "cosmxml.h"
 #include <QHttp>
 #include <QMap>
+#include <QTimer>
 #include "Message/message.h"
 
 class Configurator;
@@ -41,6 +42,7 @@ private:
     QHttp orderHttp;
     QMap <QString, Message> last_messages;
     QDateTime last_time;
+    QTimer requestTimer;
 
 public slots:
     void getOrders();
@@ -49,9 +51,6 @@ public slots:
     void retry();
     void getOrdersSlot();
     void catchSslErrors ( const QList<QSslError> & errors );
-
-signals:
-    void orderReceived(QVector<Message>);
 
 };
     

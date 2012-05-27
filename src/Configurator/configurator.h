@@ -25,6 +25,8 @@ public:
     QString getReceiveFeed();
     QString getSendFeed();
     QString getCloudAddress();
+    QString getRequestTime();
+    QString getCosmTimeDifference();
     int getCloudPort();
 
 
@@ -47,6 +49,8 @@ private:
     QString receiveFeed, sendFeed, cloudAddress;
     int cloudPort;
     QString apiKey;
+    QString cosmTimeDifference;
+    QString cosmRequestTime;
     QString cloudType, devType;
     QDomElement devPointer;
     int devNo;

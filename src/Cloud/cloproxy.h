@@ -39,6 +39,7 @@ public slots:
     void askServer();
     void queue(Message payload);
     void senderResponse(Message payload);
+    void receiveServerMessages(QVector<Message> );
 };
 
 #endif // CLOPROXY_H

@@ -46,6 +46,8 @@ Configurator::Configurator() {
                 sendFeed = e.attribute("sendFeed", "");
                 receiveFeed = e.attribute("receiveFeed", "");
                 apiKey = e.attribute("apikey", "");
+                cosmTimeDifference = e.attribute("timezone", "");
+                cosmRequestTime = e.attribute("request", "");
             }
 
             if (cloudType == "topology") {
@@ -183,6 +185,14 @@ int Configurator::getCloudPort() {
 
 QString Configurator::getApiKey() {
     return apiKey;
+}
+
+QString Configurator::getRequestTime() {
+    return cosmRequestTime;
+}
+
+QString Configurator::getCosmTimeDifference() {
+    return cosmTimeDifference;
 }
 
 // Do usuniecia

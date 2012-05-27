@@ -4,11 +4,14 @@
   <logger response="sendOk"
           command="sendLogs" />
          <!-- Pachube Login: zpptelemetron Password: poiuy -->
-  <cloud type="mock" 
+  <cloud type="cosm" 
          sendFeed="61151" 
          receiveFeed="61152" 
-         apikey="my9wCHAREdxKgu_SGis213_ivhuSAKxzdmxzN3p0RVNSQT0g" />
+         apikey="my9wCHAREdxKgu_SGis213_ivhuSAKxzdmxzN3p0RVNSQT0g"
+         request="10"
+         timezone="-2" />
 
+<!--
   <device type="sng" name="alpha">
     <mappings address="localhost"
               port="8888"
@@ -23,5 +26,10 @@
               parity="Even"
               bandwidth="9600"
               />
+  </device>
+  -->
+
+  <device type="mock" name="beta">
+    <mappings tempdev="tempcloud" />
   </device>
 </telemetron>

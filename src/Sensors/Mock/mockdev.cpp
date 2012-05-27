@@ -31,7 +31,11 @@ void MockDev::fakeSignal() {
 }
 
 
-void MockDev::write(QVector<Message>) {
+void MockDev::write(QVector<Message> messages) {
+    qDebug() << "Mock: writing messages";
+    foreach (Message m, messages) {
+        qDebug() << "Got message:" << m.key << "," << m.value;
+    }
     return;
 }
 

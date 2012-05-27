@@ -14,8 +14,10 @@ CosmCloud::CosmCloud(Configurator* config)
     QObject::connect(&http, SIGNAL(sslErrors(const QList<QSslError> &)),  &http, SLOT(ignoreSslErrors()));
     QObject::connect(&http, SIGNAL(done(bool)), this, SLOT(done(bool)));
     QObject::connect(&orderHttp, SIGNAL(done(bool)), this, SLOT(ordersDone(bool)));
+    QObject::connect(&requestTimer, SIGNAL(timeout()), this, SLOT(getOrdersSlot()));
     busy = false;
-    last_time = last_time.addSecs(-2 * 60 * 60);
+    last_time = last_time.addSecs(config->getCosmTimeDifference().toInt() * 60 * 60);
+    requestTimer.start(config->getRequestTime().toInt() * 1000);
 }
 
 CosmCloud::CosmCloud(QString feed, QString sendfeed, QString key)
@@ -42,6 +44,7 @@ CosmCloud::~CosmCloud() {
 void CosmCloud::connect() {}
 
 void CosmCloud::write(QVector<Message> messages) {
+    //qDebug() << __PRETTY_FUNCTION__ << "sending data";
     CosmXml pxml(sendFeed);
     for(MessagesSet::const_iterator it = messages.begin(); it != messages.end(); ++it) {
         pxml.addData(*it);
@@ -65,7 +68,7 @@ void CosmCloud::done(bool error) {
     }
     else {
         busy = false;
-        qDebug() << "cosm cloud done" << http.readAll();
+        //qDebug() << "cosm cloud done" << http.readAll();
         emit readyToWrite();
     }
 }
@@ -104,9 +107,11 @@ void CosmCloud::ordersDone(bool error) {
     }
     else {
         CosmXml ordersXml = CosmXml::CosmFromXml(orderHttp.readAll());
+        //qDebug() << orderHttp.readAll();
         QVector<Message> messages = ordersXml.getMessages();
         removeOldOrders(messages);
         updateOrders(messages);
+        //qDebug() << "messages received: " << messages.size();
         emit orderReceived(messages);
     }
 }

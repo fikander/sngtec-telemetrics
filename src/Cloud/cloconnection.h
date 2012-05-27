@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QVector>
+#include "Message/message.h"
 
 
 class Message;
@@ -27,6 +28,7 @@ public:
 signals:
     void readyToRead();
     void readyToWrite();
+    void orderReceived(QVector<Message>);
 };
 
 #endif // CLOCONNECTION_H

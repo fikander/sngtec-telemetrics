@@ -35,9 +35,6 @@ public slots:
     void error(QAbstractSocket::SocketError);
     void readyRead();
 
-signals:
-    void orderReceived(QVector<Message>);
-
 };
 
 #endif

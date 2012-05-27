@@ -3,6 +3,11 @@
 #include <QVector>
 #include "Message/message.h"
 
+MockCloud::MockCloud() {
+    QObject::connect(&receive, SIGNAL(timeout()), this, SLOT(receiveFakeData()));
+    receive.start(60 * 1000);
+}
+
 CloConnection* MockCloud::create(Configurator*) {
     return new MockCloud();
 }
@@ -30,6 +35,12 @@ QVector<Message> MockCloud::readAll() {
     QVector<Message> incoming;
     incoming.push_back(Message("alpha|cloud", "ok"));
     return incoming;
+}
+
+void MockCloud::receiveFakeData() {
+    QVector<Message> incoming;
+    incoming.push_back(Message("alpha|cloud", "ok"));
+    emit orderReceived(incoming);
 }
 
 bool MockCloud::isBusy() {

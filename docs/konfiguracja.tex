@@ -37,33 +37,35 @@ Powinien on rozpoczynać sie tagiem: (\verb|<!DOCTYPE TelemetronConfig>|). Cała
 
 \section{Konfiguracja chmury}
 
-\subsection{Pachube}
+\subsection{Cosm}
 
-Aby urządzenie działało z serwisem pachube należy najpierw skonfigurować urządzenie aby używało chmury pachube (ustawiając pole \verb|type|).
+Aby urządzenie działało z serwisem cosm należy najpierw skonfigurować urządzenie aby używało chmury cosm (ustawiając pole \verb|type|).
 Do konfiguracji należy podać:
 \begin{enumerate}
-\item Numer feedu do wysyłania. Można go stworzyć po zalogowaniu na stronie pachube za pomocą “Create feed”. Zaleca się tworzenie feedów prywatnych.
+\item Numer feedu do wysyłania. Można go stworzyć po zalogowaniu na stronie cosm za pomocą “Create feed”. Zaleca się tworzenie feedów prywatnych.
 \item Numer feedu do odbierania danych.
-\item Api key wygenerowany na stronie pachube mający dostęp do obu feedów (jeśli zostały stworzone jako feedy prywatne).
+\item Api key wygenerowany na stronie cosm mający dostęp do obu feedów (jeśli zostały stworzone jako feedy prywatne).
 \item Konfiguracje mapowania kluczy datastreamów
+\item request czas pullingu danych z chmury
+\item timezone różnica czasu urządzenia od czasu cosm
+
 \end{enumerate}
 
 \subsubsection{Datastreamy}
-Każdy feed zawiera datastreamy mogące zawierać dowolne dane (liczby całkowite, ułamkowe, oraz napisy). Każdy datastream jest identyfikowalny za pomocą unikalnego klucza (napisu). Urządzenie odbiera dane z feedu tłumacząc unikalny klucz przy użyciu mappera. Konfiguracja mappera pozwala na rozstrzygnięcie, jak klucze dostępne w serwisie pachube, mają być tłumaczone na klucze wysyłane do konkretnych urządzeń. Chmura pachube odbiera dane z feedów, następnie tłumaczy klucze w skonfigurowany sposób na klucze wysyłane do konkretnych sensorów.
-Dane odbierane od sensorów i wysyłane do strony pachube również tłumaczone są przy pomocy mappera.
+Każdy feed zawiera datastreamy mogące zawierać dowolne dane (liczby całkowite, ułamkowe, oraz napisy). Każdy datastream jest identyfikowalny za pomocą unikalnego klucza (napisu). Urządzenie odbiera dane z feedu tłumacząc unikalny klucz przy użyciu mappera. Konfiguracja mappera pozwala na rozstrzygnięcie, jak klucze dostępne w serwisie cosm, mają być tłumaczone na klucze wysyłane do konkretnych urządzeń. Chmura cosm odbiera dane z feedów, następnie tłumaczy klucze w skonfigurowany sposób na klucze wysyłane do konkretnych sensorów.
+Dane odbierane od sensorów i wysyłane do strony cosm również tłumaczone są przy pomocy mappera.
 
 \subsubsection{Przykład}
 
 Przykładowa konfiguracja dla chmury typu:
 \begin{verbatim}
-  <cloud type="pachube" 
+  <cloud type="cosm" 
          sendFeed="42213" 
          receiveFeed="42213" 
-         apikey="7p1iGBicjYRQS20cEDjFdr3SnTldEyq-kL2XabP6iXw" />
+         apikey="7p1iGBicjYRQS20cEDjFdr3SnTldEyq-kL2XabP6iXw"
+         request="1"
+         timezone="-2" />
 \end{verbatim}
-
-
-
 
 \section{Konfiguracja sensorów}
 Obsługujemy sensory typów: sng, modbus, mock.\\
