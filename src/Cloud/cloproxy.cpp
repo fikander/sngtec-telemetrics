@@ -18,6 +18,7 @@ CloProxy::CloProxy(Configurator *config) {
     ioDevice->connect();
     sender = new HTTPLogSender();
     connect(sender, SIGNAL(statusUpdate(Message)), this, SLOT(senderResponse(Message)));
+    connect(config->giveCloud(), SIGNAL(orderReceived(QVector<Message>)), this, SLOT(receiveServerMessages(QVector<Message> )));
 }
 
 
@@ -89,7 +90,7 @@ void CloProxy::askServer() {
 
 void CloProxy::receiveServerMessages(QVector<Message> incoming) {
    for (int i = 0; i < incoming.size(); i++) {
-       //qDebug() << __PRETTY_FUNCTION__ << "Read from cloud" << incoming[i].key << " " << incoming[i].value;
+       qDebug() << __PRETTY_FUNCTION__ << "Read from cloud" << incoming[i].key << " " << incoming[i].value;
        dispatchMessage(incoming[i]);
    }
 }
