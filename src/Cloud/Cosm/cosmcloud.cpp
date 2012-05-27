@@ -108,7 +108,12 @@ void CosmCloud::ordersDone(bool error) {
     else {
         CosmXml ordersXml = CosmXml::CosmFromXml(orderHttp.readAll());
         //qDebug() << orderHttp.readAll();
-        QVector<Message> messages = ordersXml.getMessages();
+        QVector<Message> oldmessages = ordersXml.getMessages();
+        QVector<Message> messages;
+        foreach (Message m, oldmessages) {
+            m.key.replace("_", "|");
+            messages.push_back(m);
+        }
         removeOldOrders(messages);
         updateOrders(messages);
         //qDebug() << "messages received: " << messages.size();

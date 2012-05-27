@@ -90,7 +90,7 @@ void CloProxy::askServer() {
 
 void CloProxy::receiveServerMessages(QVector<Message> incoming) {
    for (int i = 0; i < incoming.size(); i++) {
-       qDebug() << __PRETTY_FUNCTION__ << "Read from cloud" << incoming[i].key << " " << incoming[i].value;
+       //qDebug() << __PRETTY_FUNCTION__ << "Read from cloud" << incoming[i].key << " " << incoming[i].value;
        dispatchMessage(incoming[i]);
    }
 }
