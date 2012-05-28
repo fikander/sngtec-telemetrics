@@ -1,19 +1,19 @@
 #include "crc-count.h"
 
-unsigned short polpol = 0x8005;
 unsigned short init_rem = 0xFFFF;
 unsigned short final_xor = 0x0000;
-unsigned short width = 8 * sizeof(short);
-unsigned short topbit = 1 << (width - 1);
+unsigned short byte_size = 8 * sizeof(short);
+unsigned short topbit = 1 << (byte_size - 1);
+unsigned short some_pol = 0x8005;
 
 
-static unsigned long reflect(unsigned long data, unsigned char nBits) {
+unsigned long reflect(unsigned long data, unsigned char bitsNumber) {
         unsigned long  reflection = 0x00000000;
         unsigned char  bit;
 
-        for (bit = 0; bit < nBits; ++bit) {
+        for (bit = 0; bit < bitsNumber; ++bit) {
                 if (data & 0x01){
-                        reflection |= (1 << ((nBits - 1) - bit));
+                        reflection |= (1 << ((bitsNumber - 1) - bit));
                 }
                 data = (data >> 1);
         }
@@ -22,21 +22,19 @@ static unsigned long reflect(unsigned long data, unsigned char nBits) {
 
 
 
-unsigned short modbusCRC(unsigned char const message[], int nBytes){
-    unsigned short remainder = init_rem;
-    int            byte;
-    unsigned char  bit;
+unsigned short modbusCRC(unsigned char* message, int bytesNumber) {
+    unsigned short crc_rem = init_rem;
 
-    for (byte = 0; byte < nBytes; ++byte) {
-        remainder ^= (reflect(message[byte], 8) << (width - 8));
-        for (bit = 8; bit > 0; --bit) {
-            if (remainder & topbit){
-                remainder = (remainder << 1) ^ polpol;
+    for (int byte = 0; byte < bytesNumber; ++byte) {
+        crc_rem ^= (reflect(message[byte], 8) << (byte_size - 8));
+        for (int bit = 8; bit > 0; --bit) {
+            if (crc_rem & topbit){
+                crc_rem = (crc_rem << 1) ^ some_pol;
             } else {
-                remainder = (remainder << 1);
+                crc_rem = (crc_rem << 1);
             }
         }
     }
-    return (reflect(remainder, width) ^ final_xor);
+    return (reflect(crc_rem, byte_size) ^ final_xor);
 }
 

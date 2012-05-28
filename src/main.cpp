@@ -31,8 +31,8 @@ int main(int argc, char *argv[]) {
 
     //Modbus* m = (Modbus*) devices[0]->ioDevice;
     //QVector<Message>* messages = new QVector<Message>();
-    //Message* mesg = new Message("\x02\x03", QString::fromAscii("\x00\x07\x00\x04", 4));
-    //Message* mesg2 = new Message("\x02\x03", QString::fromAscii("\x00\x07\x00\x07", 4));
+    //Message* mesg = new Message(QString("readFromSecond"), QString::fromAscii("\x00\x07\x00\x01", 4));
+    //Message* mesg2 = new Message(QString("readFromSecond"), QString::fromAscii("\x00\x07\x00\x07", 4));
     //Message* mesg3 = new Message("\x02\x03", QString::fromAscii("\x00\x2A\x00\x08", 4));
     //Message* mesg4 = new Message("\x02\x03", QString::fromAscii("\x00\x05\x00\x07", 4));
     //Message* mesg5 = new Message("\x02\x03", QString::fromAscii("\x00\x03\x00\x08", 4));

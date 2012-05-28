@@ -5,8 +5,8 @@
           command="sendLogs" />
          <!-- Pachube Login: zpptelemetron Password: poiuy -->
   <cloud type="cosm" 
-         sendFeed="61151" 
-         receiveFeed="61152" 
+         sendFeed="61152" 
+         receiveFeed="61153" 
          apikey="my9wCHAREdxKgu_SGis213_ivhuSAKxzdmxzN3p0RVNSQT0g"
          request="10"
          timezone="-2" />
@@ -20,16 +20,18 @@
               __0.0.0__0.0.0__Temp="temperatura"
               __0.0.0__0.0.0__Value="wartosc"
                />
-  </device>
+  </device>-->
+
   <device type="modbus" name="beta">
     <mappings port="/dev/ttyS0"
               parity="Even"
               bandwidth="9600"
+	      readFromSecond="\x02\x03"
               />
   </device>
-  -->
-
+  
+  <!--
   <device type="mock" name="beta">
     <mappings tempdev="tempcloud" />
-  </device>
+  </device> -->
 </telemetron>

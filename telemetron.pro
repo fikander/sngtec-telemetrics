@@ -31,6 +31,7 @@ SOURCES += src/main.cpp \
     src/Sensors/SNG/sngconnection.cpp \
     src/Sensors/SNG/sngphysicaladdress.cpp \
     src/Sensors/Topology/topologysensor.cpp \
+    src/Sensors/Modbus/crc-count.cpp \
     src/Sensors/Modbus/modbus.cpp \
     src/Sensors/Modbus/modbusrtuframe.cpp \
     src/Logger/loggingHandler.cpp \
@@ -38,8 +39,8 @@ SOURCES += src/main.cpp \
     src/LogSender/HTTPLogSender/httplogsender.cpp \
     src/Sensors/SNG/sngframe.cpp \
     src/Sensors/SNG/sngmsgcreator.cpp \
-    src/Sensors/SNG/sngmsgparser.cpp \
-    src/Sensors/Modbus/crc-count.cpp
+    src/Sensors/SNG/sngmsgparser.cpp
+
 HEADERS += src/Sensors/devproxy.h \
     src/Cloud/cloproxy.h \
     src/Configurator/configurator.h \
@@ -55,6 +56,7 @@ HEADERS += src/Sensors/devproxy.h \
     src/Sensors/SNG/sngphysicaladdress.h \
     src/Sensors/SNG/sngconnection.h \
     src/Sensors/Topology/topologysensor.h \
+    src/Sensors/Modbus/crc-count.h \
     src/Sensors/Modbus/modbus.h \
     src/Sensors/Modbus/modbusrtuframe.h \
     src/Logger/loggingHandler.h \
@@ -63,7 +65,7 @@ HEADERS += src/Sensors/devproxy.h \
     src/LogSender/logsender.h \
     src/Sensors/SNG/sngframe.h \
     src/Sensors/SNG/sngmsgcreator.h \
-    src/Sensors/SNG/sngmsgparser.h \
-    src/Sensors/Modbus/crc-count.h
+    src/Sensors/SNG/sngmsgparser.h
+
 
 

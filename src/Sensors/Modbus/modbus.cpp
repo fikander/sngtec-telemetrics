@@ -32,6 +32,7 @@ Modbus::Modbus() {}
 
 Modbus::Modbus(Configurator* new_config, int no){
         config = new_config;
+        number = no;
         //qDebug() << "Starting modbus initialization";
         QString serial_port_name = config->deviceTranslate(no, QString("port")); //QString("/dev/ttyS0"); //
         //qDebug() << "After some translation";
@@ -91,8 +92,12 @@ int Modbus::preparePort(char* port, QString bandwidth, QString parity){
 ModbusRtuFrame* Modbus::decodeMessage(Message msg){
     ModbusRtuFrame* frame = NULL;
     unsigned char* data = NULL;
+    //QString messageKey = config->deviceTranslate(number, msg.key);
+    //qDebug() << "messageKey" << messageKey;
+    //unsigned char sensor_address = messageKey.at(0).toAscii();
+    //qDebug() << sensor_address;
     unsigned char sensor_address = msg.key.at(0).toAscii();
-    msg.key = msg.key.at(1);
+    msg.key = msg.key.at(1); //messageKey.at(1).toAscii(); //msg.key.at(1);
             //read coils / discrete/ holding registers/ input registers
     if (    (msg.key == "\x01") || (msg.key == "\x02") || (msg.key == "\x03") || (msg.key == "\x04") ||
             (msg.key == "\x05") || (msg.key == "\x06")) {
@@ -217,7 +222,7 @@ void Modbus::readFromSensor(){
 
     if (!tryRead(answer, 2))
         return;
-    //qDebug() << "Modbus: incoming transmission";
+    qDebug() << "Modbus: incoming transmission";
     if (answer[1] < 0x80) { // normal function
         if (    (answer[1] == 0x01) || (answer[1] == 0x02) || (answer[1] == 0x03) ||
                 (answer[1] == 0x04) || (answer[1] == 0x0C) || (answer[1] == 0x14) ||
@@ -288,9 +293,19 @@ void Modbus::readFromSensor(){
         }
         if(checkResponseCRC(answer, answer_data, answer_size, take_byte_count, sent_crc)) {
             if (answer[1] != 0x08) { //if not modbus test function
-                QString ret;
-                ret.append(answer[0]).append(answer[1]);
-                Message mesg(ret, QString::fromAscii((char *) answer_data, answer_size));
+                //ret.append(answer[0]).append(answer[1]);
+                QString numb;
+                QString newKey;
+                QString newVal;
+                newKey.append("Fromdevice").append(numb.setNum(answer[0], 16)).append("WithFunc").append(numb.setNum(answer[1], 16));
+                //newVal.append(numb.setNum(answer_data[0]));
+                for (int i = 0; i < answer_size; i++) {
+                    //newVal.append(numb.setNum(answer_data[i]));
+                    newVal.append("|").append(numb.setNum(answer_data[i], 16));
+                }
+                qDebug() << newVal;
+                //Message mesg(ret, QString::fromAscii((char *) answer_data, answer_size));
+                Message mesg(newKey, newVal);
                 msgQue.push_back(mesg);
             }
             qDebug() << "CRC of received message is ok!";

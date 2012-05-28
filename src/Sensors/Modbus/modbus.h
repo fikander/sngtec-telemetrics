@@ -46,6 +46,7 @@ class Modbus : public DevConnection {
         int tryRead(unsigned char* buffer, int size);
 
         int fd;
+        int number;
         QSocketNotifier* portNotifier;
         Configurator * config;
         QVector<Message> msgQue;
