@@ -59,11 +59,12 @@ void CloProxy::askServer() {
 
    // sensors -> cloud
    while (!que.isEmpty()) {
-       Message qs = que.dequeue();
+
        // qs.value = "100";
        //qDebug() << __PRETTY_FUNCTION__ << "Trying to send to server: " << qs.value;
 
        if (!ioDevice->isBusy()) {
+           Message qs = que.dequeue();
            QVector<Message> msgs;
            msgs.push_back(qs);
            //qDebug() << __PRETTY_FUNCTION__ << "Sending to server..";
