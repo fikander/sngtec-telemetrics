@@ -90,18 +90,45 @@ Aby skorzystać z sensora tego typu, należy w konfiguracji podać jako typ \ver
 \subsubsection{Port}
 Urządzenie Telemetryczne komunikuje się z sensorami za pomocą RS-485. W konfiguracji wymagane
 jest podanie właściwej nazwy portu szeregowego.
+\subsubsection{Parzystosc}
+Do komunikacji po RS-485 wymagane jest podanie w polu \verb|parity| parzystości - wartości \verb|Even| lub \verb|Odd|. W razie podania
+innej, nie uwzględnionej, wartości wykorzystana będzie \verb|Even|.
+\subsubsection{Przepustowość}
+Obsługiwane wartości przepustowości to 600, 1200, 1800, 2400, 4800, 9600, 19200, 38400, 57600, 115200. Odpowiednią wartość
+należy podać w polu \verb|bandwidth|, np dla przepustowości 600 będzie to \verb|600|. Jeśli podana wartość nie będzie rozpoznana
+użyta zostanie przepustowość 9600.
 
-\subsubsection{Komunikacja z chmurą}
-Format wiadomości Message w obu kierunkach (do i od) między chmurą i Urządzeniem Telemetrycznym jest identyczny.
-Pod wartością \verb|key| znajdują się 2 bity - adres urządzenia / nr funkcji. Wartość \verb|value| to z kolei dane
-dla tej funkcji (w przypadku komunikacji od chmury do urządzenia) lub zwrócone przez tę funkcję (w przeciwnym kierunku).
-Wszelkie wartości powinny być podawane w formacie szesnastkowym.
+
+\subsubsection{Komunikacja chmury z urządzeniem}
+W celu komunikacji chmury z urządzeniem możliwe jest dwojakie uzupełnienie wiadomości Message.
+Pierwszy sposób polega na wpisaniu 2 bitów jako \verb|key| - adres urządzenia / nr funkcji. Wartość \verb|value| to z kolei
+dane dla tej funkcji. Wszystkie wartości muszą zostać podane w formacie szesnastkowym.
+Przykładowo pole \verb|key| może przyjąć wartość \verb|\x02\x03|, co oznacza wysłanie funkcji nr 3 do urządzenia nr 2. Jeśli pole
+\verb|value| będzie wyglądało jak \verb|\x00\x07\x00\x03| będzie to oznaczało (ponieważ korzystamy z funkcji 3) odczytanie wartości
+trzech rejestrów zaczynając od numeru 7.\\
+
+Druga możliwość wymaga wykorzystania \verb|message_map| w module modbusa. Należy dodać do niego odpowiednie klucze i wartości.
+Następnie przy odczytywaniu wiadomości zarówno wartość \verb|key| jak i \verb|value| zostaną przetłumaczone poprzez tę mapę na im odpowiadające.
+Dzięki temu komunikaty powstałe w chmurze mogą być dużo czytelniejsze dla zwykłego użytkownika.\\
+
+Brak umieszczenia tego rozwiązania w konfiguratorze wynika z trudności z przekazywaniem wartości szesnastkowych w XML'u.
+
+\subsubsection{Komunikacja urządzenia z chmurą}
+Kiedy urządzenie odczyta poprawnie dane z modbusa przygotowuje wiadomość Message w podany sposób: 
+\verb|key| przyjmuje wartosc \verb|fromDeviceXWithFunctionY|, gdzie X to adres urządzenia, a Y numer funkcji.
+W polu \verb|value| przesyłane są wartości funkcji, rozdzielane poprzez |, w formacie szesnastkowym. \\
+Przykładowo, jeśli jako odpowiedź na zapytanie poprzez modbus otrzymaliśmy ciąg bitów \verb|\x02\x03\x04\x33\x41\x53\x65|, to
+wiadomość Message zostanie sformatowana odpowiednio: pole \verb|key| przyjmie wartość \verb|fromDevice2WithFunction3|, a pole
+\verb|value| wartość \verb|04|33|41|53|65|. 
+
 
 \subsubsection{Przykład}
 Część pliku konfiguracyjnego dotycząca Modbusa powinna wyglądać tak:
 \begin{verbatim}
   <device type="modbus" name="beta">
-    <mappings port="/dev/ttyS0" />
+    <mappings port="/dev/ttyS0"
+              parity="Even"
+	      bandwidth="9600" />
   </device>
 \end{verbatim}
 
