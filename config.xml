@@ -26,7 +26,7 @@
     <mappings port="/dev/ttyS0"
               parity="Even"
               bandwidth="9600"
-	      readFromSecond="#52"
+	      readFromSecond="\x44\x45"
               />
   </device>
   

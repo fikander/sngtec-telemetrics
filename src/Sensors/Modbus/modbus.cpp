@@ -99,10 +99,14 @@ void Modbus::prepare_map(){
 ModbusRtuFrame* Modbus::decodeMessage(Message msg){
     ModbusRtuFrame* frame = NULL;
     unsigned char* data = NULL;
-    msg.key = message_map.value(msg.key);
-    msg.value = message_map.value(msg.value);
-    //QString msgKey = config->deviceTranslate(number, "readFromSecond");
-    //qDebug() << msgKey;
+    if (message_map.contains(msg.key))
+      msg.key = message_map.value(msg.key);
+    if (message_map.contains(msg.value))
+      msg.value = message_map.value(msg.value);
+    QString msgKey = config->deviceTranslate(number, "readFromSecond");
+    qDebug() << msgKey;
+    message_map.insert(msgKey, QString("\x44\x45"));
+    qDebug() << message_map.value(msgKey) << " " << msgKey;
     unsigned char sensor_address = msg.key.at(0).toAscii();
     msg.key = msg.key.at(1);
             //read coils / discrete/ holding registers/ input registers
