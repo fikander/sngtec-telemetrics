@@ -6,6 +6,7 @@
 #include "modbusrtuframe.h"
 
 #include <QObject>
+#include <QMap>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -41,6 +42,7 @@ class Modbus : public DevConnection {
         int checkResponseCRC(unsigned char* answer, unsigned char* answer_data,
                              int answer_size, int take_byte_count, unsigned short crc);
         int preparePort(char* port, QString bandwidth, QString parity);
+        void prepare_map();
 
         //Protects from read problems & makes timeout
         int tryRead(unsigned char* buffer, int size);
@@ -50,6 +52,7 @@ class Modbus : public DevConnection {
         QSocketNotifier* portNotifier;
         Configurator * config;
         QVector<Message> msgQue;
+        QMap<QString, QString> message_map;
 };
 
 #endif // MODBUS_H

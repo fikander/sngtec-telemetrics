@@ -17,8 +17,6 @@
 #include <sys/select.h>
 
 
-
-
 Modbus* Modbus::create(Configurator *config, int no){
     return new Modbus(config, no);
 }
@@ -33,16 +31,14 @@ Modbus::Modbus() {}
 Modbus::Modbus(Configurator* new_config, int no){
         config = new_config;
         number = no;
-        //qDebug() << "Starting modbus initialization";
-        QString serial_port_name = config->deviceTranslate(no, QString("port")); //QString("/dev/ttyS0"); //
-        //qDebug() << "After some translation";
-        QString bandwidth = config->deviceTranslate(no, "bandwidth"); //QString("9600"); //
-        QString parity = config->deviceTranslate(no, "parity"); //QString("Even"); //
-        //qDebug() << "And sth was done!";
+        QString serial_port_name = config->deviceTranslate(no, QString("port"));
+        QString bandwidth = config->deviceTranslate(no, "bandwidth");
+        QString parity = config->deviceTranslate(no, "parity");
+        prepare_map();
         preparePort(serial_port_name.toAscii().data(), bandwidth, parity); //.toStdString().c_str());
         portNotifier = new QSocketNotifier(fd, QSocketNotifier::Read);
         QObject::connect(portNotifier, SIGNAL(activated(int)), this, SLOT(readFromSensor()), Qt::DirectConnection);
-        qDebug() << __PRETTY_FUNCTION__ << "Modbus init complete!";
+        //qDebug() << __PRETTY_FUNCTION__ << "Modbus init complete!";
 }
 
 
@@ -89,15 +85,26 @@ int Modbus::preparePort(char* port, QString bandwidth, QString parity){
 }
 
 
+void Modbus::prepare_map(){
+    message_map.insert(QString("ReadFromSecond"),       QString::fromAscii("\x02\x03", 2));
+    message_map.insert(QString("TemperatureRegisters"), QString::fromAscii("\x00\x07\x00\x01", 4));
+    message_map.insert(QString("WindRegisters"),        QString::fromAscii("\x00\x07\x00\x07", 4));
+    message_map.insert(QString("StateRegisters"),       QString::fromAscii("\x00\x2A\x00\x08", 4));
+    message_map.insert(QString("ConstRegisters"),       QString::fromAscii("\x00\x05\x00\x07", 4));
+    message_map.insert(QString("BetsyRegisters"),       QString::fromAscii("\x00\x03\x00\x08", 4));
+    message_map.insert(QString("SteamRegisters"),       QString::fromAscii("\x00\x05\x00\x07", 4));
+    message_map.insert(QString("PressureRegisters"),    QString::fromAscii("\x00\x2A\x00\x08", 4));
+}
+
 ModbusRtuFrame* Modbus::decodeMessage(Message msg){
     ModbusRtuFrame* frame = NULL;
     unsigned char* data = NULL;
-    //QString messageKey = config->deviceTranslate(number, msg.key);
-    //qDebug() << "messageKey" << messageKey;
-    //unsigned char sensor_address = messageKey.at(0).toAscii();
-    //qDebug() << sensor_address;
+    msg.key = message_map.value(msg.key);
+    msg.value = message_map.value(msg.value);
+    //QString msgKey = config->deviceTranslate(number, "readFromSecond");
+    //qDebug() << msgKey;
     unsigned char sensor_address = msg.key.at(0).toAscii();
-    msg.key = msg.key.at(1); //messageKey.at(1).toAscii(); //msg.key.at(1);
+    msg.key = msg.key.at(1);
             //read coils / discrete/ holding registers/ input registers
     if (    (msg.key == "\x01") || (msg.key == "\x02") || (msg.key == "\x03") || (msg.key == "\x04") ||
             (msg.key == "\x05") || (msg.key == "\x06")) {
@@ -174,10 +181,8 @@ void Modbus::write( QVector<Message> messages){
 
 
 QVector<Message> Modbus::readAll(){
-    //qDebug() << "readAll()";
     QVector<Message> messages = QVector<Message>(msgQue);
     msgQue.clear();
-    //qDebug() << "end readAll()";
     return messages;
 }
 
@@ -297,7 +302,7 @@ void Modbus::readFromSensor(){
                 QString numb;
                 QString newKey;
                 QString newVal;
-                newKey.append("Fromdevice").append(numb.setNum(answer[0], 16)).append("WithFunc").append(numb.setNum(answer[1], 16));
+                newKey.append("FromDevice").append(numb.setNum(answer[0], 16)).append("WithFunc").append(numb.setNum(answer[1], 16));
                 //newVal.append(numb.setNum(answer_data[0]));
                 for (int i = 0; i < answer_size; i++) {
                     //newVal.append(numb.setNum(answer_data[i]));

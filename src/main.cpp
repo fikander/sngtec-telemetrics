@@ -28,30 +28,26 @@ int main(int argc, char *argv[]) {
 
 
     // For Modbus tests:
-
-    //Modbus* m = (Modbus*) devices[0]->ioDevice;
-    //QVector<Message>* messages = new QVector<Message>();
-    //Message* mesg = new Message(QString("readFromSecond"), QString::fromAscii("\x00\x07\x00\x01", 4));
-    //Message* mesg2 = new Message(QString("readFromSecond"), QString::fromAscii("\x00\x07\x00\x07", 4));
-    //Message* mesg3 = new Message("\x02\x03", QString::fromAscii("\x00\x2A\x00\x08", 4));
-    //Message* mesg4 = new Message("\x02\x03", QString::fromAscii("\x00\x05\x00\x07", 4));
-    //Message* mesg5 = new Message("\x02\x03", QString::fromAscii("\x00\x03\x00\x08", 4));
-    //Message* mesg6 = new Message("\x02\x03", QString::fromAscii("\x00\x05\x00\x07", 4));
-    //Message* mesg7 = new Message("\x02\x03", QString::fromAscii("\x00\x2A\x00\x08", 4));
-    //messages->append(*mesg);
-    //messages->append(*mesg2);
-    //messages->append(*mesg3);
-    //messages->append(*mesg4);
-    //messages->append(*mesg5);
-    //messages->append(*mesg6);
-    //messages->append(*mesg7);
-    //m->write(*messages);
+/*
+    Modbus* m = (Modbus*) devices[0]->ioDevice;
+    QVector<Message>* messages = new QVector<Message>();
+    Message* mesg = new Message(QString("ReadFromSecond"), QString("TemperatureRegisters"));
+    Message* mesg2 = new Message(QString("ReadFromSecond"), QString("WindRegisters"));
+    Message* mesg3 = new Message(QString("ReadFromSecond"), QString("WindRegisters"));
+    Message* mesg4 = new Message(QString("ReadFromSecond"), QString("StateRegisters"));
+    Message* mesg5 = new Message(QString("ReadFromSecond"), QString("ConstRegisters"));
+    Message* mesg6 = new Message(QString("ReadFromSecond"), QString("SteamRegisters"));
+    Message* mesg7 = new Message(QString("ReadFromSecond"), QString("PressureRegisters"));
+    messages->append(*mesg);
+    messages->append(*mesg2);
+    messages->append(*mesg3);
+    messages->append(*mesg4);
+    messages->append(*mesg5);
+    messages->append(*mesg6);
+    messages->append(*mesg7);
+    m->write(*messages);
     //m->readFromSensor();
-    //m->Test();
-    //m->inmediateWrite();
-    //QString s = QString::fromAscii("\x00\x0C", 2);
-    //qDebug() << (int) s.at(1).toAscii();
-    //qDebug() << "running..";
-    //return a.exec();
-
+    qDebug() << "running..";
+    return a.exec();
+*/
 }
