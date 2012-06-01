@@ -480,7 +480,7 @@ void ModbusTest::f8_Snd_data(){
 void ModbusTest::f18_Rec(){
     QFETCH(unsigned char, addr);
     QFETCH(QString, function);
-    QFETCH(unsigned short, byte_count);
+    //QFETCH(unsigned short, byte_count);
     QFETCH(unsigned char, data1);
     QFETCH(unsigned char, data2);
     QFETCH(unsigned char, data3);

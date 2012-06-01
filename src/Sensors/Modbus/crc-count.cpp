@@ -7,34 +7,30 @@ unsigned short topbit = 1 << (byte_size - 1);
 unsigned short some_pol = 0x8005;
 
 
-unsigned long reflect(unsigned long data, unsigned char bitsNumber) {
-        unsigned long  reflection = 0x00000000;
-        unsigned char  bit;
-
-        for (bit = 0; bit < bitsNumber; ++bit) {
-                if (data & 0x01){
-                        reflection |= (1 << ((bitsNumber - 1) - bit));
-                }
-                data = (data >> 1);
-        }
-        return (reflection);
+unsigned long rotate(unsigned long data, unsigned char bitsNumber) {
+    unsigned long  rotate_var = 0x00000000;
+    unsigned char  bit;
+    for (bit = 0; bit < bitsNumber; ++bit) {
+        if (data & 0x01)
+            rotate_var |= (1 << ((bitsNumber - 1) - bit));
+        data = (data >> 1);
+    }
+    return rotate_var;
 }
 
 
 
 unsigned short modbusCRC(unsigned char* message, int bytesNumber) {
     unsigned short crc_rem = init_rem;
-
     for (int byte = 0; byte < bytesNumber; ++byte) {
-        crc_rem ^= (reflect(message[byte], 8) << (byte_size - 8));
+        crc_rem ^= (rotate(message[byte], 8) << (byte_size - 8));
         for (int bit = 8; bit > 0; --bit) {
-            if (crc_rem & topbit){
+            if (crc_rem & topbit)
                 crc_rem = (crc_rem << 1) ^ some_pol;
-            } else {
+            else
                 crc_rem = (crc_rem << 1);
-            }
         }
     }
-    return (reflect(crc_rem, byte_size) ^ final_xor);
+    return (rotate(crc_rem, byte_size) ^ final_xor);
 }
 

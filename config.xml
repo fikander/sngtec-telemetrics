@@ -26,7 +26,13 @@
     <mappings port="/dev/ttyS0"
               parity="Even"
               bandwidth="9600"
-	      readFromSecond="\x44\x45"
+	      noHexes="False"
+	      readFromSecond="\x02\x03"
+	      dataFromSecond="\x00\x2A\x00\x08"
+	      temperatureRegisters="\x00\x07\x00\x01"
+	      windRegisters="\x00\x07\x00\x07"
+	      stateRegisters="\x00\x2A\x00\x08"
+	      constRegisters="\x00\x05\x00\x07"
               />
   </device>
   

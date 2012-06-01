@@ -6,6 +6,7 @@
 #include <iostream>
 #include <QByteArray>
 #include <QVector>
+#include <QStringList>
 #include <QDebug>
 #include <errno.h>
 #include <string>
@@ -34,11 +35,9 @@ Modbus::Modbus(Configurator* new_config, int no){
         QString serial_port_name = config->deviceTranslate(no, QString("port"));
         QString bandwidth = config->deviceTranslate(no, "bandwidth");
         QString parity = config->deviceTranslate(no, "parity");
-        prepare_map();
-        preparePort(serial_port_name.toAscii().data(), bandwidth, parity); //.toStdString().c_str());
+        preparePort(serial_port_name.toAscii().data(), bandwidth, parity);
         portNotifier = new QSocketNotifier(fd, QSocketNotifier::Read);
         QObject::connect(portNotifier, SIGNAL(activated(int)), this, SLOT(readFromSensor()), Qt::DirectConnection);
-        //qDebug() << __PRETTY_FUNCTION__ << "Modbus init complete!";
 }
 
 
@@ -71,7 +70,7 @@ int Modbus::preparePort(char* port, QString bandwidth, QString parity){
             qDebug() << "Unknown parity was set, using default - 9600";
             port_param->c_cflag = port_param->c_cflag | B9600;
         }
-        if (!parity.compare(QString("ODD"))) //otherwise parity is even
+        if (!parity.compare(QString("Odd"))) //otherwise parity is even
             port_param->c_cflag = port_param->c_cflag | PARODD;
         port_param->c_iflag = IGNBRK | IGNPAR;
         port_param->c_oflag = 0;
@@ -85,28 +84,32 @@ int Modbus::preparePort(char* port, QString bandwidth, QString parity){
 }
 
 
-void Modbus::prepare_map(){
-    message_map.insert(QString("ReadFromSecond"),       QString::fromAscii("\x02\x03", 2));
-    message_map.insert(QString("TemperatureRegisters"), QString::fromAscii("\x00\x07\x00\x01", 4));
-    message_map.insert(QString("WindRegisters"),        QString::fromAscii("\x00\x07\x00\x07", 4));
-    message_map.insert(QString("StateRegisters"),       QString::fromAscii("\x00\x2A\x00\x08", 4));
-    message_map.insert(QString("ConstRegisters"),       QString::fromAscii("\x00\x05\x00\x07", 4));
-    message_map.insert(QString("BetsyRegisters"),       QString::fromAscii("\x00\x03\x00\x08", 4));
-    message_map.insert(QString("SteamRegisters"),       QString::fromAscii("\x00\x05\x00\x07", 4));
-    message_map.insert(QString("PressureRegisters"),    QString::fromAscii("\x00\x2A\x00\x08", 4));
+
+Message Modbus::decodeByConfig(Message msg){
+    QString newKey = hexTranslate(config->deviceTranslate(number, msg.key));
+    QString newVal = hexTranslate(config->deviceTranslate(number, msg.value));
+    return Message(newKey, newVal);
 }
+
+QString Modbus::hexTranslate(QString toTranslate){
+    bool ok;
+    int hex;
+    QString properMessage;
+    QStringList hexes = toTranslate.split("\\x");
+    hexes.removeFirst();
+    for (QStringList::Iterator it = hexes.begin(); it < hexes.end(); it++) {
+        hex = (*it).toInt(&ok, 16);
+        properMessage.append((char) hex);
+    }
+    return properMessage;
+}
+
 
 ModbusRtuFrame* Modbus::decodeMessage(Message msg){
     ModbusRtuFrame* frame = NULL;
     unsigned char* data = NULL;
-    if (message_map.contains(msg.key))
-      msg.key = message_map.value(msg.key);
-    if (message_map.contains(msg.value))
-      msg.value = message_map.value(msg.value);
-    QString msgKey = config->deviceTranslate(number, "readFromSecond");
-    qDebug() << msgKey;
-    message_map.insert(msgKey, QString("\x44\x45"));
-    qDebug() << message_map.value(msgKey) << " " << msgKey;
+    if (! ((config->deviceTranslate(number, "noHexes")).compare("True")) )
+        msg = decodeByConfig(msg);
     unsigned char sensor_address = msg.key.at(0).toAscii();
     msg.key = msg.key.at(1);
             //read coils / discrete/ holding registers/ input registers
@@ -114,8 +117,8 @@ ModbusRtuFrame* Modbus::decodeMessage(Message msg){
             (msg.key == "\x05") || (msg.key == "\x06")) {
         frame = new ModbusRtuFrame(msg.key.at(0).toAscii(), 4);
         frame->setData(msg.value.toAscii());
-        qDebug() << "To jest jako data: " << frame->getData()[0] << " " << frame->getData()[1]
-                 << " " << frame->getData()[2] << " " << frame->getData()[3] << " ";
+        //qDebug() << "To jest jako data: " << frame->getData()[0] << " " << frame->getData()[1]
+        //         << " " << frame->getData()[2] << " " << frame->getData()[3] << " ";
     } else if ((msg.key == "\x07") || (msg.key == "\x0B") || (msg.key == "\x0C")) {
         frame = new ModbusRtuFrame(msg.key.at(0).toAscii(), 0);
     } else if (msg.key == "\x08") { // diagnostic
@@ -231,7 +234,7 @@ void Modbus::readFromSensor(){
 
     if (!tryRead(answer, 2))
         return;
-    qDebug() << "Modbus: incoming transmission";
+    //qDebug() << "Modbus: incoming transmission";
     if (answer[1] < 0x80) { // normal function
         if (    (answer[1] == 0x01) || (answer[1] == 0x02) || (answer[1] == 0x03) ||
                 (answer[1] == 0x04) || (answer[1] == 0x0C) || (answer[1] == 0x14) ||
@@ -278,13 +281,13 @@ void Modbus::readFromSensor(){
             return;
         }
 
-        // Debug!
+        /*  // Debug!
         qDebug() << "answer size: " << answer_size;
         qDebug() << "answer: ";
         for (int z=0; z<answer_size; z++){
             qDebug() << answer_data[z] << z;
         }
-        // /Debug!
+        */ // /Debug!
 
         if (answer[1] == 0x08) { //Modbus test function
             if ((answer_data[1] == '\x00') && ((answer_data[2] != '\x54') || (answer_data[3] != '\x65'))) {
@@ -312,12 +315,12 @@ void Modbus::readFromSensor(){
                     //newVal.append(numb.setNum(answer_data[i]));
                     newVal.append("|").append(numb.setNum(answer_data[i], 16));
                 }
-                qDebug() << newVal;
+                //qDebug() << newVal;
                 //Message mesg(ret, QString::fromAscii((char *) answer_data, answer_size));
                 Message mesg(newKey, newVal);
                 msgQue.push_back(mesg);
             }
-            qDebug() << "CRC of received message is ok!";
+            //qDebug() << "CRC of received message is ok!";
         } else
             qDebug() << "Modbus: CRC of received data is wrong!";
         delete []answer_data;
@@ -339,7 +342,7 @@ void Modbus::readFromSensor(){
         }
     }
     emit readyToRead();
-    qDebug() << "Modbus: Read ends";
+    //qDebug() << "Modbus: Read ends";
 }
 
 int Modbus::checkResponseCRC(unsigned char* answer, unsigned char* answer_data,

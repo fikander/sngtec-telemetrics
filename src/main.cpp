@@ -22,32 +22,31 @@ int main(int argc, char *argv[]) {
         cloud.connectDev(device);
         devices[i] = device;
     }
-
     qDebug() << "running..";
     return a.exec();
 
 
     // For Modbus tests:
-/*
-    Modbus* m = (Modbus*) devices[0]->ioDevice;
-    QVector<Message>* messages = new QVector<Message>();
-    Message* mesg = new Message(QString("ReadFromSecond"), QString("TemperatureRegisters"));
-    Message* mesg2 = new Message(QString("ReadFromSecond"), QString("WindRegisters"));
-    Message* mesg3 = new Message(QString("ReadFromSecond"), QString("WindRegisters"));
-    Message* mesg4 = new Message(QString("ReadFromSecond"), QString("StateRegisters"));
-    Message* mesg5 = new Message(QString("ReadFromSecond"), QString("ConstRegisters"));
-    Message* mesg6 = new Message(QString("ReadFromSecond"), QString("SteamRegisters"));
-    Message* mesg7 = new Message(QString("ReadFromSecond"), QString("PressureRegisters"));
-    messages->append(*mesg);
-    messages->append(*mesg2);
-    messages->append(*mesg3);
-    messages->append(*mesg4);
-    messages->append(*mesg5);
-    messages->append(*mesg6);
-    messages->append(*mesg7);
-    m->write(*messages);
+
+    //Modbus* m = (Modbus*) devices[0]->ioDevice;
+    //QVector<Message>* messages = new QVector<Message>();
+    //Message* mesg = new Message(QString("readFromSecond"), QString("dataFromSecond"));
+    //Message* mesg2 = new Message(QString("readFromSecond"), QString("windRegisters"));
+    //Message* mesg3 = new Message(QString("readFromSecond"), QString("windRegisters"));
+    //Message* mesg4 = new Message(QString("readFromSecond"), QString("stateRegisters"));
+    //Message* mesg5 = new Message(QString("readFromSecond"), QString("constRegisters"));
+    //Message* mesg6 = new Message(QString("\x02\x03"), QString::fromAscii("\x00\x03\x00\x08", 4));
+    //Message* mesg7 = new Message(QString("\x02\x03"), QString::fromAscii("\x00\x07\x00\x07", 4));
+    //messages->append(*mesg);
+    //messages->append(*mesg2);
+    //messages->append(*mesg3);
+    //messages->append(*mesg4);
+    //messages->append(*mesg5);
+    //messages->append(*mesg6);
+    //messages->append(*mesg7);
+    //m->write(*messages);
     //m->readFromSensor();
-    qDebug() << "running..";
-    return a.exec();
-*/
+    //qDebug() << "running..";
+    //return a.exec();
+
 }
