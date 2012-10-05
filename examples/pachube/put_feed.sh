@@ -37,7 +37,7 @@ fi;
 data="{
 	\"version\":\"1.0.0\",
   	\"datastreams\":[
-      		{\"id\":\"1_id\", \"current_value\":\"${1}\"}
+      		{\"id\":\"1_id\", \"current_value\":\"${currentVal}\"}
   ]
 }
 
