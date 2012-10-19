@@ -16,39 +16,46 @@ INCLUDEPATH += ../src/ \
 OBJECTS_DIR = ../build/.obj-test
 MOC_DIR = ../build/.moc-test
 RCC_DIR = ../build/.rcc-test
-LIBS += ../build/.obj/modbusrtuframe.o \
-        ../build/.obj/modbus.o \
-        ../build/.obj/crc-count.o \
-        ../build/.obj/sngconnection.o \
-        ../build/.obj/sngphysicaladdress.o \
-        ../build/.obj/sngframe.o\
+LIBS += ../build/.obj/cloconnection.o\
+        ../build/.obj/httplogsender.o\
+        ../build/.obj/moc_devproxy.o       \
+        ../build/.obj/moc_sngconnection.o   \
         ../build/.obj/sngmsgcreator.o\
-        ../build/.obj/sngmsgparser.o \
-        ../build/.obj/devconnection.o \
-        ../build/.obj/cloconnection.o \
-        ../build/.obj/cloproxy.o \
-        ../build/.obj/devproxy.o \
-        ../build/.obj/topologycloud.o \
-        ../build/.obj/topologysensor.o \
-        ../build/.obj/cosmxml.o \
-        ../build/.obj/cosmcloud.o \
-        ../build/.obj/cosmtime.o \
-        ../build/.obj/message.o \
-        ../build/.obj/configurator.o \
-        ../build/.obj/loggingHandler.o \
-        ../build/.obj/moc_topologycloud.o \
-        ../build/.obj/moc_topologysensor.o \
-        ../build/.obj/moc_cloconnection.o \
-        ../build/.obj/moc_devproxy.o \
-        ../build/.obj/moc_mockdev.o \
-        ../build/.obj/moc_devconnection.o \
-        ../build/.obj/mockdev.o \
-        ../build/.obj/moc_cosmcloud.o \
-        ../build/.obj/moc_sngconnection.o \
-        ../build/.obj/moc_cloproxy.o \
-        ../build/.obj/mockcloud.o \
-        ../build/.obj/moc_modbus.o
-
+        ../build/.obj/cloproxy.o       \
+        ../build/.obj/logger.o             \
+        ../build/.obj/moc_httplogsender.o  \
+        ../build/.obj/moc_sngconnect.o      \
+        ../build/.obj/sngmsgparser.o\
+        ../build/.obj/configurator.o   \
+        ../build/.obj/loggingHandler.o     \
+        ../build/.obj/mockcloud.o          \
+        ../build/.obj/moc_topologycloud.o   \
+        ../build/.obj/sngphysicaladdress.o\
+        ../build/.obj/cosmcloud.o      \
+        ../build/.obj/mockdev.o            \
+        ../build/.obj/moc_topologysensor.o  \
+        ../build/.obj/topologycloud.o\
+        ../build/.obj/cosmtime.o       \
+        ../build/.obj/message.o            \
+        ../build/.obj/moc_logger.o         \
+        ../build/.obj/modbus.o              \
+        ../build/.obj/topologysensor.o\
+        ../build/.obj/cosmxml.o        \
+        ../build/.obj/moc_cloconnection.o  \
+        ../build/.obj/moc_logsender.o      \
+        ../build/.obj/modbusrtuframe.o\
+        ../build/.obj/crc-count.o      \
+        ../build/.obj/moc_cloproxy.o       \
+        ../build/.obj/moc_mockcloud.o      \
+        ../build/.obj/sngconnection.o\
+        ../build/.obj/devconnection.o  \
+        ../build/.obj/moc_cosmcloud.o      \
+        ../build/.obj/moc_mockdev.o        \
+        ../build/.obj/sngconnect.o\
+        ../build/.obj/devproxy.o       \
+        ../build/.obj/moc_devconnection.o  \
+        ../build/.obj/moc_modbus.o         \
+        ../build/.obj/sngframe.o
 
 TEMPLATE = app
 SOURCES += main.cpp \
