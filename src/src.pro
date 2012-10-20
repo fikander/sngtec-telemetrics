@@ -38,7 +38,13 @@ HEADERS = Sensors/devproxy.h \
     Sensors/SNG/sngframe.h \
     Sensors/SNG/sngmsgcreator.h \
     Sensors/SNG/sngmsgparser.h \
-    Cloud/sngconnect/sngconnect.h
+    Cloud/sngconnect/sngconnect.h \
+    CloudFactory.h \
+    SensorFactory.h \
+    Configurator2.h \
+    Cloud/Cloud.h \
+    Sensors/Sensor.h \
+    KeyValueMap.h
 
 SOURCES =  main.cpp \
     Sensors/devproxy.cpp \
@@ -65,7 +71,10 @@ SOURCES =  main.cpp \
     Sensors/SNG/sngframe.cpp \
     Sensors/SNG/sngmsgcreator.cpp \
     Sensors/SNG/sngmsgparser.cpp \
-    Cloud/sngconnect/sngconnect.cpp
+    Cloud/sngconnect/sngconnect.cpp \
+    CloudFactory.cpp \
+    SensorFactory.cpp \
+    Configurator2.cpp
 
     
 

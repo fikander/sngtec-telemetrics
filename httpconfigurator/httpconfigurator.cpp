@@ -74,10 +74,14 @@ int main(int argc, char **argv)
     if (all.count() == 0)
     {
         // init config file
-        settings.setValue("cloud/type", "mock");
-        settings.setValue("cloud/apikey", "n/a");
-        settings.setValue("owner/device/type", "<empty>");
-        settings.setValue("owner/device/description", "<empty>");
+        settings.beginGroup("owner");
+        settings.setValue("device/type", "<empty>");
+        settings.setValue("device/description", "<empty>");
+        settings.endGroup();
+
+        settings.beginGroup("cloud");
+        settings.setValue("type", "mock");
+        settings.setValue("apikey", "n/a");
     }
 
     HttpConfigurator config(&settings);
