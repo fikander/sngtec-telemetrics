@@ -13,8 +13,12 @@ QHTTPSERVER_BASE = ../../qhttpserver
 INCLUDEPATH += $$QHTTPSERVER_BASE/src
 LIBS += -L$$QHTTPSERVER_BASE/lib -lqhttpserver
 
-SOURCES=httpconfigurator.cpp
-HEADERS=httpconfigurator.h
+SOURCES=httpconfigurator.cpp \
+    Responder.cpp \
+    SetSettingsResponder.cpp
+HEADERS=httpconfigurator.h \
+    Responder.h \
+    SetSettingsResponder.h
 
 OBJECTS_DIR = $$HTTPCONFIGURATOR_BASE/build-httpconfigurator
 MOC_DIR = $$HTTPCONFIGURATOR_BASE/build-httpconfigurator

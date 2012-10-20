@@ -3,12 +3,18 @@
 #include <QCoreApplication>
 #include <QRegExp>
 #include <QStringList>
+#include <QSettings>
+#include <QSize>
+#include <QDebug>
 
 #include <qhttpserver.h>
 #include <qhttprequest.h>
 #include <qhttpresponse.h>
 
-Greeting::Greeting()
+#include "SetSettingsResponder.h"
+
+HttpConfigurator::HttpConfigurator(QSettings *settings):
+    settings(settings)
 {
     QHttpServer *server = new QHttpServer;
     server->listen(QHostAddress::Any, 5000);
@@ -16,30 +22,65 @@ Greeting::Greeting()
             this, SLOT(handle(QHttpRequest*, QHttpResponse*)));
 }
 
-void Greeting::handle(QHttpRequest *req, QHttpResponse *resp)
+void HttpConfigurator::handle(QHttpRequest *req, QHttpResponse *resp)
 {
-    QRegExp exp("^/user/([a-z]+)$");
-    if( exp.indexIn(req->path()) != -1 )
-    {
-        resp->setHeader("Content-Type", "text/html");
-        resp->writeHead(200);
-        QString name = exp.capturedTexts()[1];
+    QRegExp expListSettings("^/list$");
+    QRegExp expSetSettings("^/set$");
 
-        QString reply = tr("<html><head><title>Greeting App</title></head><body><h1>Hello %1!</h1></body></html>");
-        resp->end(reply.arg(name).toAscii());
+    if (expListSettings.indexIn(req->path()) != -1)
+    {
+        handleListSettings(req, resp);
+    }
+    else if (expSetSettings.indexIn(req->path()) != -1)
+    {
+        SetSettingsResponder *r = new SetSettingsResponder(req, resp, settings);
     }
     else
     {
-        resp->writeHead(403);
-        resp->end("You aren't allowed here!");
+        resp->writeHead(404);
+        resp->end("Page not found");
     }
+}
+
+void HttpConfigurator::handleListSettings(QHttpRequest *req, QHttpResponse *resp)
+{
+    resp->setHeader("Content-Type", "text/html");
+    resp->writeHead(200);
+    QString html ="<html><head><title>Http Configurator</title></head><body>";
+
+    html += "<form name=\"input\" action=\"set\" method=\"post\"> <ul>";
+
+    settings->sync();
+    foreach(QString key, settings->allKeys()) {
+        html += "<li>";
+        html += key + " ";
+        html += "<input type=\"text\" name=\"" + key + "\" value=\""+settings->value(key).toString()+"\">";
+        html += "</li>";
+    }
+    html += "</ul><input type=\"submit\" value=\"Set\"></form>";
+    html += "</body></html>";
+
+    resp->end(html);
 }
 
 int main(int argc, char **argv)
 {
     QCoreApplication app(argc, argv);
 
-    Greeting hello;
-    
+    QSettings settings("telemetron.ini", QSettings::IniFormat);
+    qDebug() << settings.fileName();
+
+    QStringList all = settings.allKeys();
+    if (all.count() == 0)
+    {
+        // init config file
+        settings.setValue("cloud/type", "mock");
+        settings.setValue("cloud/apikey", "n/a");
+        settings.setValue("owner/device/type", "<empty>");
+        settings.setValue("owner/device/description", "<empty>");
+    }
+
+    HttpConfigurator config(&settings);
+
     app.exec();
 }
