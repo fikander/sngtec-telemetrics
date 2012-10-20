@@ -69,6 +69,6 @@ SOURCES =  main.cpp \
 
     
 
-OBJECTS_DIR = $$TELEMETRON_BASE/build
-MOC_DIR = $$TELEMETRON_BASE/build
+OBJECTS_DIR = $$TELEMETRON_BASE/build-telemetron
+MOC_DIR = $$TELEMETRON_BASE/build-telemetron
 DESTDIR = $$TELEMETRON_BASE/bin
