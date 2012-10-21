@@ -1,6 +1,7 @@
 #include "CloudFactory.h"
-#include "Cloud/Cloud.h"
 
+#include "Cloud/Cloud.h"
+#include "Cloud/DummyCloud.h"
 
 CloudFactory* CloudFactory::m_instance = NULL;
 
@@ -16,5 +17,8 @@ CloudFactory* CloudFactory::instance()
 
 Cloud* CloudFactory::newObject (QString cloudType, KeyValueMap &config)
 {
-    return new Cloud();
+    if (cloudType == "dummy")
+        return new DummyCloud(config);
+
+    return NULL;
 }

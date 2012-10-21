@@ -22,7 +22,9 @@ public:
 
     ~Configurator2();
 
-    void configure();
+    KeyValueMap *getKeyValueMapForGroup(QString group);
+    void configureCloudsAndSensors();
+
 private:
     static KeyValueMap* getKeyValueMap(const QSettings &settings);
 

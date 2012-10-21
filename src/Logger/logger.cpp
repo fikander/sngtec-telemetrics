@@ -1,4 +1,3 @@
-#include "logger.h"
 
 #include <QString>
 #include <QDateTime>
@@ -6,21 +5,62 @@
 #include <QTimer>
 #include <cstdlib>
 
-Logger::Logger() {
-    fileNames.push_back("logs_1");
-    fileNames.push_back("logs_2");
+
+#include "logger.h"
+#include "debug.h"
+
+Logger* Logger::instance = NULL;
+
+Logger* Logger::initialise(KeyValueMap &config)
+{
+    if (!instance)
+        instance = new Logger(config);
+    return instance;
+}
+
+Logger* Logger::getInstance() {
+    return instance;
+}
+
+
+Logger::Logger(KeyValueMap &config) {
+
+    fileNames.push_back("logs_1.log");
+    fileNames.push_back("logs_2.log");
     fileNo = 0;
 
+    // timer
+
     timer = new QTimer(this);
-    askInterval = 100;
+
+    if (config.contains("logFlushInterval"))
+        askInterval = config["logFlushInterval"].toInt() * 1000;
+    else
+        askInterval = 60*60*1000; // flush every hour
+
     connect(timer, SIGNAL(timeout()), this, SLOT(processQueue()));
+    timer->start(askInterval);
+
+    // logging level
+
+    loggingLevel = QtWarningMsg;
+    if (config.contains("level"))
+    {
+        QString level = config["level"].toString();
+        if (level == "debug")
+            loggingLevel = QtDebugMsg;
+        else if (level == "warning")
+            loggingLevel = QtWarningMsg;
+        else if (level == "error")
+            loggingLevel = QtCriticalMsg;
+    }
+
+    queueDirty = false;
 
     logFile = new QFile(this->fileNames[this->fileNo]);
 
     if (!logFile->open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
         return;
-
-
 }
 
 
@@ -30,7 +70,7 @@ QVector<QString> Logger::giveLogs() {
     int newFileNo = this->fileNo;
     QFile oldFile(this->fileNames[oldFileNo]);
     QFile newFile(this->fileNames[newFileNo]);
-    QString line;
+
     // Read old?
     oldFile.open(QIODevice::ReadOnly | QIODevice::Text);
     QTextStream oldStream(&oldFile);
@@ -51,76 +91,56 @@ QVector<QString> Logger::giveLogs() {
     newFile.close();
 
     // Read queue
-    QListIterator<QPair<QtMsgType, QString> > it(this->queue);
+    QListIterator<QString> it(queue);
     while(it.hasNext()) {
-        QPair<QtMsgType, QString> msg = it.next();
-        res.push_back(processMessage(msg.first, msg.second));
+        res.push_back(it.next());
     }
 
     return res;
 }
 
-void Logger::loggingHandler(QtMsgType type, const char *msg) {
-    // Put on queue
-    QString message(msg);
 
-    if (type == QtDebugMsg) {
-        QTextStream errStream(stderr);
-        errStream << message;
+void Logger::pushMessage(QtMsgType type, QString msg) {
+    if (type >= loggingLevel)
+    {
+        queue.append(msg);
+        queueDirty = true;
     }
-
-    if (type == QtFatalMsg) {
-        QTextStream errStream(stderr);
-        errStream << message;
-        abort();
-    }
-
-    Logger::getInstance()->pushMessage(type, message);
 }
 
-Logger* Logger::instance = NULL;
-
-
-Logger* Logger::getInstance() {
-    if (!instance)
-        instance = new Logger;
-
-    return instance;
-}
 
 void Logger::processQueue() {
     int MAX_LINES = 1000;
 
-    QTextStream errStream(stderr);
-  //  errStream << "processing queue" << endl;
+    QWARNING << "Processing queue";
 
-    if (!this->queue.empty()) {
+    if (!queueDirty)
+        return;
+
+    if (!queue.isEmpty()) {
         QTextStream fileStream(logFile);
 
-        while (!this->queue.empty()) {   
-            QPair<QtMsgType, QString> top = this->queue.dequeue();
-            QString message = this->processMessage(top.first, top.second);
-
-            fileStream << message;
-            this->linesWritten += 1;
+        while (!queue.isEmpty()) {
+            fileStream << queue.dequeue();
+            linesWritten += 1;
         }
     }
 
-    if (this->linesWritten > MAX_LINES) {
-        this->linesWritten = 0;
+    if (linesWritten > MAX_LINES) {
+        linesWritten = 0;
         // Swap files
 
-        this->fileNo = (this->fileNo + 1) % this->fileNames.size();
-        this->logFile->close();
-        this->logFile = new QFile(this->fileNames[this->fileNo]);
+        fileNo = (fileNo + 1) % fileNames.size();
+        logFile->close();
+        logFile = new QFile(fileNames[fileNo]);
 
         if (!logFile->open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
             return;
-
     }
 }
 
-QString Logger::processMessage(QtMsgType type, QString msg) {
+void Logger::loggingHandler(QtMsgType type, const char *msg)
+{
     QString message = QDateTime::currentDateTime().toString();
 
     switch (type) {
@@ -140,10 +160,9 @@ QString Logger::processMessage(QtMsgType type, QString msg) {
     message.append(msg);
     message.append("\n");
 
-    return message;
+    QTextStream errStream(stderr);
+    errStream << message;
+
+    Logger::getInstance()->pushMessage(type, message);
 }
 
-void Logger::pushMessage(QtMsgType type, QString msg) {
-    timer->start(askInterval);
-    this->queue.append(QPair<QtMsgType, QString>(type, msg));
-}

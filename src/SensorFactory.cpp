@@ -1,6 +1,7 @@
+
 #include "SensorFactory.h"
 #include "Sensors/Sensor.h"
-
+#include "Sensors/DummySensor.h"
 
 SensorFactory* SensorFactory::m_instance = NULL;
 
@@ -16,5 +17,8 @@ SensorFactory* SensorFactory::instance()
 
 Sensor* SensorFactory::newObject (QString sensorType, KeyValueMap &config)
 {
-    return new Sensor();
+    if (sensorType == "dummy")
+        return new DummySensor(config);
+
+    return NULL;
 }

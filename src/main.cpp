@@ -1,17 +1,39 @@
-#include <QtCore/QCoreApplication>
+
+#include <QCoreApplication>
+#include <QSettings>
+
 #include "Sensors/devproxy.h"
 #include "Cloud/cloproxy.h"
 #include "Configurator/configurator.h"
 #include "Logger/logger.h"
 #include "Sensors/Modbus/modbus.h"
 
+#include "Configurator2.h"
+#include "CloudFactory.h"
+#include "SensorFactory.h"
 
 int main(int argc, char *argv[]) {
-    // Since we don't have a debug build configuration,
-    // this is commented for more convenient development
-    // qInstallMsgHandler(Logger::getInstance()->loggingHandler);
+
     QCoreApplication a(argc, argv);
 
+    CloudFactory *cloudFactory = CloudFactory::instance();
+    SensorFactory *sensorFactory = SensorFactory::instance();
+    Configurator2 configurator("telemetron.ini", cloudFactory, sensorFactory);
+
+    // set up logging
+    KeyValueMap *config = configurator.getKeyValueMapForGroup("logging");
+    Logger::initialise(*config);
+    delete config;
+
+    qInstallMsgHandler(Logger::getInstance()->loggingHandler);
+
+    // set up clouds and sensors
+    configurator.configureCloudsAndSensors();
+
+    delete cloudFactory;
+    delete sensorFactory;
+
+/*
     Configurator config;
     CloProxy cloud(&config);
     QVector<DevProxy*> devices(config.devicesAmount);
@@ -22,9 +44,10 @@ int main(int argc, char *argv[]) {
         cloud.connectDev(device);
         devices[i] = device;
     }
+*/
+
     qDebug() << "running..";
     return a.exec();
-
 
     // For Modbus tests:
 

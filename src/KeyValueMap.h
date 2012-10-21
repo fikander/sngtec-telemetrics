@@ -3,7 +3,9 @@
 
 #include <QMap>
 #include <QString>
+#include <QVariant>
 
-typedef QMap<QString, QString> KeyValueMap;
+
+typedef QMap<QString, QVariant> KeyValueMap;
 
 #endif // KEYVALUEMAP_H

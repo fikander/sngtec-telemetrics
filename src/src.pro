@@ -31,7 +31,6 @@ HEADERS = Sensors/devproxy.h \
     Sensors/Modbus/crc-count.h \
     Sensors/Modbus/modbus.h \
     Sensors/Modbus/modbusrtuframe.h \
-    Logger/loggingHandler.h \
     Logger/logger.h \
     LogSender/HTTPLogSender/httplogsender.h \
     LogSender/logsender.h \
@@ -44,7 +43,10 @@ HEADERS = Sensors/devproxy.h \
     Configurator2.h \
     Cloud/Cloud.h \
     Sensors/Sensor.h \
-    KeyValueMap.h
+    KeyValueMap.h \
+    Cloud/DummyCloud.h \
+    debug.h \
+    Sensors/DummySensor.h
 
 SOURCES =  main.cpp \
     Sensors/devproxy.cpp \
@@ -65,7 +67,6 @@ SOURCES =  main.cpp \
     Sensors/Modbus/crc-count.cpp \
     Sensors/Modbus/modbus.cpp \
     Sensors/Modbus/modbusrtuframe.cpp \
-    Logger/loggingHandler.cpp \
     Logger/logger.cpp \
     LogSender/HTTPLogSender/httplogsender.cpp \
     Sensors/SNG/sngframe.cpp \
@@ -74,7 +75,11 @@ SOURCES =  main.cpp \
     Cloud/sngconnect/sngconnect.cpp \
     CloudFactory.cpp \
     SensorFactory.cpp \
-    Configurator2.cpp
+    Configurator2.cpp \
+    Cloud/Cloud.cpp \
+    Cloud/DummyCloud.cpp \
+    Sensors/Sensor.cpp \
+    Sensors/DummySensor.cpp
 
     
 
