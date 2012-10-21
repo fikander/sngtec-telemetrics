@@ -9,8 +9,11 @@
 class Message;
 class Configurator;
 
-// Interface for various connection types with cloud
+/*
+ * Interface for various connection types with cloud
+ */
 class CloConnection : public QObject {
+
     Q_OBJECT
 
 public:

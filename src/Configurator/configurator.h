@@ -33,10 +33,6 @@ public:
     int devicesAmount;
     QString deviceTranslate(int no, QString msg);
 
-    //SNG - narazie stuby
-    QString getDest();
-    QString getFrameType();
-
     QHash<QString, int> devNamesToNumbers;
     QHash<int, QString> devNumbersToNames;
     QVector<DevConnection*> devPtrs;

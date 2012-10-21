@@ -104,7 +104,7 @@ CloConnection* Configurator::giveCloud() {
 }
 
 DevConnection* Configurator::readDevice(QDomElement &devPointer) {
-  //     qDebug() << "Attempting device read from" << devPointer.nodeName();
+    qDebug() << "Attempting device read from" << devPointer.nodeName();
     DevConnection *device;
     QDomElement e = devPointer;
     QString devType = e.attribute("type", "");
@@ -116,7 +116,7 @@ DevConnection* Configurator::readDevice(QDomElement &devPointer) {
 
         for (int i = 0; i < mappings.size(); i++) {
             QDomNode nd = mappings.item(i);
- //         qDebug() << devNo << nd.nodeName() << nd.nodeValue();
+            qDebug() << devNo << nd.nodeName() << nd.nodeValue();
             devDicts[devNo].insert(nd.nodeName(), nd.nodeValue());
         }
     }
@@ -195,14 +195,4 @@ QString Configurator::getCosmTimeDifference() {
     return cosmTimeDifference;
 }
 
-// Do usuniecia
-QString Configurator::getDest()
-{
-    return "2.3.4";
-}
 
-// Do usuneicia
-QString Configurator::getFrameType()
-{
-    return "Value";
-}

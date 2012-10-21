@@ -8,7 +8,7 @@ DevProxy::DevProxy() {}
 
 DevProxy::DevProxy(Configurator* config) {
     ioDevice = config->giveDevice();
-    bool sukces = connect(ioDevice, SIGNAL(readyToRead()), this, SLOT(readDevice()));
+    QObject::connect(ioDevice, SIGNAL(readyToRead()), this, SLOT(readDevice()));
 
 
 //    connect(ioDevice, SIGNAL(error(QAbstractSocket::SocketError)),

@@ -36,6 +36,8 @@ Modbus::Modbus(Configurator* new_config, int no){
         QString bandwidth = config->deviceTranslate(no, "bandwidth");
         QString parity = config->deviceTranslate(no, "parity");
         preparePort(serial_port_name.toAscii().data(), bandwidth, parity);
+
+        //FIXME: how fd gets initialised???
         portNotifier = new QSocketNotifier(fd, QSocketNotifier::Read);
         QObject::connect(portNotifier, SIGNAL(activated(int)), this, SLOT(readFromSensor()), Qt::DirectConnection);
 }
