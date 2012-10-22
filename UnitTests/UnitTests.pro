@@ -26,7 +26,6 @@ LIBS += ../build-telemetron/cloconnection.o\
         ../build-telemetron/cloproxy.o       \
         ../build-telemetron/logger.o             \
         ../build-telemetron/moc_httplogsender.o  \
-        ../build-telemetron/moc_sngconnect.o      \
         ../build-telemetron/sngmsgparser.o\
         ../build-telemetron/configurator.o   \
         ../build-telemetron/mockcloud.o          \
@@ -52,7 +51,6 @@ LIBS += ../build-telemetron/cloconnection.o\
         ../build-telemetron/devconnection.o  \
         ../build-telemetron/moc_cosmcloud.o      \
         ../build-telemetron/moc_mockdev.o        \
-        ../build-telemetron/sngconnect.o\
         ../build-telemetron/devproxy.o       \
         ../build-telemetron/moc_devconnection.o  \
         ../build-telemetron/moc_modbus.o         \

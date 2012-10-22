@@ -8,7 +8,10 @@
 DummyCloud::DummyCloud(KeyValueMap &config):
     Cloud()
 {
-    timer.setInterval(config["interval"].toUInt() * 1000);
+    if (config.contains("interval"))
+        timer.setInterval(config["interval"].toUInt() * 1000);
+    else
+        timer.setInterval(10 * 1000);
 }
 
 DummyCloud::~DummyCloud()

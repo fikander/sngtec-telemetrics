@@ -20,21 +20,28 @@ public:
     virtual void connect();
 
 public slots:
+    // send to the device
     virtual void send(QSharedPointer<Message> payload);
 
 signals:
+    // emitted for every sample/event received from the device
     void received(QSharedPointer<Message> payload);
 
 private:
     QTimer timer;
+    QTimer dataGeneratorTimer;
+
     QQueue< QSharedPointer<Message> > toSend;
     QQueue< QSharedPointer<Message> > receivedMessages;
 
+    QString dummyDataStream;
+
 private slots:
-    //
     // emits received signals
-    //
     void sendAndReceiveData();
+
+    // generate new sample
+    void collectSample();
 
 };
 

@@ -8,9 +8,12 @@
 SNGConnectCloud::SNGConnectCloud(KeyValueMap &config):
     Cloud()
 {
-    timer.setInterval(config["interval"].toUInt() * 1000);
+    if (config.contains("interval"))
+        timer.setInterval(config["interval"].toUInt() * 1000);
+    else
+        timer.setInterval(60 * 1000);
 
-    api.reset(new SNGConnectAPI(config));
+    api = QSharedPointer<SNGConnectAPI>(new SNGConnectAPI(config));
 }
 
 SNGConnectCloud::~SNGConnectCloud()
@@ -49,13 +52,16 @@ void SNGConnectCloud::sendAndReceiveData()
         QSharedPointer<MessageSample> firstSample = allSamples[0].staticCast<MessageSample>();
         QList< QSharedPointer<MessageSample> > samples = MessageSample::takeMessagesByDatastream(allSamples, firstSample->key);
 
-        api->sendDatastreamSamples(firstSample->key, samples);
+        //api->sendDatastreamSamples(firstSample->key, samples);
+        APICallSendDatastreamSamples *call = new APICallSendDatastreamSamples(api, firstSample->key, samples);
+        call->invoke();
 
         samples.clear();
     }
 
     QList< QSharedPointer<Message> > allEvents = Message::takeMessages(toSend, Message::MsgEvent);
-    api->sendEvents(allEvents);
+//    APICallSendEvents call(api);
+//    call.invoke();
 
     Q_ASSERT(toSend.isEmpty());
 

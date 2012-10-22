@@ -30,7 +30,7 @@ private:
     QQueue< QSharedPointer<Message> > toSend;
     QQueue< QSharedPointer<Message> > receivedMessages;
 
-    QScopedPointer<SNGConnectAPI> api;
+    QSharedPointer<SNGConnectAPI> api;
 
 private slots:
     //

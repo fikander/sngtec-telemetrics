@@ -7,28 +7,43 @@
 
 #include "SNGConnectAPI.h"
 
+
 SNGConnectAPI::SNGConnectAPI(KeyValueMap &config)
 {
-    baseUrl = config["baseurl"];
+    if (config.contains("baseurl"))
+        baseUrl.setUrl(config["baseurl"].toString(), QUrl::StrictMode);
+    else
+        baseUrl.setUrl("http://localhost");
+
     Q_ASSERT(baseUrl.isValid());
 
-    feed = config["feed"];
+    feed = config["feed"].toString();
+}
+
+SNGConnectAPI::~SNGConnectAPI()
+{
+    APICall::cleanup();
 }
 
 bool SNGConnectAPI::makeHttpRequest(QString method, QString api, QString contents)
 {
+    QDEBUG << "Request: " << baseUrl.scheme() << baseUrl.host() << baseUrl.port() << method << api << contents;
+
     QHttpRequestHeader header(method, QUrl::toPercentEncoding(api));
 
     header.setValue("Host", baseUrl.host());
-    header.setContentType("application/xml");
+    header.setContentType("application/json");
 
     http.setHost(baseUrl.host(),
-        baseUrl.scheme() == "https" ? QHttp::ConnectionModeHttps : QHttp::ConnectionModeHttp);
-    http.request(header, contents);
+        baseUrl.scheme() == "https" ? QHttp::ConnectionModeHttps : QHttp::ConnectionModeHttp,
+        baseUrl.port());
+    http.request(header, contents.toUtf8());
+
+    return true;
 }
 
 /*
-POST api/v1/feed/{id}/events.json
+POST api/v1/feeds/{id}/events.json
 {
 "type": "alarm_on|alarm_off|information|system_error|system_warning",
 "id": "1",
@@ -36,11 +51,11 @@ POST api/v1/feed/{id}/events.json
 "message": "something’s gone wrong"
 }
 */
-void SNGConnectAPI::sendEvents(QList< QSharedPointer<Message> > &events)
-{
-    QString contents = "{}";
-    makeHttpRequest("POST", "api/v1/feed/" + feed + "/events.json", contents);
-}
+//void SNGConnectAPI::sendEvents(QList< QSharedPointer<Message> > &events)
+//{
+//    QString contents = "{}";
+//    makeHttpRequest("POST", "api/v1/feeds/" + feed + "/events.json", contents);
+//}
 /*
 PUT api/v1/feeds/{id}/datastreams/{id}.json
 {
@@ -52,10 +67,11 @@ PUT api/v1/feeds/{id}/datastreams/{id}.json
   ]
 }
 */
-void SNGConnectAPI::sendDatastreamSamples(QString datastream, QList< QSharedPointer<MessageSample> > &samples)
-{
-
-}
+//void SNGConnectAPI::sendDatastreamSamples(QString datastream, QList< QSharedPointer<MessageSample> > &samples)
+//{
+//    QString contents = "{}";
+//    makeHttpRequest("PUT", "api/v1/feeds/" + feed + "/datastreams/" + datastream + ".json", contents);
+//}
 
 /*
   GET commands
@@ -87,3 +103,73 @@ void SNGConnectAPI::sendDatastreamSamples(QString datastream, QList< QSharedPoin
   } ]
 }
 */
+
+QList<APICall*> APICall::doneAPICalls;
+
+void APICall::cleanup()
+{
+    qDeleteAll(doneAPICalls);
+    doneAPICalls.clear();
+}
+
+APICall::APICall(QSharedPointer<SNGConnectAPI> context):
+    context(context)
+{
+    cleanup();
+}
+
+APICall::~APICall()
+{
+    QDEBUG << "Deleting APICall";
+}
+
+void APICall::invoke()
+{
+    QObject::connect(&context->http, SIGNAL(done(bool)), this, SLOT(done(bool)));
+    context->makeHttpRequest(getMethod(), getAPI(), getContent());
+
+    QDEBUG << "Http request done";
+}
+
+void APICall::done(bool error)
+{
+    // disconnect everything from done(bool) signal
+    QObject::disconnect(&context->http, SIGNAL(done(bool)), 0, 0);
+    context.clear();
+
+    // schedule for deletion
+    doneAPICalls.append(this);
+}
+
+
+
+APICallSendDatastreamSamples::APICallSendDatastreamSamples(
+        QSharedPointer<SNGConnectAPI> context,
+        QString datastream,
+        QList< QSharedPointer<MessageSample> > &samples) :
+    APICall(context), datastream(datastream)
+{
+    content = "{\"datapoints\":[";
+
+    foreach(QSharedPointer<MessageSample> sample, samples)
+    {
+        // {\"at\":\"2010-05-20T11:01:44Z\",\"value\":\"295\"},
+
+        content += "{\"at\":\"" + sample->timestamp.toString(Qt::ISODate) + "\",";
+        content += "\"value\":\"" + sample->value + "\"}";
+        if (sample != samples.last())
+            content += ",";
+
+    }
+
+    content += "]}";
+}
+
+void APICallSendDatastreamSamples::done(bool error)
+{
+    QHttpResponseHeader response = http().lastResponse();
+    QDEBUG << "done " << QVariant(response.statusCode()).toString();
+    QDEBUG << http().readAll();
+
+    APICall::done(error);
+}
