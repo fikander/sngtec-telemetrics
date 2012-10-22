@@ -39,22 +39,29 @@ void SNGConnectCloud::sendAndReceiveData()
     if (!m_connected)
         return;
 
+    //
     // send data
-    //use API to send series of data
-
-    QList< QSharedPointer<Message> > samples = Message::takeMessages(toSend, Message::MsgSample);
-    while (!samples.isEmpty())
+    //
+    QList< QSharedPointer<Message> > allSamples = Message::takeMessages(toSend, Message::MsgSample);
+    while (!allSamples.isEmpty())
     {
+        // get first sample to learn what datasource should be reported
+        QSharedPointer<MessageSample> firstSample = allSamples[0].staticCast<MessageSample>();
+        QList< QSharedPointer<MessageSample> > samples = MessageSample::takeMessagesByDatastream(allSamples, firstSample->key);
 
-        samples[0]->key
-        QList< QSharedPointer<MessageSample> > sample = MessageSample::takeMessagesByDatastream(samples, "sample");
+        api->sendDatastreamSamples(firstSample->key, samples);
 
-    api->sendDatastream("sample", sample);
-    sample.clear();
-    samples.clear();
-    toSend.clear();
+        samples.clear();
+    }
 
+    QList< QSharedPointer<Message> > allEvents = Message::takeMessages(toSend, Message::MsgEvent);
+    api->sendEvents(allEvents);
+
+    Q_ASSERT(toSend.isEmpty());
+
+    //
     // receive new data, convert to messages
+    //
     for (int i = 0; i < qrand() % 10 + 1; i++)
         receivedMessages.enqueue( QSharedPointer<Message>(new MessageSample("fromCloud", "value")) );
 
