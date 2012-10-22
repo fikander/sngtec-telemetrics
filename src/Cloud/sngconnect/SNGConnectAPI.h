@@ -64,6 +64,16 @@ protected:
 
 /*
  *
+ *
+ *   PUT api/v1/feeds/{id}/datastreams/{id}.json
+ *   {
+ *     "datapoints":[
+ *       {"at":"2010-05-20T11:01:43Z","value":"294"},
+ *       {"at":"2010-05-20T11:01:44Z","value":"295"},
+ *       {"at":"2010-05-20T11:01:45Z","value":"296"},
+ *       {"at":"2010-05-20T11:01:46Z","value":"297"}
+ *     ]
+ *   }
  */
 class APICallSendDatastreamSamples : public APICall
 {
@@ -83,6 +93,37 @@ protected:
     virtual QString getContent() { return content; }
 
     QString datastream;
+    QString content;
+};
+
+
+/*
+ *
+ *       POST api/v1/feeds/{id}/events.json
+ *       {
+ *           "type": "alarm_on|alarm_off|information|system_error|system_warning",
+ *           "id": "1",
+ *           "timestamp": "<timestamp>"
+ *           "message": "somethings gone wrong"
+ *       }
+ *
+ */
+class APICallSendEvent : public APICall
+{
+    Q_OBJECT
+public:
+    APICallSendEvent(
+            QSharedPointer<SNGConnectAPI> context,
+            QSharedPointer<Message> &event);
+
+protected slots:
+    virtual void done(bool error);
+
+protected:
+    virtual QString getMethod() { return "POST"; }
+    virtual QString getAPI() { return "api/v1/feeds/" + feed() + "/events.json"; }
+    virtual QString getContent() { return content; }
+
     QString content;
 };
 

@@ -53,21 +53,28 @@ QList< QSharedPointer<MessageSample> > MessageSample::takeMessagesByDatastream(Q
     return result;
 }
 
-
-MessageSample::MessageSample() {
-    timestamp = QDateTime::currentDateTime();
+Message::Message(QDateTime timestamp) :
+    timestamp(timestamp)
+{
 }
 
-MessageSample::MessageSample(QString k, QString v) {
-    key = k;
-    value = v;
-    timestamp = QDateTime::currentDateTime();
+MessageSample::MessageSample() :
+    Message(QDateTime::currentDateTime())
+{
 }
 
-MessageSample::MessageSample(QString k, QString v, QDateTime t) {
+MessageSample::MessageSample(QString k, QString v) :
+    Message(QDateTime::currentDateTime())
+{
     key = k;
     value = v;
-    timestamp = t; 
+}
+
+MessageSample::MessageSample(QString k, QString v, QDateTime t) :
+    Message(t)
+{
+    key = k;
+    value = v;
 }
 
 QByteArray MessageSample::toByteArray()
@@ -99,4 +106,9 @@ QString MessageSample::toString()
 {
     QString s = "(" + key + "," + value + "," + timestamp.toString() + ")";
     return s;
+}
+
+MessageEvent::MessageEvent() :
+    Message(QDateTime::currentDateTime())
+{
 }

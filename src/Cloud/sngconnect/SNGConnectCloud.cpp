@@ -52,7 +52,7 @@ void SNGConnectCloud::sendAndReceiveData()
         QSharedPointer<MessageSample> firstSample = allSamples[0].staticCast<MessageSample>();
         QList< QSharedPointer<MessageSample> > samples = MessageSample::takeMessagesByDatastream(allSamples, firstSample->key);
 
-        //api->sendDatastreamSamples(firstSample->key, samples);
+        // api call objects will get automatically deleted after invoke has been called
         APICallSendDatastreamSamples *call = new APICallSendDatastreamSamples(api, firstSample->key, samples);
         call->invoke();
 
@@ -60,16 +60,19 @@ void SNGConnectCloud::sendAndReceiveData()
     }
 
     QList< QSharedPointer<Message> > allEvents = Message::takeMessages(toSend, Message::MsgEvent);
-//    APICallSendEvents call(api);
-//    call.invoke();
+    foreach(QSharedPointer<Message> event, allEvents)
+    {
+        APICallSendEvent *call = new APICallSendEvent(api, event);
+        call->invoke();
+    }
 
     Q_ASSERT(toSend.isEmpty());
 
     //
     // receive new data, convert to messages
     //
-    for (int i = 0; i < qrand() % 10 + 1; i++)
-        receivedMessages.enqueue( QSharedPointer<Message>(new MessageSample("fromCloud", "value")) );
+    //for (int i = 0; i < qrand() % 10 + 1; i++)
+    //    receivedMessages.enqueue( QSharedPointer<Message>(new MessageSample("fromCloud", "value")) );
 
     // emit messages, so that connected sensors catch them
     while (!receivedMessages.isEmpty())

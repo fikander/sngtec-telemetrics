@@ -45,14 +45,21 @@ void DummySensor::send(QSharedPointer<Message> payload)
     toSend.enqueue(payload);
 }
 
+
 void DummySensor::collectSample()
 {
     // just make one up...
-    receivedMessages.enqueue(
-            QSharedPointer<Message>(
-                new MessageSample(dummyDataStream, QVariant(qrand() % 100).toString())
-            ));
+
+    Message *msg;
+
+    if (qrand() % 5 != 0)
+        msg = new MessageSample(dummyDataStream, QVariant(qrand() % 1000).toString());
+    else
+        msg = new MessageEvent();
+
+    receivedMessages.enqueue(QSharedPointer<Message>(msg));
 }
+
 
 void DummySensor::sendAndReceiveData()
 {

@@ -12,10 +12,12 @@ class Message
 public:
     enum MessageType { MsgBase, MsgSample, MsgEvent, MsgRequest };
 
-    Message() {}
+    Message(QDateTime timestamp);
     virtual ~Message() {}
     virtual MessageType getType() = 0;
     virtual QString toString() = 0;
+
+    QDateTime timestamp;
 
     static QList< QSharedPointer<Message> > takeMessages(QList<QSharedPointer<Message> > &messages, MessageType type);
 };
@@ -32,7 +34,6 @@ public:
 
     QString key;
     QString value;
-    QDateTime timestamp;
 
     QByteArray toByteArray();
     bool fromByteArray(QByteArray&);
@@ -44,7 +45,7 @@ public:
 class MessageEvent : public Message
 {
 public:
-    MessageEvent() {}
+    MessageEvent();
     virtual MessageType getType() { return MsgEvent; }
     virtual QString toString() { return "event"; }
 };
