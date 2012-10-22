@@ -14,8 +14,8 @@ public:
     virtual DevConnection* clone(Configurator *, int);
     virtual ~TopologySensor();
 
-    virtual void write(QVector<Message>);
-    virtual QVector<Message> readAll();
+    virtual void write(QVector<MessageSample>);
+    virtual QVector<MessageSample> readAll();
     TopologySensor(Configurator*, int);
     TopologySensor();
 signals:
@@ -32,7 +32,7 @@ private:
     QTcpSocket *clientConnection;
     qint16 port;
 
-    QVector<Message> msgQue;
+    QVector<MessageSample> msgQue;
 };
 
 #endif // TOPOLOGYSENSOR_H

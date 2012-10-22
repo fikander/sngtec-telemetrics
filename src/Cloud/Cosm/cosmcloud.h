@@ -24,14 +24,14 @@ public:
     virtual CloConnection* clone(Configurator*);
     virtual void connect();
     virtual ~CosmCloud();
-    virtual void write(QVector<Message>);
-    virtual QVector<Message> readAll();
+    virtual void write(QVector<MessageSample>);
+    virtual QVector<MessageSample> readAll();
     virtual bool isBusy();
 
 private:
     void send();
-    void removeOldOrders(QVector<Message> &);
-    void updateOrders(const QVector<Message> &);
+    void removeOldOrders(QVector<MessageSample> &);
+    void updateOrders(const QVector<MessageSample> &);
 
     CosmXml currentCosmXml;
     QString sendFeed;
@@ -40,7 +40,7 @@ private:
     bool busy;
     QHttp http;
     QHttp orderHttp;
-    QMap <QString, Message> last_messages;
+    QMap <QString, MessageSample> last_messages;
     QDateTime last_time;
     QTimer requestTimer;
 

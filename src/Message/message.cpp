@@ -4,23 +4,73 @@
 #include <QString>
 #include <QByteArray>
 
-Message::Message() {
+
+QList< QSharedPointer<Message> > Message::takeMessages(QList< QSharedPointer<Message> > &messages, MessageType type)
+{
+    QList< QSharedPointer<Message> > result;
+    QList<int> toTake;
+
+    int i = 0;
+    foreach(QSharedPointer<Message> msg, messages)
+    {
+        if (msg->getType() == type)
+            toTake.append(i);
+        ++i;
+    }
+
+    int taken = 0;
+    foreach(int t, toTake)
+    {
+        result.append(messages.takeAt(t - taken++));
+    }
+
+    return result;
+}
+
+QList< QSharedPointer<MessageSample> > MessageSample::takeMessagesByDatastream(QList< QSharedPointer<Message> > &messages, QString datastream)
+{
+    QList< QSharedPointer<MessageSample> > result;
+    QList<int> toTake;
+
+    int i=0;
+    foreach(QSharedPointer<Message> msg, messages)
+    {
+        if (msg->getType() == MsgSample)
+        {
+            QSharedPointer<MessageSample> s = msg.staticCast<MessageSample>();
+            if (s->key == datastream)
+                toTake.append(i);
+        }
+        ++i;
+    }
+
+    int taken = 0;
+    foreach(int t, toTake)
+    {
+        result.append(messages.takeAt(t - taken++).staticCast<MessageSample>());
+    }
+
+    return result;
+}
+
+
+MessageSample::MessageSample() {
     timestamp = QDateTime::currentDateTime();
 }
 
-Message::Message(QString k, QString v) {
+MessageSample::MessageSample(QString k, QString v) {
     key = k;
     value = v;
     timestamp = QDateTime::currentDateTime();
 }
 
-Message::Message(QString k, QString v, QDateTime t) {
+MessageSample::MessageSample(QString k, QString v, QDateTime t) {
     key = k;
     value = v;
     timestamp = t; 
 }
 
-QByteArray Message::toByteArray()
+QByteArray MessageSample::toByteArray()
 {
     QString s = "##" + key + "#" + value + "#" + timestamp.toString() + "##";
     QByteArray res;
@@ -28,7 +78,7 @@ QByteArray Message::toByteArray()
     return res;
 }
 
-bool Message::fromByteArray(QByteArray& buf)
+bool MessageSample::fromByteArray(QByteArray& buf)
 {
     QString s = QString(buf);
     QStringList lista = s.split("#",QString::SkipEmptyParts);
@@ -45,7 +95,7 @@ bool Message::fromByteArray(QByteArray& buf)
     return true;
 }
 
-QString Message::toString()
+QString MessageSample::toString()
 {
     QString s = "(" + key + "," + value + "," + timestamp.toString() + ")";
     return s;

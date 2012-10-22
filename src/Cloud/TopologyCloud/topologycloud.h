@@ -18,8 +18,8 @@ public:
     virtual CloConnection* clone(Configurator*);
     virtual ~TopologyCloud();
     virtual void connect();
-    virtual void write(QVector<Message>);
-    virtual QVector<Message> readAll();
+    virtual void write(QVector<MessageSample>);
+    virtual QVector<MessageSample> readAll();
     virtual bool isBusy();
 
 private:
@@ -27,7 +27,7 @@ private:
     QString addres;
     quint16 port;
     
-    QVector<Message> msgQue;
+    QVector<MessageSample> msgQue;
 
 public slots:
     void connected();

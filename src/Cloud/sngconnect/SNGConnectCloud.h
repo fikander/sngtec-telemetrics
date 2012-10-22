@@ -1,20 +1,21 @@
-#ifndef MOCKCLOUD_H
-#define MOCKCLOUD_H
+#ifndef SNGCONNECT_H
+#define SNGCONNECT_H
 
 #include <QTimer>
 #include <QQueue>
 
-#include "Cloud.h"
+#include "../Cloud.h"
 #include "KeyValueMap.h"
 #include "Message/message.h"
+#include "SNGConnectAPI.h"
 
-class DummyCloud : public Cloud
+class SNGConnectCloud : public Cloud
 {
     Q_OBJECT
 
 public:
-    DummyCloud(KeyValueMap &config);
-    virtual ~DummyCloud();
+    SNGConnectCloud(KeyValueMap &config);
+    virtual ~SNGConnectCloud();
 
     virtual void connect();
 
@@ -29,6 +30,8 @@ private:
     QQueue< QSharedPointer<Message> > toSend;
     QQueue< QSharedPointer<Message> > receivedMessages;
 
+    QScopedPointer<SNGConnectAPI> api;
+
 private slots:
     //
     // emits received signals
@@ -37,4 +40,4 @@ private slots:
 
 };
 
-#endif // MOCKCLOUD_H
+#endif // SNGCONNECT_H

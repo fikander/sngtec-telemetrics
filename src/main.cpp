@@ -12,6 +12,32 @@
 #include "CloudFactory.h"
 #include "SensorFactory.h"
 
+//class A
+//{
+//public:
+//    ~A() {qDebug() << "delete";}
+//};
+
+//void test()
+//{
+//    QSharedPointer<A> y;
+//    QList< QSharedPointer<A> > list;
+
+//    {
+//        QSharedPointer<A> x = QSharedPointer<A>(new A());
+//        y = x;
+//        list.append(x);
+
+//        x.clear();
+//        qDebug()<<"1";
+//    }
+//    //y.clear();
+//    qDebug()<<"2";
+
+//    list.clear();
+//    qDebug()<<"3";
+//}
+
 int main(int argc, char *argv[]) {
 
     QCoreApplication a(argc, argv);

@@ -47,8 +47,8 @@ void ModbusTest::f1_2_3_4_Snd()
     testPort();
     Modbus* m = new Modbus(new Configurator(), 1);
 
-    Message* mesg = new Message(function, msg_data);
-    QVector<Message>* messages = new QVector<Message>();
+    MessageSample* mesg = new MessageSample(function, msg_data);
+    QVector<MessageSample>* messages = new QVector<MessageSample>();
     messages->append(*mesg);
     m->write(*messages);
 
@@ -98,7 +98,7 @@ void ModbusTest::errorRec(){
     if ((readed = write(fd, &crc, sizeof(short))) < 0)
         qDebug() << "Test: CRC write error";
     m->readFromSensor();
-    QVector<Message> returned = m->readAll();
+    QVector<MessageSample> returned = m->readAll();
 }
 
 void ModbusTest::errorRec_data(){
@@ -151,7 +151,7 @@ void ModbusTest::f1_2_3_4_Rec(){
     if ((readed = write(fd, &crc, sizeof(short))) < 0)
         qDebug() << "Test: CRC write error";
     m->readFromSensor();
-    QVector<Message> returned = m->readAll();
+    QVector<MessageSample> returned = m->readAll();
     QCOMPARE(tmp, returned[0].value);
 }
 
@@ -193,8 +193,8 @@ void ModbusTest::f7_11_12_Snd(){
     testPort();
     Modbus* m = new Modbus(new Configurator(), 1);
 
-    Message* mesg = new Message(function, "");
-    QVector<Message>* messages = new QVector<Message>();
+    MessageSample* mesg = new MessageSample(function, "");
+    QVector<MessageSample>* messages = new QVector<MessageSample>();
     messages->append(*mesg);
     m->write(*messages);
 
@@ -244,7 +244,7 @@ void ModbusTest::f5_6_11_15_Rec(){
     if ((readed = write(fd, &crc, sizeof(short))) < 0)
         qDebug() << "Test: CRC write error";
     m->readFromSensor();
-    QVector<Message> returned = m->readAll();
+    QVector<MessageSample> returned = m->readAll();
     QCOMPARE(tmp, returned[0].value);
 }
 
@@ -296,7 +296,7 @@ void ModbusTest::f7_Rec(){
     if ((readed = write(fd, &crc, sizeof(short))) < 0)
         qDebug() << "Test: CRC write error";
     m->readFromSensor();
-    QVector<Message> returned = m->readAll();
+    QVector<MessageSample> returned = m->readAll();
     QCOMPARE(tmp, returned[0].value);
 }
 
@@ -357,7 +357,7 @@ void ModbusTest::f0C_Rec(){
     if ((readed = write(fd, &crc, sizeof(short))) < 0)
         qDebug() << "Test: CRC write error";
     m->readFromSensor();
-    QVector<Message> returned = m->readAll();
+    QVector<MessageSample> returned = m->readAll();
     QCOMPARE(tmp, returned[0].value);
 }
 
@@ -453,8 +453,8 @@ void ModbusTest::f8_Snd(){
     testPort();
     Modbus* m = new Modbus(new Configurator(), 1);
 
-    Message* mesg = new Message(function, data);
-    QVector<Message>* messages = new QVector<Message>();
+    MessageSample* mesg = new MessageSample(function, data);
+    QVector<MessageSample>* messages = new QVector<MessageSample>();
     messages->append(*mesg);
     m->write(*messages);
     unsigned char* answer = new unsigned char[6];
@@ -509,7 +509,7 @@ void ModbusTest::f18_Rec(){
     if ((write(fd, &crc, sizeof(short))) < 0)
         qDebug() << "Test: CRC write error";
     m->readFromSensor();
-    QVector<Message> returned = m->readAll();
+    QVector<MessageSample> returned = m->readAll();
     QCOMPARE(tmp, returned[0].value);
 }
 
@@ -553,12 +553,12 @@ void ModbusTest::f0F_10_Snd() {
     testPort();
     Modbus* m = new Modbus(new Configurator(), 1);
 
-    Message* mesg = new Message(function, msg_data);
+    MessageSample* mesg = new MessageSample(function, msg_data);
     //qDebug() << "s" << msg_data.size();
     //qDebug() << "Ma byc val:" << mesg->value;
     //qDebug() << "do tego: " << mesg->value.at(0) << mesg->value.size();
     //qDebug() << "Array: " << mesg->value.toAscii().at(5);
-    QVector<Message>* messages = new QVector<Message>();
+    QVector<MessageSample>* messages = new QVector<MessageSample>();
     messages->append(*mesg);
     m->write(*messages);
     unsigned char* answer = new unsigned char[size];

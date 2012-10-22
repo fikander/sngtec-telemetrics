@@ -37,7 +37,7 @@ DevConnection* SngConnection::clone(Configurator *config, int no)
     return new SngConnection(config, no);
 }
 
-void SngConnection::write(QVector<Message> messages)
+void SngConnection::write(QVector<MessageSample> messages)
 {
     for (int i = 0; i < messages.size(); i++)
     {
@@ -45,9 +45,9 @@ void SngConnection::write(QVector<Message> messages)
     }
 }
 
-QVector<Message> SngConnection::readAll()
+QVector<MessageSample> SngConnection::readAll()
 {
-    QVector<Message> res = QVector<Message>(msgQue);
+    QVector<MessageSample> res = QVector<MessageSample>(msgQue);
     msgQue.clear();
     return res;
 }
@@ -80,7 +80,7 @@ void SngConnection::readFromSensor()
 
     qDebug() << "SngConnection::readFromSensor(): parsing frame OK";
 
-    Message m;
+    MessageSample m;
     if (translateFrameToMessage(frame, m))
     {
         qDebug() << "SngConnection::readFromSensor(): no configuration for frame, dropped: " << frame.toString();
@@ -102,7 +102,7 @@ void SngConnection::handleError(QAbstractSocket::SocketError error)
     qWarning() << "Error with CommServer: " << error;
 }
 
-void SngConnection::sendMessage(Message& msg)
+void SngConnection::sendMessage(MessageSample& msg)
 {
     SngFrame frame;
     if (translateMessageToFrame(msg, frame))
@@ -120,7 +120,7 @@ void SngConnection::sendMessage(Message& msg)
     qDebug() << "SngConnection::sendMessage(): sent " << dataLength << " bytes of data to sensor";
 }
 
-bool SngConnection::translateMessageToFrame(Message& msg, SngFrame& frame)
+bool SngConnection::translateMessageToFrame(MessageSample& msg, SngFrame& frame)
 {
     QStringList ls = conf->deviceTranslate(no, msg.key).split(separator);
 
@@ -168,7 +168,7 @@ bool SngConnection::parseFrameType(QString& s, SngFrameType& frameType)
     return true;
 }
 
-bool SngConnection::translateFrameToMessage(SngFrame & frame, Message& msg)
+bool SngConnection::translateFrameToMessage(SngFrame & frame, MessageSample& msg)
 {
     QString src = frame.src.toString();
     QString dest = frame.dest.toString();

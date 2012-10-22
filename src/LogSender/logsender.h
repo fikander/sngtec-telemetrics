@@ -13,7 +13,7 @@ public:
     virtual void sendLogs(QString, QVector<QString>) = 0;
 
 signals:
-    void statusUpdate (Message);
+    void statusUpdate (MessageSample);
 };
 
 #endif

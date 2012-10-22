@@ -87,10 +87,10 @@ int Modbus::preparePort(char* port, QString bandwidth, QString parity){
 
 
 
-Message Modbus::decodeByConfig(Message msg){
+MessageSample Modbus::decodeByConfig(MessageSample msg){
     QString newKey = hexTranslate(config->deviceTranslate(number, msg.key));
     QString newVal = hexTranslate(config->deviceTranslate(number, msg.value));
-    return Message(newKey, newVal);
+    return MessageSample(newKey, newVal);
 }
 
 QString Modbus::hexTranslate(QString toTranslate){
@@ -107,7 +107,7 @@ QString Modbus::hexTranslate(QString toTranslate){
 }
 
 
-ModbusRtuFrame* Modbus::decodeMessage(Message msg){
+ModbusRtuFrame* Modbus::decodeMessage(MessageSample msg){
     ModbusRtuFrame* frame = NULL;
     unsigned char* data = NULL;
     if (! ((config->deviceTranslate(number, "noHexes")).compare("True")) )
@@ -166,8 +166,8 @@ ModbusRtuFrame* Modbus::decodeMessage(Message msg){
     return frame;
 }
 
-void Modbus::write( QVector<Message> messages){
-        for (QVector<Message>::iterator it = messages.begin(); it < messages.end(); it++) {
+void Modbus::write( QVector<MessageSample> messages){
+        for (QVector<MessageSample>::iterator it = messages.begin(); it < messages.end(); it++) {
                 ModbusRtuFrame* frame = decodeMessage(*it);
                 if (frame != NULL) {
                     unsigned char** data = frame->toSend();
@@ -189,8 +189,8 @@ void Modbus::write( QVector<Message> messages){
 }
 
 
-QVector<Message> Modbus::readAll(){
-    QVector<Message> messages = QVector<Message>(msgQue);
+QVector<MessageSample> Modbus::readAll(){
+    QVector<MessageSample> messages = QVector<MessageSample>(msgQue);
     msgQue.clear();
     return messages;
 }
@@ -319,7 +319,7 @@ void Modbus::readFromSensor(){
                 }
                 //qDebug() << newVal;
                 //Message mesg(ret, QString::fromAscii((char *) answer_data, answer_size));
-                Message mesg(newKey, newVal);
+                MessageSample mesg(newKey, newVal);
                 msgQue.push_back(mesg);
             }
             //qDebug() << "CRC of received message is ok!";

@@ -17,7 +17,6 @@ HEADERS = Sensors/devproxy.h \
     Cloud/cloproxy.h \
     Configurator/configurator.h \
     Message/message.h \
-    Cloud/cloconnection.h \
     Cloud/Mock/mockcloud.h \
     Cloud/Cosm/cosmxml.h \
     Cloud/Cosm/cosmcloud.h \
@@ -37,7 +36,6 @@ HEADERS = Sensors/devproxy.h \
     Sensors/SNG/sngframe.h \
     Sensors/SNG/sngmsgcreator.h \
     Sensors/SNG/sngmsgparser.h \
-    Cloud/sngconnect/sngconnect.h \
     CloudFactory.h \
     SensorFactory.h \
     Configurator2.h \
@@ -46,7 +44,10 @@ HEADERS = Sensors/devproxy.h \
     KeyValueMap.h \
     Cloud/DummyCloud.h \
     debug.h \
-    Sensors/DummySensor.h
+    Sensors/DummySensor.h \
+    Cloud/cloconnection.h \
+    Cloud/sngconnect/SNGConnectCloud.h \
+    Cloud/sngconnect/SNGConnectAPI.h
 
 SOURCES =  main.cpp \
     Sensors/devproxy.cpp \
@@ -72,14 +73,15 @@ SOURCES =  main.cpp \
     Sensors/SNG/sngframe.cpp \
     Sensors/SNG/sngmsgcreator.cpp \
     Sensors/SNG/sngmsgparser.cpp \
-    Cloud/sngconnect/sngconnect.cpp \
     CloudFactory.cpp \
     SensorFactory.cpp \
     Configurator2.cpp \
     Cloud/Cloud.cpp \
     Cloud/DummyCloud.cpp \
     Sensors/Sensor.cpp \
-    Sensors/DummySensor.cpp
+    Sensors/DummySensor.cpp \
+    Cloud/sngconnect/SNGConnectCloud.cpp \
+    Cloud/sngconnect/SNGConnectAPI.cpp
 
     
 

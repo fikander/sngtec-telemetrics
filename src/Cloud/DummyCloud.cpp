@@ -24,7 +24,7 @@ void DummyCloud::connect()
     m_connected = true;
 }
 
-void DummyCloud::send(Message &payload)
+void DummyCloud::send(QSharedPointer<Message> payload)
 {
     toSend.enqueue(payload);
 }
@@ -41,14 +41,14 @@ void DummyCloud::sendAndReceiveData()
 
     // receive new data, convert to messages
     for (int i = 0; i < qrand() % 10 + 1; i++)
-        receivedMessages.enqueue(Message());
+        receivedMessages.enqueue( QSharedPointer<Message>(new MessageSample()) );
 
     // emit messages, so that connected sensors catch them
     while (!receivedMessages.isEmpty())
     {
-        Message message = receivedMessages.dequeue();
+        QSharedPointer<Message> message = receivedMessages.dequeue();
         emit received(message);
-        QDEBUG << "Message received: " + message.toString();
+        QDEBUG << "Message received: " + message->toString();
     }
 }
 

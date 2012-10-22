@@ -13,8 +13,8 @@ public:
     virtual CloConnection* clone(Configurator*);
     virtual ~MockCloud();
     virtual void connect();
-    virtual void write(QVector<Message>);
-    virtual QVector<Message> readAll();
+    virtual void write(QVector<MessageSample>);
+    virtual QVector<MessageSample> readAll();
     virtual bool isBusy();
 
 private:

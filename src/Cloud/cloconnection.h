@@ -6,7 +6,7 @@
 #include "Message/message.h"
 
 
-class Message;
+class MessageSample;
 class Configurator;
 
 /*
@@ -17,21 +17,21 @@ class CloConnection : public QObject {
     Q_OBJECT
 
 public:
-    typedef QVector<Message> MessagesSet;
+    typedef QVector<MessageSample> MessagesSet;
 
     virtual CloConnection* create(Configurator *config) = 0;
     virtual CloConnection* clone(Configurator *config) = 0;
     virtual void connect() = 0;
     virtual ~CloConnection() = 0;
-    virtual void write(QVector<Message>) = 0;
-    virtual QVector<Message> readAll() = 0;
+    virtual void write(QVector<MessageSample>) = 0;
+    virtual QVector<MessageSample> readAll() = 0;
     virtual bool isBusy() = 0;
 
 // Unused so far
 signals:
     void readyToRead();
     void readyToWrite();
-    void orderReceived(QVector<Message>);
+    void orderReceived(QVector<MessageSample>);
 };
 
 #endif // CLOCONNECTION_H

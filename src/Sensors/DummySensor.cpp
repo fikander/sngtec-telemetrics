@@ -24,7 +24,7 @@ void DummySensor::connect()
     m_connected = true;
 }
 
-void DummySensor::send(Message &payload)
+void DummySensor::send(QSharedPointer<Message> payload)
 {
     toSend.enqueue(payload);
 }
@@ -41,14 +41,14 @@ void DummySensor::sendAndReceiveData()
 
     // receive new data, convert to messages
     for (int i = 0; i < qrand() % 10 + 1; i++)
-        receivedMessages.enqueue(Message());
+        receivedMessages.enqueue(QSharedPointer<Message>(new MessageSample("sample", "value")));
 
     // emit messages, so that connected sensors catch them
     while (!receivedMessages.isEmpty())
     {
-        Message message = receivedMessages.dequeue();
+        QSharedPointer<Message> message = receivedMessages.dequeue();
         emit received(message);
-        QDEBUG << "Message received: " + message.toString();
+        QDEBUG << "Message received: " + message->toString();
     }
 }
 

@@ -45,7 +45,7 @@ void TopologyCloud::error(QAbstractSocket::SocketError) {
     qWarning() << "TopologyCloud::Error during cloud connection: " << connection.error();
 }
 
-void TopologyCloud::write(QVector<Message> messages)
+void TopologyCloud::write(QVector<MessageSample> messages)
 {
     qDebug() << "TopologyCloud::write";
 
@@ -56,7 +56,7 @@ void TopologyCloud::write(QVector<Message> messages)
         return;
     }
 
-    foreach(Message msg, messages)
+    foreach(MessageSample msg, messages)
     {
         QByteArray arr = msg.toByteArray();
         qint64 dataLength = connection.write(arr);
@@ -73,8 +73,8 @@ void TopologyCloud::write(QVector<Message> messages)
 }
 
 
-QVector<Message> TopologyCloud::readAll() {
-    QVector<Message> res = QVector<Message>(msgQue);
+QVector<MessageSample> TopologyCloud::readAll() {
+    QVector<MessageSample> res = QVector<MessageSample>(msgQue);
     msgQue.clear();
     return res;
 }
@@ -94,7 +94,7 @@ void TopologyCloud::readyRead() {
 
     for (int i = 0; i < l.size(); i++)
     {
-        Message m;
+        MessageSample m;
         QByteArray arr;
         arr.append(l[i]);
         m.fromByteArray(arr);

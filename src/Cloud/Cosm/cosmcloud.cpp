@@ -43,7 +43,7 @@ CosmCloud::~CosmCloud() {
 
 void CosmCloud::connect() {}
 
-void CosmCloud::write(QVector<Message> messages) {
+void CosmCloud::write(QVector<MessageSample> messages) {
     //qDebug() << __PRETTY_FUNCTION__ << "sending data";
     CosmXml pxml(sendFeed);
     for(MessagesSet::const_iterator it = messages.begin(); it != messages.end(); ++it) {
@@ -53,8 +53,8 @@ void CosmCloud::write(QVector<Message> messages) {
     send();
 }
 
-QVector<Message> CosmCloud::readAll() {
-    return QVector<Message>();
+QVector<MessageSample> CosmCloud::readAll() {
+    return QVector<MessageSample>();
 }
 
 bool CosmCloud::isBusy() {
@@ -108,9 +108,9 @@ void CosmCloud::ordersDone(bool error) {
     else {
         CosmXml ordersXml = CosmXml::CosmFromXml(orderHttp.readAll());
         //qDebug() << orderHttp.readAll();
-        QVector<Message> oldmessages = ordersXml.getMessages();
-        QVector<Message> messages;
-        foreach (Message m, oldmessages) {
+        QVector<MessageSample> oldmessages = ordersXml.getMessages();
+        QVector<MessageSample> messages;
+        foreach (MessageSample m, oldmessages) {
             m.key.replace("_", "|");
             messages.push_back(m);
         }
@@ -133,9 +133,9 @@ void CosmCloud::catchSslErrors ( const QList<QSslError> & errors ) {
     }
 }
 
-void CosmCloud::removeOldOrders(QVector<Message> &messages) {
+void CosmCloud::removeOldOrders(QVector<MessageSample> &messages) {
     //qDebug() << "Message count " << messages.size();
-    for(QVector<Message>::iterator it = messages.begin();
+    for(QVector<MessageSample>::iterator it = messages.begin();
         it != messages.end();) {
         if((last_messages.contains(it->key) &&
            last_messages.find(it->key)->timestamp == it->timestamp) ||
@@ -150,8 +150,8 @@ void CosmCloud::removeOldOrders(QVector<Message> &messages) {
     }
 }
 
-void CosmCloud::updateOrders(const QVector<Message> &messages) {
-    for(QVector<Message>::const_iterator it = messages.begin();
+void CosmCloud::updateOrders(const QVector<MessageSample> &messages) {
+    for(QVector<MessageSample>::const_iterator it = messages.begin();
         it != messages.end(); ++it) {
         last_messages.remove(it->key);
         last_messages.insert(it->key, *it);

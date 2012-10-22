@@ -9,22 +9,22 @@
 #include "Message/message.h"
 #include <QDebug>
 
-class Message;
+class MessageSample;
 
 class CosmXml {
 public:
     CosmXml(QString feed);
     static CosmXml CosmFromXml(QString xml);
-    QVector<Message> getMessages();
+    QVector<MessageSample> getMessages();
     //CosmXml(const CosmXml &);
     QDomDocument getXml();
-    void addData(const Message &);
+    void addData(const MessageSample &);
 
 protected:
     CosmXml(QString *xml);
 
 private:
-    QDomElement messageToNode(const Message &);
+    QDomElement messageToNode(const MessageSample &);
     QDomNodeList getData();
 
     QString feed;

@@ -39,7 +39,7 @@ void HTTPLogSender::sendLogs(QString address, QFile file) {
 }
 
 void HTTPLogSender::done(bool error) {
-    Message message;
+    MessageSample message;
     
     if(error) {
         qWarning() << "Log sending error" + http.errorString();

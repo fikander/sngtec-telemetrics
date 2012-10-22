@@ -22,7 +22,7 @@ MockCloud::~MockCloud() {
 void MockCloud::connect() {
 }
 
-void MockCloud::write(QVector<Message> messages) {
+void MockCloud::write(QVector<MessageSample> messages) {
     for(MessagesSet::const_iterator it = messages.begin();
         it != messages.end(); ++it){
         qDebug() <<  "Write { key: " << it->key << ", value: " << it->value << ", time: "
@@ -31,15 +31,15 @@ void MockCloud::write(QVector<Message> messages) {
      }
 }
 
-QVector<Message> MockCloud::readAll() {
-    QVector<Message> incoming;
-    incoming.push_back(Message("alpha|cloud", "ok"));
+QVector<MessageSample> MockCloud::readAll() {
+    QVector<MessageSample> incoming;
+    incoming.push_back(MessageSample("alpha|cloud", "ok"));
     return incoming;
 }
 
 void MockCloud::receiveFakeData() {
-    QVector<Message> incoming;
-    incoming.push_back(Message("alpha|cloud", "ok"));
+    QVector<MessageSample> incoming;
+    incoming.push_back(MessageSample("alpha|cloud", "ok"));
     emit orderReceived(incoming);
 }
 

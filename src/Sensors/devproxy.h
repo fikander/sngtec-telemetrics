@@ -9,7 +9,7 @@
 
 class CloProxy;
 class DevConnection;
-class Message;
+class MessageSample;
 class Configurator;
 
 class DevProxy : public QObject {
@@ -20,7 +20,7 @@ private:
     CloProxy *clo;
 
 signals:
-    void enque(Message msg);
+    void enque(MessageSample msg);
 
 public:
     DevConnection *ioDevice;

@@ -37,7 +37,7 @@ TopologySensor::~TopologySensor()
 {
 }
 
-void TopologySensor::write(QVector<Message> messages)
+void TopologySensor::write(QVector<MessageSample> messages)
 {
     qDebug() << "TopologySensor::write";
 
@@ -47,7 +47,7 @@ void TopologySensor::write(QVector<Message> messages)
         return;
     }
 
-    foreach(Message msg, messages)
+    foreach(MessageSample msg, messages)
     {
         QByteArray arr = msg.toByteArray();
         qint64 dataLength = clientConnection->write(arr);
@@ -63,9 +63,9 @@ void TopologySensor::write(QVector<Message> messages)
     }
 }
 
-QVector<Message> TopologySensor::readAll()
+QVector<MessageSample> TopologySensor::readAll()
 {
-    QVector<Message> res = QVector<Message>(msgQue);
+    QVector<MessageSample> res = QVector<MessageSample>(msgQue);
     msgQue.clear();
     qDebug() << "TopologySensor::readAll: read" << res.size() << "messages";
     return res;
@@ -104,7 +104,7 @@ void TopologySensor::readData()
 
     for (int i = 0; i < l.size(); i++)
     {
-        Message m;
+        MessageSample m;
         QByteArray arr;
         arr.append(l[i]);
         if (m.fromByteArray(arr))

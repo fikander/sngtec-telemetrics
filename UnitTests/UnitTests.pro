@@ -18,46 +18,45 @@ INCLUDEPATH += ../src/ \
 #OBJECTS_DIR = ../build/.obj-test
 #MOC_DIR = ../build/.moc-test
 #RCC_DIR = ../build/.rcc-test
-LIBS += ../build/cloconnection.o\
-        ../build/httplogsender.o\
-        ../build/moc_devproxy.o       \
-        ../build/moc_sngconnection.o   \
-        ../build/sngmsgcreator.o\
-        ../build/cloproxy.o       \
-        ../build/logger.o             \
-        ../build/moc_httplogsender.o  \
-        ../build/moc_sngconnect.o      \
-        ../build/sngmsgparser.o\
-        ../build/configurator.o   \
-        ../build/loggingHandler.o     \
-        ../build/mockcloud.o          \
-        ../build/moc_topologycloud.o   \
-        ../build/sngphysicaladdress.o\
-        ../build/cosmcloud.o      \
-        ../build/mockdev.o            \
-        ../build/moc_topologysensor.o  \
-        ../build/topologycloud.o\
-        ../build/cosmtime.o       \
-        ../build/message.o            \
-        ../build/moc_logger.o         \
-        ../build/modbus.o              \
-        ../build/topologysensor.o\
-        ../build/cosmxml.o        \
-        ../build/moc_cloconnection.o  \
-        ../build/moc_logsender.o      \
-        ../build/modbusrtuframe.o\
-        ../build/crc-count.o      \
-        ../build/moc_cloproxy.o       \
-        ../build/moc_mockcloud.o      \
-        ../build/sngconnection.o\
-        ../build/devconnection.o  \
-        ../build/moc_cosmcloud.o      \
-        ../build/moc_mockdev.o        \
-        ../build/sngconnect.o\
-        ../build/devproxy.o       \
-        ../build/moc_devconnection.o  \
-        ../build/moc_modbus.o         \
-        ../build/sngframe.o
+LIBS += ../build-telemetron/cloconnection.o\
+        ../build-telemetron/httplogsender.o\
+        ../build-telemetron/moc_devproxy.o       \
+        ../build-telemetron/moc_sngconnection.o   \
+        ../build-telemetron/sngmsgcreator.o\
+        ../build-telemetron/cloproxy.o       \
+        ../build-telemetron/logger.o             \
+        ../build-telemetron/moc_httplogsender.o  \
+        ../build-telemetron/moc_sngconnect.o      \
+        ../build-telemetron/sngmsgparser.o\
+        ../build-telemetron/configurator.o   \
+        ../build-telemetron/mockcloud.o          \
+        ../build-telemetron/moc_topologycloud.o   \
+        ../build-telemetron/sngphysicaladdress.o\
+        ../build-telemetron/cosmcloud.o      \
+        ../build-telemetron/mockdev.o            \
+        ../build-telemetron/moc_topologysensor.o  \
+        ../build-telemetron/topologycloud.o\
+        ../build-telemetron/cosmtime.o       \
+        ../build-telemetron/message.o            \
+        ../build-telemetron/moc_logger.o         \
+        ../build-telemetron/modbus.o              \
+        ../build-telemetron/topologysensor.o\
+        ../build-telemetron/cosmxml.o        \
+        ../build-telemetron/moc_cloconnection.o  \
+        ../build-telemetron/moc_logsender.o      \
+        ../build-telemetron/modbusrtuframe.o\
+        ../build-telemetron/crc-count.o      \
+        ../build-telemetron/moc_cloproxy.o       \
+        ../build-telemetron/moc_mockcloud.o      \
+        ../build-telemetron/sngconnection.o\
+        ../build-telemetron/devconnection.o  \
+        ../build-telemetron/moc_cosmcloud.o      \
+        ../build-telemetron/moc_mockdev.o        \
+        ../build-telemetron/sngconnect.o\
+        ../build-telemetron/devproxy.o       \
+        ../build-telemetron/moc_devconnection.o  \
+        ../build-telemetron/moc_modbus.o         \
+        ../build-telemetron/sngframe.o
 
 SOURCES += main.cpp \
     sampletest.cpp \

@@ -28,8 +28,8 @@ class Modbus : public DevConnection {
         Modbus();
         Modbus(Configurator* config, int no);
 
-        void write(QVector<Message> messages);
-        QVector<Message> readAll();
+        void write(QVector<MessageSample> messages);
+        QVector<MessageSample> readAll();
 
   signals: // Device should connect this
         void readyToRead();
@@ -38,13 +38,13 @@ class Modbus : public DevConnection {
         void readFromSensor();
 
   private:
-        ModbusRtuFrame* decodeMessage(Message msg);
+        ModbusRtuFrame* decodeMessage(MessageSample msg);
         int checkResponseCRC(unsigned char* answer, unsigned char* answer_data,
                              int answer_size, int take_byte_count, unsigned short crc);
         int preparePort(char* port, QString bandwidth, QString parity);
 
         //Decodes pseudo-hexes from config
-        Message decodeByConfig(Message msg);
+        MessageSample decodeByConfig(MessageSample msg);
         QString hexTranslate(QString toTranslate);
 
         //Protects from read problems & makes timeout
@@ -54,7 +54,7 @@ class Modbus : public DevConnection {
         int number;
         QSocketNotifier* portNotifier;
         Configurator * config;
-        QVector<Message> msgQue;
+        QVector<MessageSample> msgQue;
         QMap<QString, QString> message_map;
 };
 

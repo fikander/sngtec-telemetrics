@@ -94,7 +94,7 @@ void Configurator2::configureCloudsAndSensors()
     {
         foreach(Cloud *cloud, m_clouds)
         {
-            QObject::connect(sensor, SIGNAL(received(Message&)), cloud, SLOT(send(Message&)));
+            QObject::connect(sensor, SIGNAL(received(QSharedPointer<Message>)), cloud, SLOT(send(QSharedPointer<Message>)));
             QDEBUG << "Sensor received signal: " << sensor->metaObject()->className() << " with cloud send: " << cloud->metaObject()->className();
         }
     }
@@ -104,7 +104,7 @@ void Configurator2::configureCloudsAndSensors()
     {
         foreach(Sensor *sensor, m_sensors)
         {
-            QObject::connect(cloud, SIGNAL(received(Message&)), sensor, SLOT(send(Message&)));
+            QObject::connect(cloud, SIGNAL(received(QSharedPointer<Message>)), sensor, SLOT(send(QSharedPointer<Message>)));
             QDEBUG << "Cloud received signal: " << cloud->metaObject()->className() << " with sensor send: " << sensor->metaObject()->className();
         }
     }

@@ -18,8 +18,8 @@ public:
     virtual DevConnection* clone(Configurator *config, int no);
     virtual ~MockDev();
 
-    virtual void write(QVector<Message>);
-    virtual QVector<Message> readAll();
+    virtual void write(QVector<MessageSample>);
+    virtual QVector<MessageSample> readAll();
 
 //signals:
 //    void readyToRead();

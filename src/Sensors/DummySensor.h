@@ -20,15 +20,15 @@ public:
     virtual void connect();
 
 public slots:
-    virtual void send(Message &payload);
+    virtual void send(QSharedPointer<Message> payload);
 
 signals:
-    void received(Message &payload);
+    void received(QSharedPointer<Message> payload);
 
 private:
     QTimer timer;
-    QQueue<Message> toSend;
-    QQueue<Message> receivedMessages;
+    QQueue< QSharedPointer<Message> > toSend;
+    QQueue< QSharedPointer<Message> > receivedMessages;
 
 private slots:
     //

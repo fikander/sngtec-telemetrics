@@ -2,6 +2,7 @@
 
 #include "Cloud/Cloud.h"
 #include "Cloud/DummyCloud.h"
+#include "Cloud/sngconnect/SNGConnectCloud.h"
 
 CloudFactory* CloudFactory::m_instance = NULL;
 
@@ -19,6 +20,8 @@ Cloud* CloudFactory::newObject (QString cloudType, KeyValueMap &config)
 {
     if (cloudType == "dummy")
         return new DummyCloud(config);
+    else if (cloudType == "sngconnect")
+        return new SNGConnectCloud(config);
 
     return NULL;
 }

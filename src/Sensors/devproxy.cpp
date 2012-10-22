@@ -18,18 +18,18 @@ DevProxy::DevProxy(Configurator* config) {
 
 void DevProxy::connectCloud(CloProxy *cl) {
     clo = cl;
-    connect(this, SIGNAL(enque(Message)),
-            clo, SLOT(queue(Message)));
+    connect(this, SIGNAL(enque(MessageSample)),
+            clo, SLOT(queue(MessageSample)));
 
 }
 
 void DevProxy::readDevice() {
     //qDebug() << __PRETTY_FUNCTION__  << "Attempting read from device..";
-    QVector<Message> payload = ioDevice->readAll();
+    QVector<MessageSample> payload = ioDevice->readAll();
     //qDebug() << __PRETTY_FUNCTION__  << "Read data from device: " << payload[0].key << " " << payload[0].value;
 
     for (int i = 0; i < payload.size(); i++) {
-        Message msg = payload[i];
+        MessageSample msg = payload[i];
         emit enque(msg);
     }
 

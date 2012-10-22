@@ -31,17 +31,17 @@ void MockDev::fakeSignal() {
 }
 
 
-void MockDev::write(QVector<Message> messages) {
+void MockDev::write(QVector<MessageSample> messages) {
     qDebug() << "Mock: writing messages";
-    foreach (Message m, messages) {
+    foreach (MessageSample m, messages) {
         qDebug() << "Got message:" << m.key << "," << m.value;
     }
     return;
 }
 
-QVector<Message> MockDev::readAll() {
-    QVector<Message> res;
-    Message m("A", "B");
+QVector<MessageSample> MockDev::readAll() {
+    QVector<MessageSample> res;
+    MessageSample m("A", "B");
     res.push_back(m);
 
     return res;

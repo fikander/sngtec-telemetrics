@@ -21,13 +21,13 @@ public slots:
     /*
      * Send to sensor
      */
-    virtual void send(Message &payload) = 0;
+    virtual void send(QSharedPointer<Message> payload) = 0;
 
 signals:
     /*
      * Received from sensor
      */
-    void received(Message &payload);
+    void received(QSharedPointer<Message> payload);
 
 protected:
     bool m_connected;

@@ -7,7 +7,7 @@
 #include "Message/message.h"
 
 class DevConnection;
-class Message;
+class MessageSample;
 
 //Iterface for various sensors
 class DevConnection : public QObject
@@ -21,8 +21,8 @@ public:
     virtual DevConnection* clone(Configurator *config, int no) = 0;
     virtual ~DevConnection() = 0;
 
-    virtual void write(QVector<Message>) = 0;
-    virtual QVector<Message> readAll() = 0;
+    virtual void write(QVector<MessageSample>) = 0;
+    virtual QVector<MessageSample> readAll() = 0;
 
 signals:
     void readyToRead();

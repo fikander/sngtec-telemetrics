@@ -15,7 +15,7 @@
 class CloConnection;
 class DevProxy;
 class Configurator;
-class Message;
+class MessageSample;
 
 class CloProxy : public QObject {
   Q_OBJECT
@@ -25,8 +25,8 @@ private:
     Configurator *configurator;
     DevProxy *dev;
     CloConnection *ioDevice;
-    QQueue<Message> que;
-    void dispatchMessage(Message m);
+    QQueue<MessageSample> que;
+    void dispatchMessage(MessageSample m);
     QVector<DevProxy*> devList;
     LogSender *sender;
 
@@ -37,9 +37,9 @@ public:
 
 public slots:
     void askServer();
-    void queue(Message payload);
-    void senderResponse(Message payload);
-    void receiveServerMessages(QVector<Message> );
+    void queue(MessageSample payload);
+    void senderResponse(MessageSample payload);
+    void receiveServerMessages(QVector<MessageSample> );
 };
 
 #endif // CLOPROXY_H

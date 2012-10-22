@@ -26,8 +26,8 @@ public:
     virtual DevConnection* clone(Configurator *config, int no);
     virtual ~SngConnection();
 
-    virtual void write(QVector<Message>);
-    virtual QVector<Message> readAll();
+    virtual void write(QVector<MessageSample>);
+    virtual QVector<MessageSample> readAll();
 
 signals:
     void readyToRead();
@@ -40,11 +40,11 @@ private:
     SngConnection(Configurator*,int);
 
     // methods used when sending a message to sensor
-    void sendMessage(Message&);
+    void sendMessage(MessageSample&);
 
-    bool translateMessageToFrame(Message&, SngFrame&);
+    bool translateMessageToFrame(MessageSample&, SngFrame&);
     bool parseFrameType(QString&, SngFrameType&);
-    bool translateFrameToMessage(SngFrame&, Message&);
+    bool translateFrameToMessage(SngFrame&, MessageSample&);
     QString printMsg(char* msg);
 
     // handle SNG 'heartbeat'
@@ -63,7 +63,7 @@ private:
     SngMsgCreator msgCreator;
     SngMsgParser msgParser;
 
-    QVector<Message> msgQue;
+    QVector<MessageSample> msgQue;
 };
 
 #endif // SNGCONNECTION_H

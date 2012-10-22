@@ -30,7 +30,7 @@ CosmXml::CosmXml(QString *xmlString) {
 //}
 
 
-void CosmXml::addData(const Message &message){
+void CosmXml::addData(const MessageSample &message){
     environment.appendChild(messageToNode(message));
 }
 
@@ -40,7 +40,7 @@ QDomDocument CosmXml::getXml(){
 }
 
 inline
-QDomElement CosmXml::messageToNode(const Message &message){
+QDomElement CosmXml::messageToNode(const MessageSample &message){
     QDomElement data = xml.createElement("data");
     data.setAttribute("id", message.key);
 
@@ -58,9 +58,9 @@ QDomNodeList CosmXml::getData() {
     return xml.elementsByTagName("data");
 }
 
-QVector<Message> CosmXml::getMessages() {
+QVector<MessageSample> CosmXml::getMessages() {
     QDomNodeList dataNodes = getData();
-    QVector<Message> messages;
+    QVector<MessageSample> messages;
     for(int i = 0; i < dataNodes.count(); ++i) {
         QDomNode data = dataNodes.at(i);
         if(data.hasAttributes() && data.hasChildNodes()) {
@@ -69,7 +69,7 @@ QVector<Message> CosmXml::getMessages() {
             if(!current_value.isNull()) {
                 QString timestamp = current_value.attribute("at");
                 QString value = current_value.text();
-                Message message = Message(id, value);
+                MessageSample message = MessageSample(id, value);
                 message.timestamp = CosmTime(timestamp).getDateTime();
                 messages.push_back(message);
             }
