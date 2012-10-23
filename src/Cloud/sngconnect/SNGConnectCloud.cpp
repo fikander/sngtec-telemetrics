@@ -13,6 +13,11 @@ SNGConnectCloud::SNGConnectCloud(KeyValueMap &config):
     else
         timer.setInterval(60 * 1000);
 
+    if (config.contains("stale_messages_warning_threshold"))
+        toSendMessagesWarningThreshold = config["stale_messages_warning_threshold"].toUInt();
+    else
+        toSendMessagesWarningThreshold = 25;
+
     api = QSharedPointer<SNGConnectAPI>(new SNGConnectAPI(config));
 }
 
@@ -35,6 +40,35 @@ void SNGConnectCloud::send(QSharedPointer<Message> payload)
     toSend.enqueue(payload);
 }
 
+void SNGConnectCloud::cleanupProcessedMessages()
+{
+    QList<int> toRemove;
+
+    int i = 0;
+    foreach(QSharedPointer<Message> msg, toSend)
+    {
+        if (msg->isProcessed())
+            toRemove.append(i);
+        ++i;
+    }
+
+    int removed = 0;
+    foreach(int idx, toRemove)
+    {
+        toSend.removeAt(idx - removed++);
+    }
+
+
+    if (toSend.count() > toSendMessagesWarningThreshold)
+    {
+        QWARNING << toSend.count() << " messages not sent yet!";
+    }
+    else
+    {
+        QDEBUG << "Cleaned up " << removed << " messages.";
+    }
+}
+
 
 void SNGConnectCloud::sendAndReceiveData()
 {
@@ -42,34 +76,38 @@ void SNGConnectCloud::sendAndReceiveData()
     if (!m_connected)
         return;
 
+    // clean up messages that have been successfully sent
+    cleanupProcessedMessages();
+
     //
     // send data
     //
-    QList< QSharedPointer<Message> > allSamples = Message::takeMessages(toSend, Message::MsgSample);
+    QList< QSharedPointer<Message> > allEvents;
+    Message::getMessages(toSend, Message::MsgEvent, allEvents);
+
+    foreach(QSharedPointer<Message> event, allEvents)
+    {
+        APICallSendEvent *call = new APICallSendEvent(api, event);
+        // note: call will get self destructed after execution
+        call->invoke();
+    }
+
+    QList< QSharedPointer<Message> > allSamples;
+    Message::getMessages(toSend, Message::MsgSample, allSamples);
+
     while (!allSamples.isEmpty())
     {
         // get first sample to learn what datasource should be reported
         QSharedPointer<MessageSample> firstSample = allSamples[0].staticCast<MessageSample>();
         QList< QSharedPointer<MessageSample> > samples = MessageSample::takeMessagesByDatastream(allSamples, firstSample->key);
 
-        // api call objects will get automatically deleted after invoke has been called
         APICallSendDatastreamSamples *call = new APICallSendDatastreamSamples(api, firstSample->key, samples);
-        call->invoke();
-
-        samples.clear();
-    }
-
-    QList< QSharedPointer<Message> > allEvents = Message::takeMessages(toSend, Message::MsgEvent);
-    foreach(QSharedPointer<Message> event, allEvents)
-    {
-        APICallSendEvent *call = new APICallSendEvent(api, event);
+        // note: call will get self destructed after execution
         call->invoke();
     }
-
-    Q_ASSERT(toSend.isEmpty());
 
     //
-    // receive new data, convert to messages
+    // TODO: receive new data, convert to messages
     //
     //for (int i = 0; i < qrand() % 10 + 1; i++)
     //    receivedMessages.enqueue( QSharedPointer<Message>(new MessageSample("fromCloud", "value")) );
@@ -79,7 +117,7 @@ void SNGConnectCloud::sendAndReceiveData()
     {
         QSharedPointer<Message> message = receivedMessages.dequeue();
         emit received(message);
-        QDEBUG << "Message received: " + message->toString();
+        QDEBUG << "Message received from cloud: " + message->toString();
     }
 }
 

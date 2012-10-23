@@ -22,6 +22,8 @@ DummySensor::DummySensor(KeyValueMap &config):
         dummyDataStream = config["dummy_datastream"].toString();
     else
         dummyDataStream = "data_stream_1";
+
+    counter = 0;
 }
 
 DummySensor::~DummySensor()
@@ -52,7 +54,7 @@ void DummySensor::collectSample()
 
     Message *msg;
 
-    if (qrand() % 5 != 0)
+    if (counter++ % 2 != 0)
         msg = new MessageSample(dummyDataStream, QVariant(qrand() % 1000).toString());
     else
         msg = new MessageEvent();

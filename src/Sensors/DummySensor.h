@@ -36,6 +36,8 @@ private:
 
     QString dummyDataStream;
 
+    int counter;
+
 private slots:
     // emits received signals
     void sendAndReceiveData();

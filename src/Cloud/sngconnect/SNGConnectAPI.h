@@ -10,6 +10,9 @@
 #include "KeyValueMap.h"
 #include "Message/message.h"
 
+/*
+ * API context
+ */
 class SNGConnectAPI : public QObject
 {
     Q_OBJECT
@@ -18,28 +21,22 @@ public:
     ~SNGConnectAPI();
 
 protected:
-    bool makeHttpRequest(QString method, QString api, QString contents);
-
     QUrl baseUrl;
     QString feed;
-    QHttp http;
 
 friend class APICall;
 };
 
+
 /*
- *
+ * API call base class
  */
 class APICall : public QObject
 {
     Q_OBJECT
 
 public:
-    static QList<APICall*> doneAPICalls;
-    static void cleanup();
-
     APICall(QSharedPointer<SNGConnectAPI> context);
-
     virtual ~APICall();
 
     void invoke();
@@ -49,18 +46,21 @@ protected slots:
     virtual void done(bool error);
 
 protected:
+
+    bool makeHttpRequest(QString method, QString api, QString contents);
+
     virtual QString getMethod() = 0;
     virtual QString getAPI() = 0;
     virtual QString getContent() = 0;
 
-    QHttp &http() { return context->http; }
     QString &feed() { return context->feed; }
+
+    QHttp http;
+    // each http.request returns id to track it
+    int requestId;
 
     QSharedPointer<SNGConnectAPI> context;
 };
-
-//void sendEvents(QList< QSharedPointer<Message> > &events);
-//void sendDatastreamSamples(QString datastream, QList< QSharedPointer<MessageSample> > &samples);
 
 /*
  *
@@ -90,10 +90,10 @@ protected slots:
 protected:
     virtual QString getMethod() { return "PUT"; }
     virtual QString getAPI() { return "api/v1/feeds/" + feed() + "/datastreams/" + datastream + ".json"; }
-    virtual QString getContent() { return content; }
+    virtual QString getContent();
 
     QString datastream;
-    QString content;
+    QList< QSharedPointer<MessageSample> > samples;
 };
 
 
@@ -122,9 +122,9 @@ protected slots:
 protected:
     virtual QString getMethod() { return "POST"; }
     virtual QString getAPI() { return "api/v1/feeds/" + feed() + "/events.json"; }
-    virtual QString getContent() { return content; }
+    virtual QString getContent();
 
-    QString content;
+    QSharedPointer<MessageEvent> event;
 };
 
 #endif // SNGCONNECTAPI_H

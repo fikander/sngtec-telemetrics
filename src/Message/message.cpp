@@ -1,30 +1,19 @@
-#include "message.h"
 #include <QStringList>
 #include <QDebug>
 #include <QString>
 #include <QByteArray>
 
+#include "debug.h"
+#include "message.h"
 
-QList< QSharedPointer<Message> > Message::takeMessages(QList< QSharedPointer<Message> > &messages, MessageType type)
+
+void Message::getMessages(QList< QSharedPointer<Message> > &messages, MessageType type, QList< QSharedPointer<Message> > &result)
 {
-    QList< QSharedPointer<Message> > result;
-    QList<int> toTake;
-
-    int i = 0;
     foreach(QSharedPointer<Message> msg, messages)
     {
         if (msg->getType() == type)
-            toTake.append(i);
-        ++i;
+            result.append(msg);
     }
-
-    int taken = 0;
-    foreach(int t, toTake)
-    {
-        result.append(messages.takeAt(t - taken++));
-    }
-
-    return result;
 }
 
 QList< QSharedPointer<MessageSample> > MessageSample::takeMessagesByDatastream(QList< QSharedPointer<Message> > &messages, QString datastream)
@@ -54,8 +43,13 @@ QList< QSharedPointer<MessageSample> > MessageSample::takeMessagesByDatastream(Q
 }
 
 Message::Message(QDateTime timestamp) :
-    timestamp(timestamp)
+    timestamp(timestamp), processed(false)
 {
+}
+
+Message::~Message()
+{
+    qDebug() << "Message ~Destructor: ";
 }
 
 MessageSample::MessageSample() :

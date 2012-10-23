@@ -13,13 +13,18 @@ public:
     enum MessageType { MsgBase, MsgSample, MsgEvent, MsgRequest };
 
     Message(QDateTime timestamp);
-    virtual ~Message() {}
+    virtual ~Message();
     virtual MessageType getType() = 0;
     virtual QString toString() = 0;
 
     QDateTime timestamp;
 
-    static QList< QSharedPointer<Message> > takeMessages(QList<QSharedPointer<Message> > &messages, MessageType type);
+    // message is marked as processed by cloud or device after it's been successfully sent
+    bool processed;
+    bool isProcessed() { return processed; }
+    void setProcessed() { processed = true; }
+
+    static void getMessages(QList< QSharedPointer<Message> > &messages, MessageType type, QList< QSharedPointer<Message> > &result);
 };
 
 

@@ -32,6 +32,10 @@ private:
 
     QSharedPointer<SNGConnectAPI> api;
 
+    int toSendMessagesWarningThreshold;
+
+    void cleanupProcessedMessages();
+
 private slots:
     //
     // emits received signals
