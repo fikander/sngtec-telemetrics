@@ -31,15 +31,19 @@ private:
     QVector<QString> fileNames;
     QQueue<QString> queue;
     QFile *logFile;
-    int askInterval;
     QTimer *timer;
 
     bool queueDirty; // flushing queue to disk clears this flag
+
+    // configuration
+    int askInterval;
+    int maxMessagesInFile;
     QtMsgType loggingLevel; // minimum logging level to put to log files
 
 public slots:
     void pushMessage(QtMsgType type, QString msg);
-    void processQueue();
+protected slots:
+    void flushMessages();
 };
 
 #endif // LOGGER_H

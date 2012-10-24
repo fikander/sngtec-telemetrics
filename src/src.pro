@@ -4,8 +4,7 @@ TEMPLATE = app
 TARGET = telemetron
 VERSION = 0.1.0
 
-QT += network \
-    xml
+QT += network script xml
 QT -= gui
 
 CONFIG += console

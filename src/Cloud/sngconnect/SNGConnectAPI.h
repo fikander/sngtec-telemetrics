@@ -5,6 +5,7 @@
 #include <QSharedPointer>
 #include <QHttp>
 #include <QUrl>
+#include <QQueue>
 
 #include <debug.h>
 #include "KeyValueMap.h"
@@ -125,6 +126,45 @@ protected:
     virtual QString getContent();
 
     QSharedPointer<MessageEvent> event;
+};
+
+/*
+  GET api/v1/feeds/{id}/datastreams.json?filter=requested
+{
+ "datastreams" : [ {
+     "value_requested_at" : "2010-06-25T11:54:17.454020Z",
+     "requested_value" : "999",
+     "label" : "param1"
+  },
+  {
+     "value_requested_at" : "2010-06-24T10:05:49.000000Z",
+     "requested_value" : "0000017",
+     "label" : "param2"
+  } ]
+}
+*/
+
+class APICallGetDataStreams : public APICall
+{
+    Q_OBJECT
+public:
+    APICallGetDataStreams(
+            QSharedPointer<SNGConnectAPI> context,
+            QString filter,
+            QQueue< QSharedPointer<Message> > *receivedMessages);
+
+protected slots:
+    virtual void done(bool error);
+
+protected:
+    virtual QString getMethod() { return "GET"; }
+    virtual QString getAPI() { return "api/v1/feeds/" + feed() + "/datastreams.json?filter=" + filter; }
+    virtual QString getContent() { return ""; }
+
+    QString filter;
+    QQueue< QSharedPointer<Message> > *receivedMessages;
+
+    void parseJSONResponse(QString response);
 };
 
 #endif // SNGCONNECTAPI_H

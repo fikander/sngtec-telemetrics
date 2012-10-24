@@ -31,7 +31,7 @@
 //        x.clear();
 //        qDebug()<<"1";
 //    }
-//    //y.clear();
+//    y.clear();
 //    qDebug()<<"2";
 
 //    list.clear();
@@ -39,7 +39,6 @@
 //}
 
 int main(int argc, char *argv[]) {
-
     QCoreApplication a(argc, argv);
 
     CloudFactory *cloudFactory = CloudFactory::instance();

@@ -33,6 +33,7 @@ private:
     QSharedPointer<SNGConnectAPI> api;
 
     int toSendMessagesWarningThreshold;
+    int toSendMessagesErrorThreshold;
 
     void cleanupProcessedMessages();
 

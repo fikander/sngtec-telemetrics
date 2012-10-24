@@ -18,12 +18,19 @@ SNGConnectCloud::SNGConnectCloud(KeyValueMap &config):
     else
         toSendMessagesWarningThreshold = 25;
 
+    if (config.contains("stale_messages_error_threshold"))
+        toSendMessagesErrorThreshold = config["stale_messages_error_threshold"].toUInt();
+    else
+        toSendMessagesErrorThreshold = 100;
+
     api = QSharedPointer<SNGConnectAPI>(new SNGConnectAPI(config));
 }
 
 SNGConnectCloud::~SNGConnectCloud()
 {
-
+    api.clear();
+    toSend.clear();
+    receivedMessages.clear();
 }
 
 void SNGConnectCloud::connect()
@@ -58,7 +65,17 @@ void SNGConnectCloud::cleanupProcessedMessages()
         toSend.removeAt(idx - removed++);
     }
 
+    // too many: remove some old messages
+    if (toSend.count() > toSendMessagesErrorThreshold)
+    {
+        int countToRemove = toSend.count() - toSendMessagesErrorThreshold;
+        QERROR << "Too many messages in the queue, removing " << countToRemove<< " oldest!";
 
+        for (int i = 0; i < countToRemove; i++)
+            toSend.removeFirst();
+    }
+
+    // close to overfilling the queue
     if (toSend.count() > toSendMessagesWarningThreshold)
     {
         QWARNING << toSend.count() << " messages not sent yet!";
@@ -83,7 +100,7 @@ void SNGConnectCloud::sendAndReceiveData()
     // send data
     //
     QList< QSharedPointer<Message> > allEvents;
-    Message::getMessages(toSend, Message::MsgEvent, allEvents);
+    Message::getUnlockedMessages(toSend, Message::MsgEvent, true, allEvents);
 
     foreach(QSharedPointer<Message> event, allEvents)
     {
@@ -93,13 +110,14 @@ void SNGConnectCloud::sendAndReceiveData()
     }
 
     QList< QSharedPointer<Message> > allSamples;
-    Message::getMessages(toSend, Message::MsgSample, allSamples);
+    Message::getUnlockedMessages(toSend, Message::MsgSample, true, allSamples);
 
     while (!allSamples.isEmpty())
     {
         // get first sample to learn what datasource should be reported
         QSharedPointer<MessageSample> firstSample = allSamples[0].staticCast<MessageSample>();
-        QList< QSharedPointer<MessageSample> > samples = MessageSample::takeMessagesByDatastream(allSamples, firstSample->key);
+        QList< QSharedPointer<MessageSample> > samples;
+        MessageSample::takeMessagesByDatastream(allSamples, firstSample->key, samples);
 
         APICallSendDatastreamSamples *call = new APICallSendDatastreamSamples(api, firstSample->key, samples);
         // note: call will get self destructed after execution
@@ -111,6 +129,8 @@ void SNGConnectCloud::sendAndReceiveData()
     //
     //for (int i = 0; i < qrand() % 10 + 1; i++)
     //    receivedMessages.enqueue( QSharedPointer<Message>(new MessageSample("fromCloud", "value")) );
+    APICallGetDataStreams *call = new APICallGetDataStreams(api, "requested", &receivedMessages);
+    call->invoke();
 
     // emit messages, so that connected sensors catch them
     while (!receivedMessages.isEmpty())

@@ -40,21 +40,6 @@ SNGConnectAPI::~SNGConnectAPI()
 }
 */
 
-/*
-  GET api/v1/feeds/{id}/datastreams.json?filter=requested
-{
- "datastreams" : [ {
-     "value_requested_at" : "2010-06-25T11:54:17.454020Z",
-     "requested_value" : "999",
-     "label" : "param1"
-  },
-  {
-     "value_requested_at" : "2010-06-24T10:05:49.000000Z",
-     "requested_value" : "0000017",
-     "label" : "param2"
-  } ]
-}
-*/
 
 APICall::APICall(QSharedPointer<SNGConnectAPI> context):
     context(context)
@@ -98,18 +83,28 @@ void APICall::done(bool error)
     // disconnect everything from done(bool) signal
     QObject::disconnect(&http, SIGNAL(done(bool)), 0, 0);
 
-    // schedule for deletion
+    // schedule this API call for deletion
     this->deleteLater();
 
     if (error)
     {
-        QDEBUG << "done with ERROR " << requestId;
+        QWARNING << "HTTP connection error (request " << requestId << "): " <<
+                    context->baseUrl.toString() << http.error() << http.errorString();
     }
     else
     {
         QHttpResponseHeader response = http.lastResponse();
-        QDEBUG << "done with SUCCESS " << requestId << ": " << QVariant(response.statusCode()).toString();
-        QDEBUG << http.readAll();
+        if (response.statusCode() >= 400)
+        {
+            QWARNING << "HTTP error (request " << requestId << "):" <<
+                        QVariant(response.statusCode()).toString() <<
+                        context->baseUrl.toString() << getMethod() << getAPI() << getContent();
+        }
+        else
+        {
+            QDEBUG << "HTTP call SUCCESS (request " << requestId << "): " <<
+                      QVariant(response.statusCode()).toString();
+        }
     }
 }
 
@@ -127,15 +122,18 @@ APICallSendDatastreamSamples::APICallSendDatastreamSamples(
 QString APICallSendDatastreamSamples::getContent()
 {
     QString content = "{\"datapoints\":[";
+    bool first = true;
 
     foreach(QSharedPointer<MessageSample> sample, samples)
     {
-        // {\"at\":\"2010-05-20T11:01:44Z\",\"value\":\"295\"},
+        Q_ASSERT(sample->isLocked());
 
+        // {\"at\":\"2010-05-20T11:01:44Z\",\"value\":\"295\"},
+        if (!first)
+            content += ",";
+        first = false;
         content += "{\"at\":\"" + sample->timestamp.toString(Qt::ISODate) + "\",";
         content += "\"value\":\"" + sample->value + "\"}";
-        if (sample != samples.last())
-            content += ",";
     }
 
     content += "]}";
@@ -149,6 +147,10 @@ void APICallSendDatastreamSamples::done(bool error)
     if (!error && http.lastResponse().statusCode() == 200)
         foreach(QSharedPointer<MessageSample> sample, samples)
             sample->setProcessed();
+    else
+        // unlock so that Cloud picks them up and sends later
+        foreach(QSharedPointer<MessageSample> sample, samples)
+            sample->setLocked(false);
 }
 
 
@@ -163,6 +165,8 @@ APICallSendEvent::APICallSendEvent(
 
 QString APICallSendEvent::getContent()
 {
+    Q_ASSERT(event->isLocked());
+
     /*       {
      *           "type": "alarm_on|alarm_off|information|system_error|system_warning",
      *           "id": "1",
@@ -184,4 +188,62 @@ void APICallSendEvent::done(bool error)
 
     if (!error && http.lastResponse().statusCode() == 200)
         event->setProcessed();
+    else
+        event->setLocked(false);
+}
+
+
+APICallGetDataStreams::APICallGetDataStreams(
+        QSharedPointer<SNGConnectAPI> context,
+        QString filter,
+        QQueue< QSharedPointer<Message> > *receivedMessages) :
+    APICall(context), filter(filter), receivedMessages(receivedMessages)
+{
+}
+
+void APICallGetDataStreams::parseJSONResponse(QString response)
+{
+
+    QScriptValue sc;
+    QScriptEngine engine;
+    sc = engine.evaluate("(" + response + ")"); // In new versions it may need to look like engine.evaluate("(" + QString(result) + ")");
+
+    if (sc.property("datastreams").isArray())
+    {
+           QStringList items;
+           qScriptValueToSequence(sc.property("datastreams"), items);
+
+           foreach (QString str, items) {
+               QDEBUG << str;
+            }
+
+    }
+}
+
+void APICallGetDataStreams::done(bool error)
+{
+    APICall::done(error);
+
+    if (!error /*&& http.lastResponse().statusCode() == 200*/)
+    {
+        QString test="\
+        {\
+         \"datastreams\" : [ {\
+             \"value_requested_at\" : \"2010-06-25T11:54:17.454020Z\",\
+             \"requested_value\" : \"999\",\
+             \"label\" : \"param1\"\
+          },\
+          {\
+             \"value_requested_at\" : \"2010-06-24T10:05:49.000000Z\",\
+             \"requested_value\" : \"0000017\",\
+             \"label\" : \"param2\"\
+          } ]\
+        }\
+        ";
+        parseJSONResponse(test);
+
+        parseJSONResponse(http.readAll());
+
+        receivedMessages->append(QSharedPointer<Message>(new MessageRequest()));
+    }
 }

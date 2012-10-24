@@ -9,5 +9,6 @@
 
 #define QDEBUG qDebug() << "[" << this->metaObject()->className() << "]: "
 #define QWARNING qWarning() << "[" << this->metaObject()->className() << "]: "
+#define QERROR QDebug(QtCriticalMsg) << "[" << this->metaObject()->className() << "]: "
 
 #endif // DEBUG_H

@@ -20,11 +20,17 @@ public:
     QDateTime timestamp;
 
     // message is marked as processed by cloud or device after it's been successfully sent
-    bool processed;
+    bool processed, locked;
+    bool isLocked() { return locked; }
+    void setLocked(bool value) { locked = value; }
     bool isProcessed() { return processed; }
     void setProcessed() { processed = true; }
 
-    static void getMessages(QList< QSharedPointer<Message> > &messages, MessageType type, QList< QSharedPointer<Message> > &result);
+    static void getUnlockedMessages(
+            QList< QSharedPointer<Message> > &messages,
+            MessageType type,
+            bool lock,
+            QList< QSharedPointer<Message> > &result);
 };
 
 
@@ -44,7 +50,10 @@ public:
     bool fromByteArray(QByteArray&);
     virtual QString toString();
 
-    static QList<QSharedPointer<MessageSample> > takeMessagesByDatastream(QList<QSharedPointer<Message> > &messages, QString datastream);
+    static void takeMessagesByDatastream(
+            QList< QSharedPointer<Message> > &messages,
+            QString datastream,
+            QList< QSharedPointer<MessageSample> > &result);
 };
 
 class MessageEvent : public Message
@@ -53,6 +62,14 @@ public:
     MessageEvent();
     virtual MessageType getType() { return MsgEvent; }
     virtual QString toString() { return "event"; }
+};
+
+class MessageRequest : public Message
+{
+public:
+    MessageRequest();
+    virtual MessageType getType() { return MsgRequest; }
+    virtual QString toString() { return "request"; }
 };
 
 #endif // MESSAGE_H

@@ -7,18 +7,27 @@
 #include "message.h"
 
 
-void Message::getMessages(QList< QSharedPointer<Message> > &messages, MessageType type, QList< QSharedPointer<Message> > &result)
+void Message::getUnlockedMessages(
+        QList< QSharedPointer<Message> > &messages,
+        MessageType type,
+        bool lock,
+        QList< QSharedPointer<Message> > &result)
 {
     foreach(QSharedPointer<Message> msg, messages)
     {
-        if (msg->getType() == type)
+        if (msg->getType() == type && !msg->isLocked())
+        {
             result.append(msg);
+            msg->setLocked(lock);
+        }
     }
 }
 
-QList< QSharedPointer<MessageSample> > MessageSample::takeMessagesByDatastream(QList< QSharedPointer<Message> > &messages, QString datastream)
+void  MessageSample::takeMessagesByDatastream(
+        QList< QSharedPointer<Message> > &messages,
+        QString datastream,
+        QList< QSharedPointer<MessageSample> > &result)
 {
-    QList< QSharedPointer<MessageSample> > result;
     QList<int> toTake;
 
     int i=0;
@@ -38,12 +47,10 @@ QList< QSharedPointer<MessageSample> > MessageSample::takeMessagesByDatastream(Q
     {
         result.append(messages.takeAt(t - taken++).staticCast<MessageSample>());
     }
-
-    return result;
 }
 
 Message::Message(QDateTime timestamp) :
-    timestamp(timestamp), processed(false)
+    timestamp(timestamp), processed(false), locked(false)
 {
 }
 
@@ -103,6 +110,11 @@ QString MessageSample::toString()
 }
 
 MessageEvent::MessageEvent() :
+    Message(QDateTime::currentDateTime())
+{
+}
+
+MessageRequest::MessageRequest() :
     Message(QDateTime::currentDateTime())
 {
 }

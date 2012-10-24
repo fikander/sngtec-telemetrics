@@ -33,12 +33,17 @@ Logger::Logger(KeyValueMap &config) {
 
     timer = new QTimer(this);
 
-    if (config.contains("logFlushInterval"))
-        askInterval = config["logFlushInterval"].toInt() * 1000;
+    if (config.contains("log_flush_interval"))
+        askInterval = config["log_flush_interval"].toInt() * 1000;
     else
         askInterval = 60*60*1000; // flush every hour
 
-    connect(timer, SIGNAL(timeout()), this, SLOT(processQueue()));
+    if (config.contains("max_messages_in_file"))
+        maxMessagesInFile = config["max_messages_in_file"].toInt();
+    else
+        maxMessagesInFile = 1000;
+
+    connect(timer, SIGNAL(timeout()), this, SLOT(flushMessages()));
     timer->start(askInterval);
 
     // logging level
@@ -109,13 +114,12 @@ void Logger::pushMessage(QtMsgType type, QString msg) {
 }
 
 
-void Logger::processQueue() {
-    int MAX_LINES = 1000;
-
-    QWARNING << "Processing queue";
-
+void Logger::flushMessages()
+{
     if (!queueDirty)
         return;
+
+    QDEBUG << "Flushing messages to " << logFile->fileName();
 
     if (!queue.isEmpty()) {
         QTextStream fileStream(logFile);
@@ -126,7 +130,7 @@ void Logger::processQueue() {
         }
     }
 
-    if (linesWritten > MAX_LINES) {
+    if (linesWritten > maxMessagesInFile) {
         linesWritten = 0;
         // Swap files
 
