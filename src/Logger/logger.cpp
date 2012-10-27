@@ -104,8 +104,10 @@ QVector<QString> Logger::giveLogs() {
     return res;
 }
 
-QString Logger::giveLogsAsString() {
+QString Logger::giveLogsAsString()
+{
 
+    return "LOGSSSSS";
 }
 
 void Logger::pushMessage(QtMsgType type, QString msg) {

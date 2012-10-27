@@ -32,16 +32,25 @@ private:
 
     QSharedPointer<SNGConnectAPI> api;
 
+    // queue length that produces warning
     int toSendMessagesWarningThreshold;
+    // queue of messages cannot become longer that this. oldest messages will be deleted
     int toSendMessagesErrorThreshold;
+    // how many times a single message has to fail to be processed to be removed from queue
+    int toSendMessageFailureCountThreshold;
 
     void cleanupProcessedMessages();
 
 private slots:
-    //
+
     // emits received signals
-    //
     void sendAndReceiveData();
+
+private:
+    // using messages as poor man semaphores to avoid calling some APIs while others haven't finished
+    QSharedPointer<Message> semaphore1, semaphore2;
+
+    void processResponseMessages(QList< QSharedPointer<Message> > &responses);
 
 };
 

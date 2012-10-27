@@ -20,11 +20,10 @@ void CommandProcessor::send(QSharedPointer<Message> payload)
 
     QSharedPointer<MessageRequest> request = payload.staticCast<MessageRequest>();
 
-    //TODO: process commands, e.g. send logs
     QObject *sender = this->sender();
     Cloud *cloud = qobject_cast<Cloud*>(sender);
 
-    if (request->command == "send_log")
+    if (request->command == "upload_log")
     {
         KeyValueMap arguments = request->arguments;
         arguments["log"] = Logger::getInstance()->giveLogsAsString();

@@ -134,7 +134,10 @@ void APICallSendDatastreamSamples::done(bool error)
     else
         // unlock so that Cloud picks them up and sends later
         foreach(QSharedPointer<MessageSample> sample, samples)
+        {
             sample->setLocked(false);
+            sample->processingFailed();
+        }
 }
 
 
@@ -173,17 +176,22 @@ void APICallSendEvent::done(bool error)
     if (!error && http.lastResponse().statusCode() == 200)
         event->setProcessed();
     else
+    {
         event->setLocked(false);
+        event->processingFailed();
+    }
 }
 
 
 
 APICallGetDataStreams::APICallGetDataStreams(
         QSharedPointer<SNGConnectAPI> context,
+        QSharedPointer<Message> semaphore,
         QString filter,
-        QQueue< QSharedPointer<Message> > *receivedMessages) :
-    APICall(context), filter(filter), receivedMessages(receivedMessages)
+        QQueue<QSharedPointer<Message> > *receivedMessages) :
+    APICall(context), semaphore(semaphore), filter(filter), receivedMessages(receivedMessages)
 {
+    semaphore->setLocked(true);
 }
 
 /**
@@ -273,15 +281,17 @@ void APICallGetDataStreams::done(bool error)
         parseJSONResponse(http.readAll(), *receivedMessages);
     }
 
-    //Note: we're creating new messages here, so no need to seLocked(false) them like for APIs that send stuff
+    semaphore->setLocked(false);
 }
 
 
 APICallGetCommands::APICallGetCommands(
         QSharedPointer<SNGConnectAPI> context,
-        QQueue< QSharedPointer<Message> > *receivedMessages) :
-    APICall(context), receivedMessages(receivedMessages)
+        QSharedPointer<Message> semaphore,
+        QQueue<QSharedPointer<Message> > *receivedMessages) :
+    APICall(context), semaphore(semaphore), receivedMessages(receivedMessages)
 {
+    semaphore->setLocked(true);
 }
 
 /**
@@ -366,5 +376,33 @@ void APICallGetCommands::done(bool error)
 //        parseJSONResponse(http.readAll(), *receivedMessages);
     }
 
-    //Note: we're creating new messages here, so no need to seLocked(false) them like for APIs that send stuff
+    semaphore->setLocked(false);
 }
+
+APICallSendLog::APICallSendLog(
+            QSharedPointer<SNGConnectAPI> context,
+            QSharedPointer<MessageResponse> &response):
+    APICall(context), response(response)
+{
+    log_request_id = response->arguments["log_request_id"].toString();
+    log_request_hash = response->arguments["log_request_hash"].toString();
+}
+
+void APICallSendLog::done(bool error)
+{
+    APICall::done(error);
+
+    if (!error && http.lastResponse().statusCode() == 200)
+        response->setProcessed();
+    else
+    {
+        response->setLocked(false);
+        response->processingFailed();
+    }
+}
+
+QString APICallSendLog::getContent()
+{
+    return response->arguments["log"].toString();
+}
+

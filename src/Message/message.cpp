@@ -2,6 +2,7 @@
 #include <QDebug>
 #include <QString>
 #include <QByteArray>
+#include <QVariant>
 
 #include "debug.h"
 #include "message.h"
@@ -50,7 +51,7 @@ void  MessageSample::takeMessagesByDatastream(
 }
 
 Message::Message(QDateTime timestamp) :
-    timestamp(timestamp), processed(false), locked(false)
+    timestamp(timestamp), processed(false), locked(false), failCount(0)
 {
 }
 

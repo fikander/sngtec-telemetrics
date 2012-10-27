@@ -20,6 +20,7 @@ public:
     static Logger* getInstance(); // has to be initialised first
 
     QVector<QString> giveLogs();
+    QString giveLogsAsString();
 
 protected:
     Logger(KeyValueMap &config);

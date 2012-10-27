@@ -3,6 +3,8 @@
 
 #include <QDebug>
 
+#define VERSION "0.1"
+
 /*
  * Some useful debug defines
  */

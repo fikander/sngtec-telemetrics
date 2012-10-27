@@ -150,6 +150,7 @@ class APICallGetDataStreams : public APICall
 public:
     APICallGetDataStreams(
             QSharedPointer<SNGConnectAPI> context,
+            QSharedPointer<Message> semaphore,
             QString filter,
             QQueue< QSharedPointer<Message> > *receivedMessages);
 
@@ -161,6 +162,7 @@ protected:
     virtual QString getAPI() { return "api/v1/feeds/" + feed() + "/datastreams.json?filter=" + filter; }
     virtual QString getContent() { return ""; }
 
+    QSharedPointer<Message> semaphore;
     QString filter;
     QQueue< QSharedPointer<Message> > *receivedMessages;
 
@@ -188,6 +190,7 @@ class APICallGetCommands : public APICall
 public:
     APICallGetCommands(
             QSharedPointer<SNGConnectAPI> context,
+            QSharedPointer<Message> semaphore,
             QQueue< QSharedPointer<Message> > *receivedMessages);
 
 protected slots:
@@ -198,10 +201,33 @@ protected:
     virtual QString getAPI() { return "api/v1/feeds/" + feed() + "/commands.json"; }
     virtual QString getContent() { return ""; }
 
+    QSharedPointer<Message> semaphore;
     QQueue< QSharedPointer<Message> > *receivedMessages;
 
     void parseJSONResponse(QString response, QQueue<QSharedPointer<Message> > &result);
 };
 
+/*
+ *
+ */
+class APICallSendLog : public APICall
+{
+    Q_OBJECT
+public:
+    APICallSendLog(
+            QSharedPointer<SNGConnectAPI> context,
+            QSharedPointer<MessageResponse> &response);
+
+protected slots:
+    virtual void done(bool error);
+
+protected:
+    virtual QString getMethod() { return "POST"; }
+    virtual QString getAPI() { return "api/v1/upload-log/" + log_request_id + "/" + log_request_hash + ".json"; }
+    virtual QString getContent();
+
+    QSharedPointer<MessageResponse> response;
+    QString log_request_id, log_request_hash;
+};
 
 #endif // SNGCONNECTAPI_H

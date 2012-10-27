@@ -13,17 +13,28 @@ SNGConnectCloud::SNGConnectCloud(KeyValueMap &config):
     else
         timer.setInterval(60 * 1000);
 
+    // queue length that produces warning
     if (config.contains("stale_messages_warning_threshold"))
         toSendMessagesWarningThreshold = config["stale_messages_warning_threshold"].toUInt();
     else
         toSendMessagesWarningThreshold = 25;
 
+    // queue of messages cannot become longer that this. oldest messages will be deleted
     if (config.contains("stale_messages_error_threshold"))
         toSendMessagesErrorThreshold = config["stale_messages_error_threshold"].toUInt();
     else
         toSendMessagesErrorThreshold = 100;
 
+    // how many times a single message has to fail to be processed to be removed from queue
+    if (config.contains("failed_message_error_threshold"))
+        toSendMessageFailureCountThreshold = config["failed_message_error_threshold"].toUInt();
+    else
+        toSendMessageFailureCountThreshold = 100;
+
     api = QSharedPointer<SNGConnectAPI>(new SNGConnectAPI(config));
+
+    semaphore1 = QSharedPointer<Message>(new Message(QDateTime::currentDateTime()));
+    semaphore2 = QSharedPointer<Message>(new Message(QDateTime::currentDateTime()));
 }
 
 SNGConnectCloud::~SNGConnectCloud()
@@ -72,8 +83,14 @@ void SNGConnectCloud::cleanupProcessedMessages()
     int i = 0;
     foreach(QSharedPointer<Message> msg, toSend)
     {
+        // remove from the queue when processed or permanently failed
         if (msg->isProcessed())
             toRemove.append(i);
+        else if (msg->getProcessingFailed() > toSendMessageFailureCountThreshold)
+        {
+            QERROR << "Message failed to be processed >" << toSendMessageFailureCountThreshold << " times, deleting! : " << msg->toString();
+            toRemove.append(i);
+        }
         ++i;
     }
 
@@ -105,6 +122,27 @@ void SNGConnectCloud::cleanupProcessedMessages()
 }
 
 /**
+ *
+ */
+void SNGConnectCloud::processResponseMessages(QList< QSharedPointer<Message> > &responses)
+{
+    foreach(QSharedPointer<Message> m, responses)
+    {
+        if (m->getType() != Message::MsgResponse)
+            continue;
+
+        QSharedPointer<MessageResponse> response = m.staticCast<MessageResponse>();
+
+        if (response->command == "upload_log")
+        {
+            APICallSendLog *call = new APICallSendLog(api, response);
+            // note: call will get self destroy after execution
+            call->invoke();
+        }
+    }
+}
+
+/**
  * @brief SNGConnectCloud::sendAndReceiveData
  * Main function called from time to time to issue requestes to the cloud - send data, poll for updates etc.
  */
@@ -122,8 +160,7 @@ void SNGConnectCloud::sendAndReceiveData()
     //
     QList< QSharedPointer<Message> > allResponses;
     Message::getUnlockedMessages(toSend, Message::MsgResponse, true, allResponses);
-
-    // TODO: send responses, unlock them after sending
+    processResponseMessages(allResponses);
 
     //
     // send data to the cloud: samples and events
@@ -157,13 +194,22 @@ void SNGConnectCloud::sendAndReceiveData()
     //
     // receive new data, convert to messages
     //
-    APICallGetDataStreams *call = new APICallGetDataStreams(api, "requested", &receivedMessages);
-    // note: call will get self destroy after execution
-    call->invoke();
+    // note: semaphore is locked and unlocked by API function
+    if (!semaphore1->isLocked())
+    {
+        APICallGetDataStreams *call = new APICallGetDataStreams(api, semaphore1, "requested", &receivedMessages);
+        // note: call will get self destroy after execution
+        call->invoke();
+    }
 
     // receive new commands
-    APICallGetCommands *call2 = new APICallGetCommands(api, &receivedMessages);
-    call2->invoke();
+    // note: semaphore is locked and unlocked by API function
+    if (!semaphore2->isLocked())
+    {
+        APICallGetCommands *call2 = new APICallGetCommands(api, semaphore2, &receivedMessages);
+        // note: call will get self destroy after execution
+        call2->invoke();
+    }
 
     // emit messages, so that connected sensors catch them
     // note, that about http calls work asynchronously, so results won't be processed immediately

@@ -13,17 +13,22 @@ public:
 
     Message(QDateTime timestamp);
     virtual ~Message();
-    virtual MessageType getType() = 0;
-    virtual QString toString() = 0;
+    virtual MessageType getType() { return MsgBase; }
+    virtual QString toString() { return "base"; }
 
     QDateTime timestamp;
 
     // message is marked as processed by cloud or device after it's been successfully sent
+    // message is marked as locked when cloud is attempting to process it.
+    // used to avoid trying to process single message more than once
     bool processed, locked;
+    int failCount;
     bool isLocked() { return locked; }
     void setLocked(bool value) { locked = value; }
     bool isProcessed() { return processed; }
     void setProcessed() { processed = true; }
+    void processingFailed() { failCount++; }
+    int getProcessingFailed() { return failCount; }
 
     static void getUnlockedMessages(
             QList< QSharedPointer<Message> > &messages,
