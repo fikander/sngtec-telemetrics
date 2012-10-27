@@ -29,7 +29,13 @@ void DummyCloud::connect()
 
 void DummyCloud::send(QSharedPointer<Message> payload)
 {
-    toSend.enqueue(payload);
+    if (payload->getType() == Message::MsgResponse)
+    {
+        payload.clear();
+        QDEBUG << "ignore system response...";
+    }
+    else
+        toSend.enqueue(payload);
 }
 
 void DummyCloud::sendAndReceiveData()

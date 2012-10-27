@@ -28,7 +28,7 @@ signals:
 private:
     QTimer timer;
     QQueue< QSharedPointer<Message> > toSend;
-    QQueue< QSharedPointer<Message> > receivedMessages;
+    QQueue< QSharedPointer<Message> > receivedMessages; // dispatched as received signal (for sensors)
 
     QSharedPointer<SNGConnectAPI> api;
 

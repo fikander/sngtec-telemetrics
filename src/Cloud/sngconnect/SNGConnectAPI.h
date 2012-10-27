@@ -164,7 +164,44 @@ protected:
     QString filter;
     QQueue< QSharedPointer<Message> > *receivedMessages;
 
-    void parseJSONResponse(QString response);
+    void parseJSONResponse(QString response, QQueue<QSharedPointer<Message> > &result);
 };
+
+/*
+  GET commands
+{
+"commands" : [
+
+    {"command": "reboot"},
+
+    {"command": "upload_log",
+     "arguments": {
+         "url": "http://sngconnect/logs/ad324DZU",
+         "start": "<timestamp>" }
+    }]
+}
+*/
+
+class APICallGetCommands : public APICall
+{
+    Q_OBJECT
+public:
+    APICallGetCommands(
+            QSharedPointer<SNGConnectAPI> context,
+            QQueue< QSharedPointer<Message> > *receivedMessages);
+
+protected slots:
+    virtual void done(bool error);
+
+protected:
+    virtual QString getMethod() { return "GET"; }
+    virtual QString getAPI() { return "api/v1/feeds/" + feed() + "/commands.json"; }
+    virtual QString getContent() { return ""; }
+
+    QQueue< QSharedPointer<Message> > *receivedMessages;
+
+    void parseJSONResponse(QString response, QQueue<QSharedPointer<Message> > &result);
+};
+
 
 #endif // SNGCONNECTAPI_H

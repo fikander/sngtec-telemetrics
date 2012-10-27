@@ -9,7 +9,7 @@ class Sensor : public QObject
 {
     Q_OBJECT
 public:
-    Sensor();
+    Sensor(QObject *parent = 0);
 
     virtual ~Sensor();
 

@@ -56,7 +56,7 @@ Message::Message(QDateTime timestamp) :
 
 Message::~Message()
 {
-    qDebug() << "Message ~Destructor: ";
+    qDebug() << "Message ~Destructor";
 }
 
 MessageSample::MessageSample() :
@@ -114,7 +114,34 @@ MessageEvent::MessageEvent() :
 {
 }
 
-MessageRequest::MessageRequest() :
-    Message(QDateTime::currentDateTime())
+MessageRequest::MessageRequest(QString command, QMap<QString, QVariant> arguments) :
+    Message(QDateTime::currentDateTime()),
+    command(command), arguments(arguments)
 {
+}
+
+QString MessageRequest::toString()
+{
+    QString result = "Request :" + command + ": ";
+    foreach(QString key, arguments.keys())
+    {
+        result += key + "=" + arguments[key].toString() + ", ";
+    }
+    return result;
+}
+
+MessageResponse::MessageResponse(QString command, QMap<QString, QVariant> arguments) :
+    Message(QDateTime::currentDateTime()),
+    command(command), arguments(arguments)
+{
+}
+
+QString MessageResponse::toString()
+{
+    QString result = "Request :" + command + ": ";
+    foreach(QString key, arguments.keys())
+    {
+        result += key + "=" + arguments[key].toString() + ", ";
+    }
+    return result;
 }

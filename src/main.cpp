@@ -43,6 +43,7 @@ int main(int argc, char *argv[]) {
 
     CloudFactory *cloudFactory = CloudFactory::instance();
     SensorFactory *sensorFactory = SensorFactory::instance();
+
     Configurator2 configurator("telemetron.ini", cloudFactory, sensorFactory);
 
     // set up logging

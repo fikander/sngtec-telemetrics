@@ -18,14 +18,16 @@ public:
     bool connected() { return m_connected; }
 
 public slots:
-    /*
-     * Send to cloud
+    /**
+     * Send message (sample or event - events may be dispatched immediately) to the cloud.
+     * Triggered by sensors.
      */
     virtual void send(QSharedPointer<Message> payload) = 0;
 
 signals:
-    /*
-     * Received from cloud
+    /**
+     * Received command or sample - update of paraemter value - from cloud
+     * Consumed by sensors.
      */
     void received(QSharedPointer<Message> payload);
 

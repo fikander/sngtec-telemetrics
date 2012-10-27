@@ -1,7 +1,8 @@
 
 #include "Sensor.h"
 
-Sensor::Sensor()
+Sensor::Sensor(QObject *parent) :
+    QObject(parent)
 {
     m_connected = false;
 }

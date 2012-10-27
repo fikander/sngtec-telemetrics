@@ -8,8 +8,7 @@
 #include "Sensors/Sensor.h"
 
 
-Configurator2::Configurator2(
-        QString configFileName,
+Configurator2::Configurator2(QString configFileName,
         AbstractCloudFactory* cloudFactory,
         AbstractSensorFactory* sensorFactory):
     m_cloudFactory(cloudFactory), m_sensorFactory(sensorFactory)
@@ -100,6 +99,7 @@ void Configurator2::configureCloudsAndSensors()
     }
 
     // connect clouds to sensors: messages cloud -> sensor
+    // connect clouds to command processor
     foreach(Cloud *cloud, m_clouds)
     {
         foreach(Sensor *sensor, m_sensors)

@@ -46,7 +46,8 @@ HEADERS = Sensors/devproxy.h \
     Sensors/DummySensor.h \
     Cloud/cloconnection.h \
     Cloud/sngconnect/SNGConnectCloud.h \
-    Cloud/sngconnect/SNGConnectAPI.h
+    Cloud/sngconnect/SNGConnectAPI.h \
+    Sensors/CommandProcessor.h
 
 SOURCES =  main.cpp \
     Sensors/devproxy.cpp \
@@ -80,7 +81,8 @@ SOURCES =  main.cpp \
     Sensors/Sensor.cpp \
     Sensors/DummySensor.cpp \
     Cloud/sngconnect/SNGConnectCloud.cpp \
-    Cloud/sngconnect/SNGConnectAPI.cpp
+    Cloud/sngconnect/SNGConnectAPI.cpp \
+    Sensors/CommandProcessor.cpp
 
     
 

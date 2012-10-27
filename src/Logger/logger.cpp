@@ -104,6 +104,9 @@ QVector<QString> Logger::giveLogs() {
     return res;
 }
 
+QString Logger::giveLogsAsString() {
+
+}
 
 void Logger::pushMessage(QtMsgType type, QString msg) {
     if (type >= loggingLevel)

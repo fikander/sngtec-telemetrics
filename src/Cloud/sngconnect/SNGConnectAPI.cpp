@@ -4,6 +4,7 @@
 //http://qtwiki.org/Parsing_JSON_with_QT_using_standard_QT_library
 //http://qt-project.org/doc/note_revisions/69/106/view
 #include <QtScript/QScriptEngine>
+#include <QtScript/QScriptValueIterator>
 
 #include "SNGConnectAPI.h"
 
@@ -23,23 +24,6 @@ SNGConnectAPI::SNGConnectAPI(KeyValueMap &config)
 SNGConnectAPI::~SNGConnectAPI()
 {
 }
-
-
-/*
-  GET commands
-{
-"commands" : [
-
-    {"command": "reboot"},
-
-    {"command": "upload_log",
-     "arguments": {
-         "url": "http://sngconnect/logs/ad324DZU",
-         "start": "<timestamp>" }
-    }]
-}
-*/
-
 
 APICall::APICall(QSharedPointer<SNGConnectAPI> context):
     context(context)
@@ -193,6 +177,7 @@ void APICallSendEvent::done(bool error)
 }
 
 
+
 APICallGetDataStreams::APICallGetDataStreams(
         QSharedPointer<SNGConnectAPI> context,
         QString filter,
@@ -201,22 +186,65 @@ APICallGetDataStreams::APICallGetDataStreams(
 {
 }
 
-void APICallGetDataStreams::parseJSONResponse(QString response)
+/**
+ * @brief APICallGetDataStreams::parseJSONResponse
+ * Create MessageSample items in result. Can print some warnings if JSON is not understood.
+ * @param response
+ * @param result
+ */
+void APICallGetDataStreams::parseJSONResponse(QString response, QQueue< QSharedPointer<Message> > &result)
 {
 
-    QScriptValue sc;
+    QScriptValue sc, datastreams;
     QScriptEngine engine;
-    sc = engine.evaluate("(" + response + ")"); // In new versions it may need to look like engine.evaluate("(" + QString(result) + ")");
+    sc = engine.evaluate("(" + response + ")");
 
-    if (sc.property("datastreams").isArray())
+    datastreams = sc.property("datastreams");
+
+    if (datastreams.isArray())
     {
-           QStringList items;
-           qScriptValueToSequence(sc.property("datastreams"), items);
+        QScriptValueIterator it(datastreams);
 
-           foreach (QString str, items) {
-               QDEBUG << str;
+        while (it.hasNext()) {
+            it.next();
+            // skip non-dictionary items in the 'datastreams' array
+            if (!it.value().isObject())
+                continue;
+
+            QScriptValue value_requested_at = it.value().property("value_requested_at");
+            QScriptValue requested_value = it.value().property("requested_value");
+            QScriptValue label = it.value().property("label");
+
+            if (!(value_requested_at.isValid() && requested_value.isValid() && label.isValid()))
+            {
+                QWARNING << "Wrong format of response: " << response;
+                return;
             }
 
+            QVariant value(requested_value.toString());
+            bool ok;
+            float f_value = value.toFloat(&ok);
+            if (!ok)
+            {
+                QWARNING << "Wrong format of value: " << value.toString();
+                return;
+            }
+
+            QVariant timestamp(value_requested_at.toString());
+            QDateTime d_timedate = timestamp.toDateTime();
+            if (!d_timedate.isValid())
+            {
+                QWARNING << "Wrong format of timestamp: " << timestamp.toString();
+                return;
+            }
+
+            // TODO: f_value will be used if MessageSample gets changed to use floats instead of strings for values
+            result.append(QSharedPointer<MessageSample>(new MessageSample(label.toString(), requested_value.toString(), d_timedate)));
+        }
+    }
+    else
+    {
+        QWARNING << "Wrong format of response: " << response;
     }
 }
 
@@ -224,26 +252,119 @@ void APICallGetDataStreams::done(bool error)
 {
     APICall::done(error);
 
+    if (!error && http.lastResponse().statusCode() == 200)
+    {
+        QString test="\
+//{\
+// \"datastreams\" : [ {\
+//     \"value_requested_at\" : \"2010-06-25T11:54:17.454020Z\",\
+//     \"requested_value\" : \"999\",\
+//     \"label\" : \"param1\"\
+//  },\
+//  {\
+//     \"value_requested_at\" : \"2010-06-24T10:05:49.000000Z\",\
+//     \"requested_value\" : \"0000017\",\
+//     \"label\" : \"param2\"\
+//  } ]\
+//}";
+
+//        parseJSONResponse(test, *receivedMessages);
+
+        parseJSONResponse(http.readAll(), *receivedMessages);
+    }
+
+    //Note: we're creating new messages here, so no need to seLocked(false) them like for APIs that send stuff
+}
+
+
+APICallGetCommands::APICallGetCommands(
+        QSharedPointer<SNGConnectAPI> context,
+        QQueue< QSharedPointer<Message> > *receivedMessages) :
+    APICall(context), receivedMessages(receivedMessages)
+{
+}
+
+/**
+ * @brief APICallGetCommands::parseJSONResponse
+ * Create MessageSample items in result. Can print some warnings if JSON is not understood.
+ * @param response
+ * @param result
+ */
+void APICallGetCommands::parseJSONResponse(QString response, QQueue< QSharedPointer<Message> > &result)
+{
+
+    QScriptValue sc, commands;
+    QScriptEngine engine;
+    sc = engine.evaluate("(" + response + ")");
+
+    commands = sc.property("commands");
+
+    if (commands.isArray())
+    {
+        QScriptValueIterator it(commands);
+
+        while (it.hasNext())
+        {
+            it.next();
+            // skip non-dictionary items in the 'commands' array
+            if (!it.value().isObject())
+                continue;
+
+            QScriptValue command = it.value().property("command");
+            QScriptValue arguments = it.value().property("arguments");
+            QMap< QString, QVariant > argumentsMap;
+
+            if (!command.isValid())
+            {
+                QWARNING << "Wrong format of response: " << response;
+                return;
+            }
+
+            if (arguments.isObject())
+            {
+                QScriptValueIterator it2(arguments);
+                while (it2.hasNext())
+                {
+                    it2.next();
+                    argumentsMap[it2.name()] = it2.value().toVariant();
+                }
+            }
+            else if (arguments.isValid())
+            {
+                // 'arguments' is there but it's not an object!
+                QWARNING << "Problem parsing arguments for command " << command.toString() << ": "<< arguments.toString();
+                return;
+            }
+
+            result.append(QSharedPointer<MessageRequest>(new MessageRequest(command.toString(), argumentsMap)));
+        }
+    }
+    else
+    {
+        QWARNING << "Wrong format of response: " << response;
+    }
+}
+
+void APICallGetCommands::done(bool error)
+{
+    APICall::done(error);
+
     if (!error /*&& http.lastResponse().statusCode() == 200*/)
     {
         QString test="\
-        {\
-         \"datastreams\" : [ {\
-             \"value_requested_at\" : \"2010-06-25T11:54:17.454020Z\",\
-             \"requested_value\" : \"999\",\
-             \"label\" : \"param1\"\
-          },\
-          {\
-             \"value_requested_at\" : \"2010-06-24T10:05:49.000000Z\",\
-             \"requested_value\" : \"0000017\",\
-             \"label\" : \"param2\"\
-          } ]\
-        }\
-        ";
-        parseJSONResponse(test);
+{\
+    \"commands\" : [ \
+        {\"command\" : \"reboot\"},\
+        {\"command\" : \"upload_log\",\
+        \"arguments\" : { \
+            \"url\" :\"http://blah.com\",\
+            \"start\" : \"timestamp\"}\
+        } ]\
+}";
+        parseJSONResponse(test, *receivedMessages);
 
-        parseJSONResponse(http.readAll());
-
-        receivedMessages->append(QSharedPointer<Message>(new MessageRequest()));
+//        parseJSONResponse(http.readAll(), *receivedMessages);
     }
+
+    //Note: we're creating new messages here, so no need to seLocked(false) them like for APIs that send stuff
 }
