@@ -6,7 +6,6 @@
 #include "Cloud/cloproxy.h"
 #include "Configurator/configurator.h"
 #include "Logger/logger.h"
-#include "Sensors/Modbus/modbus.h"
 
 #include "Configurator2.h"
 #include "CloudFactory.h"

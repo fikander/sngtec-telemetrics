@@ -17,7 +17,7 @@ public:
     DummySensor(KeyValueMap &config);
     virtual ~DummySensor();
 
-    virtual void connect();
+    virtual int connect();
 
 public slots:
     // send to the device

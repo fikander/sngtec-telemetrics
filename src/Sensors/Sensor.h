@@ -13,7 +13,7 @@ public:
 
     virtual ~Sensor();
 
-    virtual void connect() = 0;
+    virtual int connect() = 0;
 
     bool connected() { return m_connected; }
 

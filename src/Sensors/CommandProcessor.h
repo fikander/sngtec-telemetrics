@@ -12,7 +12,7 @@ public:
     CommandProcessor(KeyValueMap &config, QObject *parent = 0);
     virtual ~CommandProcessor();
 
-    virtual void connect();
+    virtual int connect();
 
 public slots:
     virtual void send(QSharedPointer<Message> payload);

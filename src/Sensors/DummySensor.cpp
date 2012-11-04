@@ -31,7 +31,7 @@ DummySensor::~DummySensor()
 
 }
 
-void DummySensor::connect()
+int DummySensor::connect()
 {
     timer.start();
     QObject::connect(&timer, SIGNAL(timeout()), this, SLOT(sendAndReceiveData()));
@@ -40,6 +40,8 @@ void DummySensor::connect()
     QObject::connect(&dataGeneratorTimer, SIGNAL(timeout()), this, SLOT(collectSample()));
 
     m_connected = true;
+
+    return 0;
 }
 
 void DummySensor::send(QSharedPointer<Message> payload)

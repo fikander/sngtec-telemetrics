@@ -40,7 +40,8 @@ void CommandProcessor::send(QSharedPointer<Message> payload)
 }
 
 
-void CommandProcessor::connect()
+int CommandProcessor::connect()
 {
     QDEBUG << "Command Processor initialised";
+    return 0;
 }

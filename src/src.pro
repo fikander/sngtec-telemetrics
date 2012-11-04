@@ -27,7 +27,6 @@ HEADERS = Sensors/devproxy.h \
     Sensors/SNG/sngconnection.h \
     Sensors/Topology/topologysensor.h \
     Sensors/Modbus/crc-count.h \
-    Sensors/Modbus/modbus.h \
     Sensors/Modbus/modbusrtuframe.h \
     Logger/logger.h \
     LogSender/HTTPLogSender/httplogsender.h \
@@ -47,7 +46,9 @@ HEADERS = Sensors/devproxy.h \
     Cloud/cloconnection.h \
     Cloud/sngconnect/SNGConnectCloud.h \
     Cloud/sngconnect/SNGConnectAPI.h \
-    Sensors/CommandProcessor.h
+    Sensors/CommandProcessor.h \
+    Sensors/Modbus/modbus_student.h \
+    Sensors/Modbus/Modbus.h
 
 SOURCES =  main.cpp \
     Sensors/devproxy.cpp \
@@ -66,7 +67,6 @@ SOURCES =  main.cpp \
     Sensors/SNG/sngphysicaladdress.cpp \
     Sensors/Topology/topologysensor.cpp \
     Sensors/Modbus/crc-count.cpp \
-    Sensors/Modbus/modbus.cpp \
     Sensors/Modbus/modbusrtuframe.cpp \
     Logger/logger.cpp \
     LogSender/HTTPLogSender/httplogsender.cpp \
@@ -82,7 +82,9 @@ SOURCES =  main.cpp \
     Sensors/DummySensor.cpp \
     Cloud/sngconnect/SNGConnectCloud.cpp \
     Cloud/sngconnect/SNGConnectAPI.cpp \
-    Sensors/CommandProcessor.cpp
+    Sensors/CommandProcessor.cpp \
+    Sensors/Modbus/modbus_student.cpp \
+    Sensors/Modbus/Modbus.cpp
 
     
 
