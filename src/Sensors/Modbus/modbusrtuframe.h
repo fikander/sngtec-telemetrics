@@ -4,6 +4,7 @@
 #include <QByteArray>
 
 // http://www.ni.com/white-paper/7675/en
+// http://jamod.sourceforge.net/kbase/protocol.html#implementations
 
 class ModbusRtuFrame {
 

@@ -157,7 +157,7 @@ ModbusRtuFrame* ModbusStudent::decodeMessage(MessageSample msg){
         frame = new ModbusRtuFrame(msg.key.at(0).toAscii(), 2);
         frame->setData(msg.value.toAscii());
     } else {
-        qDebug() << "Modbus can't send massage !";
+        qDebug() << "Modbus can't send message !";
         return NULL;
     }
     frame->setAddr(sensor_address);
