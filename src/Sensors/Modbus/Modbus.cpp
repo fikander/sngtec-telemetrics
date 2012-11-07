@@ -98,6 +98,8 @@ int Modbus::connect()
     socketNotifier = new QSocketNotifier(fd, QSocketNotifier::Read);
 
     QObject::connect(socketNotifier, SIGNAL(activated(int)), this, SLOT(readFromSensor(int)), Qt::DirectConnection);
+
+    return 0;
 }
 
 
@@ -216,10 +218,8 @@ void Modbus::readFromSocket(int socket)
                     //newVal.append(numb.setNum(answer_data[i]));
                     newVal.append("|").append(numb.setNum(answer_data[i], 16));
                 }
-                //qDebug() << newVal;
-                //Message mesg(ret, QString::fromAscii((char *) answer_data, answer_size));
-                MessageSample mesg(newKey, newVal);
-                msgQue.push_back(mesg);
+
+                received(QSharedPointer<Message>(new MessageSample(newKey, newVal)));
             }
         } else
             QDEBUG << "CRC of received data is wrong!";
@@ -235,7 +235,7 @@ void Modbus::readFromSocket(int socket)
         if (crc != sent_crc)
             QDEBUG << "CRC of received data is wrong!";
         else {
-            QDEBUG << "Sensor send error (addr:" << answer[0] << ", error:" << answer[1] >> ", exception: " << answer[2] << ")";
+            QDEBUG << "Sensor send error (addr:" << answer[0] << ", error:" << answer[1] << ", exception: " << answer[2] << ")";
         }
     }
 }
@@ -263,4 +263,9 @@ int Modbus::checkResponseCRC(unsigned char* answer, unsigned char* answer_data,
         ret = 1;
     delete[] tmp;
     return ret;
+}
+
+void Modbus::send(QSharedPointer<Message> payload)
+{
+
 }

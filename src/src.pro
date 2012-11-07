@@ -31,7 +31,6 @@ HEADERS = Sensors/devproxy.h \
     Cloud/sngconnect/SNGConnectCloud.h \
     Cloud/sngconnect/SNGConnectAPI.h \
     Sensors/CommandProcessor.h \
-    Sensors/Modbus/modbus_student.h \
     Sensors/Modbus/Modbus.h
 
 SOURCES =  main.cpp \
@@ -50,7 +49,6 @@ SOURCES =  main.cpp \
     Cloud/sngconnect/SNGConnectCloud.cpp \
     Cloud/sngconnect/SNGConnectAPI.cpp \
     Sensors/CommandProcessor.cpp \
-    Sensors/Modbus/modbus_student.cpp \
     Sensors/Modbus/Modbus.cpp
 
     

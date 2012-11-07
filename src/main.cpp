@@ -2,9 +2,6 @@
 #include <QCoreApplication>
 #include <QSettings>
 
-#include "Sensors/devproxy.h"
-#include "Cloud/cloproxy.h"
-#include "Configurator/configurator.h"
 #include "Logger/logger.h"
 
 #include "Configurator2.h"
