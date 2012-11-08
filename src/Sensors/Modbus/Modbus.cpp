@@ -1,6 +1,9 @@
 #include <termios.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <iostream>
 
 #include "Modbus.h"
 #include "crc-count.h"
@@ -130,9 +133,9 @@ int Modbus::tryRead(unsigned char* buffer, int size)
             else
                 QDEBUG << "Answer too short";
             return 1;
-        } else
-            return 0;
+        }
     }
+    return 0;
 }
 
 void Modbus::readFromSocket(int socket)

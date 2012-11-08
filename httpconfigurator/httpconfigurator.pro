@@ -8,7 +8,7 @@ QT += network
 QT -= gui
 CONFIG += debug
 
-QHTTPSERVER_BASE = ../../qhttpserver
+QHTTPSERVER_BASE = ../qhttpserver
 
 INCLUDEPATH += $$QHTTPSERVER_BASE/src
 LIBS += -L$$QHTTPSERVER_BASE/lib -lqhttpserver

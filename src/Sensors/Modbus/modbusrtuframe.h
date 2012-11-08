@@ -3,7 +3,9 @@
 
 #include <QByteArray>
 
+// libmodbus: http://www.libmodbus.org/documentation/
 // http://www.ni.com/white-paper/7675/en
+// Java opensource Modbus implementation http://jamod.sourceforge.net/
 // http://jamod.sourceforge.net/kbase/protocol.html#implementations
 
 class ModbusRtuFrame {

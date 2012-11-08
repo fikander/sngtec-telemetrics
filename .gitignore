@@ -9,7 +9,7 @@
 moc_*.*
 
 #ignore entire build directory
-/build/
+/tp-build/
 
 #ignore qtcreator settings
 *.pro.user

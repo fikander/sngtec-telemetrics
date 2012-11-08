@@ -19,8 +19,8 @@ PUBLIC_HEADERS += modbus.h modbus-version.h modbus-rtu.h modbus-tcp.h
 HEADERS = $$PRIVATE_HEADERS $$PUBLIC_HEADERS
 SOURCES = *.c
 
-OBJECTS_DIR = $$LIBMODBUS_BASE/build
-MOC_DIR = $$LIBMODBUS_BASE/build
+OBJECTS_DIR = $$LIBMODBUS_BASE/build-libmodbus
+MOC_DIR = $$LIBMODBUS_BASE/build-libmodbus
 DESTDIR = $$LIBMODBUS_BASE/lib
 
 target.path = $$LIBDIR
