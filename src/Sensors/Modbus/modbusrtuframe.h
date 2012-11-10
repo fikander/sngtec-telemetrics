@@ -8,6 +8,9 @@
 // Java opensource Modbus implementation http://jamod.sourceforge.net/
 // http://jamod.sourceforge.net/kbase/protocol.html#implementations
 
+// qmodbus - uses libmodbus (modified for polling!) and qextserialport
+// - modbus.c has extra functions: modbus_poll, which calls busMonitorAddItem - this is defined in main Qt program as extern "C"
+
 class ModbusRtuFrame {
 
     public: // add change function?

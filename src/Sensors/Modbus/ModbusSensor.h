@@ -7,6 +7,8 @@
 #include "Sensors/Sensor.h"
 #include "KeyValueMap.h"
 
+#include "modbus.h"
+
 class Modbus : public Sensor
 {
 
@@ -27,20 +29,20 @@ signals:
     void received(QSharedPointer<Message> payload);
 
 private slots:
-      void readFromSocket(int socket);
+      void pollModbus();
 
 private:
+    void modbusDisconnect();
+    QByteArray modbusReadData(int slave, int functionCode, int startAddress, int noOfItems);
+
     QString portName;
     bool parityEven;
     int bandwidth;
-    int fd;
+    int timeout;
+    bool modbusDebug;
+    int modbusSlave;
 
-    QSocketNotifier *socketNotifier;
-
-    int tryRead(unsigned char* buffer, int size);
-    int checkResponseCRC(unsigned char* answer, unsigned char* answer_data,
-                                 int answer_size, int take_byte_count,unsigned short crc);
-
+    modbus_t *m_modbus;
 };
 
 #endif // MODBUS_H

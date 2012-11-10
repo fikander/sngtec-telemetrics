@@ -11,11 +11,12 @@ CONFIG += console
 CONFIG -= app_bundle
 
 INCLUDEPATH += .
+INCLUDEPATH += ../libmodbus
 
-HEADERS = Sensors/devproxy.h \
-    Message/message.h \
-    Sensors/Modbus/crc-count.h \
-    Sensors/Modbus/modbusrtuframe.h \
+LIBS += -L../lib -llibmodbus
+
+
+HEADERS = Message/message.h \
     Logger/logger.h \
     LogSender/HTTPLogSender/httplogsender.h \
     LogSender/logsender.h \
@@ -31,12 +32,10 @@ HEADERS = Sensors/devproxy.h \
     Cloud/sngconnect/SNGConnectCloud.h \
     Cloud/sngconnect/SNGConnectAPI.h \
     Sensors/CommandProcessor.h \
-    Sensors/Modbus/Modbus.h
+    Sensors/Modbus/ModbusSensor.h
 
 SOURCES =  main.cpp \
     Message/message.cpp \
-    Sensors/Modbus/crc-count.cpp \
-    Sensors/Modbus/modbusrtuframe.cpp \
     Logger/logger.cpp \
     LogSender/HTTPLogSender/httplogsender.cpp \
     CloudFactory.cpp \
@@ -49,7 +48,7 @@ SOURCES =  main.cpp \
     Cloud/sngconnect/SNGConnectCloud.cpp \
     Cloud/sngconnect/SNGConnectAPI.cpp \
     Sensors/CommandProcessor.cpp \
-    Sensors/Modbus/Modbus.cpp
+    Sensors/Modbus/ModbusSensor.cpp
 
     
 
