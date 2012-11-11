@@ -70,7 +70,13 @@ void Configurator2::configureCloudsAndSensors()
     {
         m_settings->setArrayIndex(i);
         config = getKeyValueMap(*m_settings);
-        m_clouds.push_back( m_cloudFactory->newObject((*config)["type"].toString(), *config) );
+        Cloud *cloud = m_cloudFactory->newObject((*config)["type"].toString(), *config);
+        if (cloud != NULL)
+            m_clouds.push_back( cloud );
+        else
+        {
+            QWARNING << "Unrecognised cloud type: " << (*config)["type"].toString();
+        }
         delete config;
     }
     m_settings->endArray();
@@ -82,7 +88,13 @@ void Configurator2::configureCloudsAndSensors()
     {
         m_settings->setArrayIndex(i);
         config = getKeyValueMap(*m_settings);
-        m_sensors.push_back( m_sensorFactory->newObject((*config)["type"].toString(), *config) );
+        Sensor *sensor = m_sensorFactory->newObject((*config)["type"].toString(), *config);
+        if (sensor != NULL)
+            m_sensors.push_back( sensor );
+        else
+        {
+            QWARNING << "Unrecognised sensor type: " << (*config)["type"].toString();
+        }
         delete config;
     }
     m_settings->endArray();

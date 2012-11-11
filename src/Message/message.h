@@ -50,8 +50,6 @@ public:
     QString key;
     QString value;
 
-    QByteArray toByteArray();
-    bool fromByteArray(QByteArray&);
     virtual QString toString();
 
     static void takeMessagesByDatastream(
@@ -67,9 +65,13 @@ public:
 class MessageEvent : public Message
 {
 public:
-    MessageEvent();
+    MessageEvent(QString message, QString type, int id);
     virtual MessageType getType() { return MsgEvent; }
-    virtual QString toString() { return "event"; }
+    virtual QString toString() { return "[" + type + ":"+ QString::number(id) +"] " + message; }
+
+    QString message;
+    QString type; //"type": "alarm_on|alarm_off|information|system_error|system_warning"
+    int id;
 };
 
 /**

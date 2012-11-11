@@ -57,7 +57,7 @@ Message::Message(QDateTime timestamp) :
 
 Message::~Message()
 {
-    qDebug() << "Message ~Destructor";
+    //QDEBUG << "Message ~Destructor";
 }
 
 MessageSample::MessageSample() :
@@ -79,30 +79,6 @@ MessageSample::MessageSample(QString k, QString v, QDateTime t) :
     value = v;
 }
 
-QByteArray MessageSample::toByteArray()
-{
-    QString s = "##" + key + "#" + value + "#" + timestamp.toString() + "##";
-    QByteArray res;
-    res.append(s);
-    return res;
-}
-
-bool MessageSample::fromByteArray(QByteArray& buf)
-{
-    QString s = QString(buf);
-    QStringList lista = s.split("#",QString::SkipEmptyParts);
-
-    if (/*s[0] != '#' || s[1] != '#' || s[s.size()-1] != '#' || s[s.size()-2] != '#' ||*/ lista.size() != 3)
-    {
-        //qDebug() << "Message::fromString: bad message. got: " << s;
-        return false;
-    }
-
-    key = lista[0];
-    value = lista[1];
-    timestamp = QDateTime::fromString(lista[2]);
-    return true;
-}
 
 QString MessageSample::toString()
 {
@@ -110,8 +86,9 @@ QString MessageSample::toString()
     return s;
 }
 
-MessageEvent::MessageEvent() :
-    Message(QDateTime::currentDateTime())
+MessageEvent::MessageEvent(QString message, QString type, int id) :
+    Message(QDateTime::currentDateTime()),
+    message(message), type(type), id(id)
 {
 }
 

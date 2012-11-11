@@ -3,6 +3,8 @@
 
 #include <QObject>
 #include <QSocketNotifier>
+#include <QTimer>
+#include <QVector>
 
 #include "Sensors/Sensor.h"
 #include "KeyValueMap.h"
@@ -15,7 +17,7 @@ class Modbus : public Sensor
     Q_OBJECT
 
 public:
-    Modbus(KeyValueMap &config);
+    Modbus(KeyValueMap &config, QObject *parent = 0);
     virtual ~Modbus();
 
     virtual int connect();
@@ -29,20 +31,47 @@ signals:
     void received(QSharedPointer<Message> payload);
 
 private slots:
-      void pollModbus();
+      void sendAndReceiveData();
 
 private:
     void modbusDisconnect();
-    QByteArray modbusReadData(int slave, int functionCode, int startAddress, int noOfItems);
+    QVector<uint> modbusReadData(int functionCode, int startAddress, int noOfItems);
 
     QString portName;
-    bool parityEven;
+    char parity;
     int bandwidth;
+    int dataBits, stopBits;
     int timeout;
     bool modbusDebug;
     int modbusSlave;
+    QTimer timer;
 
     modbus_t *m_modbus;
+
+    class Query
+    {
+    public:
+        Query();
+        Query(QString name, int address, int count, bool bigEndian = true);
+        QString name;
+        int address;
+        int count;
+        bool bigEndian;
+        QString eventType;
+        char read_function, write_function;
+
+        QVector<uint> lastResult;
+
+        QString toString()
+        {
+            return name + "[" + eventType +
+                    "],addr:" + QString::number(address) +
+                    ",cnt:" + QString::number(count) +
+                    ",read:0x" + QString::number(read_function, 16) +
+                    ",write:0x" + QString::number(write_function, 16);
+        }
+    };
+    QVector<Query> queries;
 };
 
 #endif // MODBUS_H

@@ -7,7 +7,8 @@
 
 #include "debug.h"
 
-Modbus::Modbus(KeyValueMap &config)
+Modbus::Modbus(KeyValueMap &config, QObject *parent):
+    Sensor(parent), m_modbus(NULL)
 {
     if (config.contains("bandwidth"))
         bandwidth = config["bandwidth"].toUInt();
@@ -20,9 +21,27 @@ Modbus::Modbus(KeyValueMap &config)
         portName = "/dev/ttyS1";
 
     if (config.contains("parity"))
-        parityEven = (config["parity"].toString().toLower() == "even");
+    {
+        QString p = config["parity"].toString().toLower();
+        if (p == "even")
+            parity = 'E';
+        else if (p == "odd")
+            parity = 'O';
+        else
+            parity ='N';
+    }
     else
-        parityEven = false;
+        parity = 'N';
+
+    if (config.contains("data_bits"))
+        dataBits = config["data_bits"].toUInt();
+    else
+        dataBits = 8;
+
+    if (config.contains("stop_bits"))
+        stopBits = config["stop_bits"].toUInt();
+    else
+        stopBits = 1;
 
     if (config.contains("timeout"))
         timeout = config["timeout"].toUInt();
@@ -38,6 +57,64 @@ Modbus::Modbus(KeyValueMap &config)
         modbusSlave = config["modbusSlave"].toUInt();
     else
         modbusSlave = 1;
+
+    if (config.contains("interval"))
+        timer.setInterval(config["interval"].toUInt() * 1000);
+    else
+        timer.setInterval(60 * 1000);
+
+    // find all parameters in the form:
+    //    parameter_NAME=[readonly|readwrite|alarm]:[holding_register|input_register]:ADDRESS:COUNT
+    foreach (QString key, config.keys())
+    {
+        if (key.startsWith("parameter_", Qt::CaseInsensitive))
+        {
+            Query q;
+
+            q.name = key.mid(10);
+            QString parameterValue = config[key].toString();
+
+            q.address = parameterValue.section(':', 2, 2).toInt();
+            q.count = parameterValue.section(':', 3, 3).toInt();
+
+            // [readonly|readwrite|alarm]
+            QString parameterMode = parameterValue.section(':', 0, 0);
+            if (parameterMode == "alarm")
+                q.eventType = "alarm";
+
+            // [holding_register|input_register]
+            QString parameterType = parameterValue.section(':', 1, 1);
+            if (parameterType == "holding_register")
+            {
+                q.read_function = _FC_READ_HOLDING_REGISTERS;
+                q.write_function = q.count > 1 ? _FC_WRITE_MULTIPLE_REGISTERS : _FC_WRITE_SINGLE_REGISTER;
+            }
+            else if (parameterType == "input_register")
+            {
+                q.read_function = _FC_READ_INPUT_REGISTERS;
+                q.write_function = q.count > 1 ? _FC_WRITE_MULTIPLE_REGISTERS : _FC_WRITE_SINGLE_REGISTER;
+            }
+            else
+                QWARNING << "Unknown parameter type: " << parameterType;
+
+            queries.append(q);
+        }
+    }
+
+    QDEBUG << "Found following parameters to track:";
+    for (int i = 0; i < queries.count(); i++)
+        QDEBUG << " - " << queries[i].toString();
+}
+
+
+Modbus::Query::Query(QString name, int address, int count, bool bigEndian):
+    name(name), address(address), count(count), bigEndian(bigEndian), read_function(0), write_function(0)
+{
+}
+
+Modbus::Query::Query():
+    address(0), count(0), read_function(0), write_function(0)
+{
 }
 
 Modbus::~Modbus()
@@ -47,6 +124,8 @@ Modbus::~Modbus()
 
 void Modbus::modbusDisconnect()
 {
+    timer.stop();
+
     if(m_modbus) {
         modbus_close(m_modbus);
         modbus_free(m_modbus);
@@ -61,14 +140,12 @@ int Modbus::connect()
 {
     modbusDisconnect();
 
-    char parity = parityEven ? 'E': 'O';
-
-    m_modbus = modbus_new_rtu(portName.toAscii().constData(), bandwidth, parity, 8, 1);
+    m_modbus = modbus_new_rtu(portName.toAscii().constData(), bandwidth, parity, dataBits, stopBits);
 
     //Debug messages from libmodbus
     modbus_set_debug(m_modbus, modbusDebug);
 
-    modbus_set_error_recovery(m_modbus, MODBUS_ERROR_RECOVERY_LINK);
+    modbus_set_error_recovery(m_modbus, (modbus_error_recovery_mode)(MODBUS_ERROR_RECOVERY_LINK || MODBUS_ERROR_RECOVERY_PROTOCOL));
 
     //Response timeout
     struct timeval response_timeout;
@@ -76,12 +153,18 @@ int Modbus::connect()
     response_timeout.tv_usec = 0;
     modbus_set_response_timeout(m_modbus, &response_timeout);
 
+    modbus_set_slave(m_modbus, modbusSlave);
+
     if(m_modbus && modbus_connect(m_modbus) == -1) {
         QERROR << "Connection failed - could not connect to serial port " << portName;
         m_connected = false;
+        return 1;
     }
     else
         m_connected = true;
+
+    timer.start();
+    QObject::connect(&timer, SIGNAL(timeout()), this, SLOT(sendAndReceiveData()));
 
     return 0;
 }
@@ -91,17 +174,54 @@ void Modbus::send(QSharedPointer<Message> payload)
 
 }
 
-void Modbus::pollModbus()
+void Modbus::sendAndReceiveData()
 {
-    QByteArray result = modbusReadData(modbusSlave, _FC_READ_HOLDING_REGISTERS, 0, 1);
+    for (int i= 0; i < queries.count(); i++)
+    {
+        Query &q = queries[i];
+        QVector<uint> result = modbusReadData(q.read_function, q.address, q.count);
 
-    emit received(QSharedPointer<Message>(new MessageSample("value", result.toHex())));
+        // dont create new messages if value hasnt changed from last sample
+        if (q.lastResult == result)
+        {
+            QDEBUG << "OLD:" << q.toString();
+            continue;
+        }
+        else
+            q.lastResult = result;
+
+        if (result.count() == q.count)
+        {
+            ulong value;
+            // turn array of ints into string, based on endianness
+            switch(q.count)
+            {
+            case 2:
+                if (q.bigEndian)
+                    value = result[0] * 0x10000 + result[1];
+                else
+                    value = result[1] * 0x10000 + result[0];
+                break;
+            case 1:
+            default:
+                value = result[0];
+            }
+
+            QDEBUG << "NEW:" << q.toString() << ": " << QString::number(value);
+
+            // emit new message
+            if (q.eventType == "alarm")
+                emit received(QSharedPointer<Message>(new MessageEvent(q.name, "alarm_on", value)));
+            else
+                emit received(QSharedPointer<Message>(new MessageSample(q.name, QString::number(value))));
+        }
+    }
 }
 
-QByteArray Modbus::modbusReadData(int slave, int functionCode, int startAddress, int noOfItems)
+QVector<uint> Modbus::modbusReadData(int functionCode, int startAddress, int noOfItems)
 {
-    if (m_modbus == NULL) return QByteArray();
-    if (!m_connected) return QByteArray();
+    if (m_modbus == NULL) return QVector<uint>();
+    if (!m_connected) return QVector<uint>();
 
     uint8_t dest[1024]; //setup memory for data
     uint16_t * dest16 = (uint16_t *) dest;
@@ -109,7 +229,6 @@ QByteArray Modbus::modbusReadData(int slave, int functionCode, int startAddress,
     int ret = -1; //return value from read functions
     bool is16Bit = false;
 
-    modbus_set_slave(m_modbus, slave);
     //request data from modbus
     switch(functionCode)
     {
@@ -137,24 +256,28 @@ QByteArray Modbus::modbusReadData(int slave, int functionCode, int startAddress,
 
     if(ret == noOfItems)
     {
-        char *data = is16Bit ? (char*)dest16 : (char*)dest;
-        return QByteArray(data, noOfItems * (is16Bit ? 2 : 1));
+        QVector<uint> result;
+        QString string;
+        for (int i = 0; i < noOfItems; i++)
+        {
+            result.append(is16Bit ? dest16[i] : dest[i]);
+            string += is16Bit ? QString::number(dest16[i]) : QString::number(dest[i]);
+        }
+        //QDEBUG << "Modbus result: " << string;
+        return result;
     }
     else
     {
-        QString line;
         if(ret < 0) {
-                line = QString("Slave threw exception  >  ").arg(ret) +  modbus_strerror(errno) + " ";
-                QWARNING << line;
+                QWARNING << "Slave threw exception  >  " << ret << modbus_strerror(errno);
 
                 // TODO: prepare event message with error
 
         }
         else {
-                line = QString("Number of registers returned does not match number of registers requested!. [")  +  modbus_strerror(errno) + "]";
-                QWARNING << line;
+                QWARNING << "Number of registers returned does not match number of registers requested!. ["  << modbus_strerror(errno) << "]";
         }
      }
 
-    return QByteArray();
+    return QVector<uint>();
 }

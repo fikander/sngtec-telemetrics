@@ -33,13 +33,13 @@ APICall::APICall(QSharedPointer<SNGConnectAPI> context):
 
 APICall::~APICall()
 {
-    QDEBUG << "Deleting APICall " << requestId;
+    //QDEBUG << "Deleting APICall " << requestId;
     context.clear();
 }
 
 bool APICall::makeHttpRequest(QString method, QString api, QString contents)
 {
-    QDEBUG << "Request: " << context->baseUrl.scheme() << context->baseUrl.host() << context->baseUrl.port() << method << api << contents;
+    //QDEBUG << "Request: " << context->baseUrl.scheme() << context->baseUrl.host() << context->baseUrl.port() << method << api << contents;
 
     QHttpRequestHeader header(method, QUrl::toPercentEncoding(api));
 
@@ -59,7 +59,7 @@ void APICall::invoke()
 {
     QObject::connect(&http, SIGNAL(done(bool)), this, SLOT(done(bool)));
     makeHttpRequest(getMethod(), getAPI(), getContent());
-    QDEBUG << "Http request done: " << requestId;
+    //QDEBUG << "Http request done: " << requestId;
 }
 
 void APICall::done(bool error)
@@ -72,7 +72,7 @@ void APICall::done(bool error)
 
     if (error)
     {
-        QWARNING << "HTTP connection error (request " << requestId << "): " <<
+        QWARNING << "HTTP connection ERROR (request " << requestId << "): " <<
                     context->baseUrl.toString() << http.error() << http.errorString();
     }
     else
@@ -80,7 +80,7 @@ void APICall::done(bool error)
         QHttpResponseHeader response = http.lastResponse();
         if (response.statusCode() >= 400)
         {
-            QWARNING << "HTTP error (request " << requestId << "):" <<
+            QWARNING << "HTTP ERROR (request " << requestId << "):" <<
                         QVariant(response.statusCode()).toString() <<
                         context->baseUrl.toString() << getMethod() << getAPI() << getContent();
         }
@@ -161,8 +161,8 @@ QString APICallSendEvent::getContent()
      *           "message": "something’s gone wrong"
      *       }
      */
-    QString content  = "{\"type\":\"information\",";
-    content += "\"id\":\"1\",";
+    QString content  = "{\"type\":\"" + event->type + "\",";
+    content += "\"id\":\"" + QString::number(event->id) + "\",";
     content += "\"timestamp\":\"" + event->timestamp.toString(Qt::ISODate) + "\",";
     content += "\"message\":\"" + event->toString() + "\"}";
     return content;
@@ -361,19 +361,19 @@ void APICallGetCommands::done(bool error)
 
     if (!error /*&& http.lastResponse().statusCode() == 200*/)
     {
-        QString test="\
-{\
-    \"commands\" : [ \
-        {\"command\" : \"reboot\"},\
-        {\"command\" : \"upload_log\",\
-        \"arguments\" : { \
-            \"url\" :\"http://blah.com\",\
-            \"start\" : \"timestamp\"}\
-        } ]\
-}";
-        parseJSONResponse(test, *receivedMessages);
+//        QString test="\
+//{\
+//    \"commands\" : [ \
+//        {\"command\" : \"reboot\"},\
+//        {\"command\" : \"upload_log\",\
+//        \"arguments\" : { \
+//            \"url\" :\"http://blah.com\",\
+//            \"start\" : \"timestamp\"}\
+//        } ]\
+//}";
+//        parseJSONResponse(test, *receivedMessages);
 
-//        parseJSONResponse(http.readAll(), *receivedMessages);
+        parseJSONResponse(http.readAll(), *receivedMessages);
     }
 
     semaphore->setLocked(false);

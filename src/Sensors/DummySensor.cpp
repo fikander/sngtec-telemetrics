@@ -59,7 +59,7 @@ void DummySensor::collectSample()
     if (counter++ % 2 != 0)
         msg = new MessageSample(dummyDataStream, QVariant(qrand() % 1000).toString());
     else
-        msg = new MessageEvent();
+        msg = new MessageEvent("test event message", "information", 1);
 
     receivedMessages.enqueue(QSharedPointer<Message>(msg));
 }
