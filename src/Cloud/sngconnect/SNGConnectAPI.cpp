@@ -74,8 +74,7 @@ QString APICall::hmacSha256(QByteArray baseString)
     QByteArray part = innerPadding;
     part.append(baseString);
 
-    //total.append(QCryptographicHash::hash(part, QCryptographicHash::Sha1));
-
+    // hash inner part
     SHA256_CTX context;
     QByteArray hashedPart;
     SHA256_Init(&context);
@@ -85,22 +84,18 @@ QString APICall::hmacSha256(QByteArray baseString)
 
     total.append(hashedPart);
 
-    //QByteArray hashed = QCryptographicHash::hash(total, QCryptographicHash::Sha1);
+    // hash total
     QByteArray hashed;
     SHA256_Init(&context);
     SHA256_Update(&context, (const u_int8_t*)total.data(), total.length());
     hashed.resize(SHA256_DIGEST_LENGTH);
     SHA256_Final((u_int8_t *)hashed.data(), &context);
 
+    // return hexdigest
     return hashed.toHex();
 }
 
-/*
-Ka?dy request powinien by? podpisany u?ywaj?c algorytmu HMAC ( http://tools.ietf.org/html/rfc2104 )
-z algorytmem hashowania SHA256. Jako dane wej?ciowe do HMAC daje si? API-key oraz
-tre?? requesta w formie <path_info>:<request_body>, a wyj?cie HMACa w formie heksadecymalnej podaje
-si? w nag?ówku HTTP Signature.
-*/
+
 bool APICall::makeHttpRequest(QString method, QString api, QString contents)
 {
     //QDEBUG << "Request: " << context->baseUrl.scheme() << context->baseUrl.host() << context->baseUrl.port() << method << api << contents;
