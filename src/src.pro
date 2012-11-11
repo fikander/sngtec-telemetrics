@@ -32,7 +32,8 @@ HEADERS = Message/message.h \
     Cloud/sngconnect/SNGConnectCloud.h \
     Cloud/sngconnect/SNGConnectAPI.h \
     Sensors/CommandProcessor.h \
-    Sensors/Modbus/ModbusSensor.h
+    Sensors/Modbus/ModbusSensor.h \
+    sha2/sha2.h
 
 SOURCES =  main.cpp \
     Message/message.cpp \
@@ -48,7 +49,8 @@ SOURCES =  main.cpp \
     Cloud/sngconnect/SNGConnectCloud.cpp \
     Cloud/sngconnect/SNGConnectAPI.cpp \
     Sensors/CommandProcessor.cpp \
-    Sensors/Modbus/ModbusSensor.cpp
+    Sensors/Modbus/ModbusSensor.cpp \
+    sha2/sha2.cpp
 
     
 

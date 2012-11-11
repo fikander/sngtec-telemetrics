@@ -8,6 +8,7 @@
 
 #include "SNGConnectAPI.h"
 
+#include "sha2/sha2.h"
 
 SNGConnectAPI::SNGConnectAPI(KeyValueMap &config)
 {
@@ -19,6 +20,9 @@ SNGConnectAPI::SNGConnectAPI(KeyValueMap &config)
     Q_ASSERT(baseUrl.isValid());
 
     feed = config["feed"].toString();
+
+    if (config.contains("api_key"))
+        apiKey = config["api_key"].toByteArray();
 }
 
 SNGConnectAPI::~SNGConnectAPI()
@@ -37,19 +41,81 @@ APICall::~APICall()
     context.clear();
 }
 
+QString APICall::hmacSha256(QByteArray baseString)
+{
+    int blockSize = 64; // HMAC-SHA-1 block size, defined in SHA-1 standard
+    if (context->apiKey.length() > blockSize) { // if key is longer than block size (64), reduce key length with SHA-1 compression
+
+        //context->apiKey = QCryptographicHash::hash(context->apiKey, QCryptographicHash::Sha1);
+
+        SHA256_CTX      tctx;
+        QByteArray tk;
+
+        SHA256_Init(&tctx);
+        SHA256_Update(&tctx, (const u_int8_t*)context->apiKey.data(), context->apiKey.length());
+        tk.resize(SHA256_DIGEST_LENGTH);
+        SHA256_Final((u_int8_t *)tk.data(), &tctx);
+
+        context->apiKey = tk;
+    }
+
+    QByteArray innerPadding(blockSize, char(0x36)); // initialize inner padding with char "6"
+    QByteArray outerPadding(blockSize, char(0x5c)); // initialize outer padding with char "\"
+    // ascii characters 0x36 ("6") and 0x5c ("\") are selected because they have large
+    // Hamming distance (http://en.wikipedia.org/wiki/Hamming_distance)
+
+    for (int i = 0; i < context->apiKey.length(); i++) {
+        innerPadding[i] = innerPadding[i] ^ context->apiKey.at(i); // XOR operation between every byte in key and innerpadding, of key length
+        outerPadding[i] = outerPadding[i] ^ context->apiKey.at(i); // XOR operation between every byte in key and outerpadding, of key length
+    }
+
+    // result = hash ( outerPadding CONCAT hash ( innerPadding CONCAT baseString ) ).toBase64
+    QByteArray total = outerPadding;
+    QByteArray part = innerPadding;
+    part.append(baseString);
+
+    //total.append(QCryptographicHash::hash(part, QCryptographicHash::Sha1));
+
+    SHA256_CTX context;
+    QByteArray hashedPart;
+    SHA256_Init(&context);
+    SHA256_Update(&context, (const u_int8_t*)part.data(), part.length());
+    hashedPart.resize(SHA256_DIGEST_LENGTH);
+    SHA256_Final((u_int8_t *)hashedPart.data(), &context);
+
+    total.append(hashedPart);
+
+    //QByteArray hashed = QCryptographicHash::hash(total, QCryptographicHash::Sha1);
+    QByteArray hashed;
+    SHA256_Init(&context);
+    SHA256_Update(&context, (const u_int8_t*)total.data(), total.length());
+    hashed.resize(SHA256_DIGEST_LENGTH);
+    SHA256_Final((u_int8_t *)hashed.data(), &context);
+
+    return hashed.toHex();
+}
+
+/*
+Ka?dy request powinien by? podpisany u?ywaj?c algorytmu HMAC ( http://tools.ietf.org/html/rfc2104 )
+z algorytmem hashowania SHA256. Jako dane wej?ciowe do HMAC daje si? API-key oraz
+tre?? requesta w formie <path_info>:<request_body>, a wyj?cie HMACa w formie heksadecymalnej podaje
+si? w nag?ówku HTTP Signature.
+*/
 bool APICall::makeHttpRequest(QString method, QString api, QString contents)
 {
     //QDEBUG << "Request: " << context->baseUrl.scheme() << context->baseUrl.host() << context->baseUrl.port() << method << api << contents;
 
     QHttpRequestHeader header(method, QUrl::toPercentEncoding(api));
+    QByteArray contentsUtf8 = contents.toUtf8();
 
     header.setValue("Host", context->baseUrl.host());
     header.setContentType("application/json");
+    header.setValue("Signature", hmacSha256(api.toAscii() + ":" + contentsUtf8));
 
     http.setHost(context->baseUrl.host(),
         context->baseUrl.scheme() == "https" ? QHttp::ConnectionModeHttps : QHttp::ConnectionModeHttp,
         context->baseUrl.port());
-    requestId = http.request(header, contents.toUtf8());
+    requestId = http.request(header, contentsUtf8);
 
     return true;
 }

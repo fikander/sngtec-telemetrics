@@ -24,6 +24,7 @@ public:
 protected:
     QUrl baseUrl;
     QString feed;
+    QByteArray apiKey;
 
 friend class APICall;
 };
@@ -49,6 +50,7 @@ protected slots:
 protected:
 
     bool makeHttpRequest(QString method, QString api, QString contents);
+    QString hmacSha256(QByteArray baseString);
 
     virtual QString getMethod() = 0;
     virtual QString getAPI() = 0;
@@ -90,7 +92,7 @@ protected slots:
 
 protected:
     virtual QString getMethod() { return "PUT"; }
-    virtual QString getAPI() { return "api/v1/feeds/" + feed() + "/datastreams/" + datastream + ".json"; }
+    virtual QString getAPI() { return "/api/v1/feeds/" + feed() + "/datastreams/" + datastream + ".json"; }
     virtual QString getContent();
 
     QString datastream;
@@ -122,7 +124,7 @@ protected slots:
 
 protected:
     virtual QString getMethod() { return "POST"; }
-    virtual QString getAPI() { return "api/v1/feeds/" + feed() + "/events.json"; }
+    virtual QString getAPI() { return "/api/v1/feeds/" + feed() + "/events.json"; }
     virtual QString getContent();
 
     QSharedPointer<MessageEvent> event;
@@ -159,7 +161,7 @@ protected slots:
 
 protected:
     virtual QString getMethod() { return "GET"; }
-    virtual QString getAPI() { return "api/v1/feeds/" + feed() + "/datastreams.json?filter=" + filter; }
+    virtual QString getAPI() { return "/api/v1/feeds/" + feed() + "/datastreams.json?filter=" + filter; }
     virtual QString getContent() { return ""; }
 
     QSharedPointer<Message> semaphore;
@@ -198,7 +200,7 @@ protected slots:
 
 protected:
     virtual QString getMethod() { return "GET"; }
-    virtual QString getAPI() { return "api/v1/feeds/" + feed() + "/commands.json"; }
+    virtual QString getAPI() { return "/api/v1/feeds/" + feed() + "/commands.json"; }
     virtual QString getContent() { return ""; }
 
     QSharedPointer<Message> semaphore;
@@ -223,7 +225,7 @@ protected slots:
 
 protected:
     virtual QString getMethod() { return "POST"; }
-    virtual QString getAPI() { return "api/v1/upload-log/" + log_request_id + "/" + log_request_hash + ".json"; }
+    virtual QString getAPI() { return "/api/v1/upload-log/" + log_request_id + "/" + log_request_hash + ".json"; }
     virtual QString getContent();
 
     QSharedPointer<MessageResponse> response;

@@ -172,6 +172,7 @@ int Modbus::connect()
 void Modbus::send(QSharedPointer<Message> payload)
 {
 
+    //TODO
 }
 
 void Modbus::sendAndReceiveData()
