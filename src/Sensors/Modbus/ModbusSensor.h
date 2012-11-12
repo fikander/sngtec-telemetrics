@@ -43,7 +43,6 @@ private:
     int dataBits, stopBits;
     int timeout;
     bool modbusDebug;
-    int modbusSlave;
     QTimer timer;
 
     modbus_t *m_modbus;
@@ -54,6 +53,7 @@ private:
         Query();
         Query(QString name, int address, int count, bool bigEndian = true);
         QString name;
+        int slave;
         int address;
         int count;
         bool bigEndian;
@@ -65,7 +65,8 @@ private:
         QString toString()
         {
             return name + "[" + eventType +
-                    "],addr:" + QString::number(address) +
+                    "],slave:" + QString::number(slave) +
+                    ",addr:" + QString::number(address) +
                     ",cnt:" + QString::number(count) +
                     ",read:0x" + QString::number(read_function, 16) +
                     ",write:0x" + QString::number(write_function, 16);

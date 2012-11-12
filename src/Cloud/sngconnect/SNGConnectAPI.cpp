@@ -98,7 +98,7 @@ QString APICall::hmacSha256(QByteArray baseString)
 
 bool APICall::makeHttpRequest(QString method, QString api, QString contents)
 {
-    //QDEBUG << "Request: " << context->baseUrl.scheme() << context->baseUrl.host() << context->baseUrl.port() << method << api << contents;
+    QDEBUG << "Request: " << context->baseUrl.scheme() << context->baseUrl.host() << context->baseUrl.port() << method << api << contents;
 
     QHttpRequestHeader header(method, QUrl::toPercentEncoding(api));
     QByteArray contentsUtf8 = contents.toUtf8();

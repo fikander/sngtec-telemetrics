@@ -53,11 +53,6 @@ Modbus::Modbus(KeyValueMap &config, QObject *parent):
     else
         modbusDebug = false;
 
-    if(config.contains("modbusSlave"))
-        modbusSlave = config["modbusSlave"].toUInt();
-    else
-        modbusSlave = 1;
-
     if (config.contains("interval"))
         timer.setInterval(config["interval"].toUInt() * 1000);
     else
@@ -74,13 +69,12 @@ Modbus::Modbus(KeyValueMap &config, QObject *parent):
             q.name = key.mid(10);
             QString parameterValue = config[key].toString();
 
-            q.address = parameterValue.section(':', 2, 2).toInt();
-            q.count = parameterValue.section(':', 3, 3).toInt();
+            q.slave = parameterValue.section(':', 2, 2).toInt();
+            q.address = parameterValue.section(':', 3, 3).toInt();
+            q.count = parameterValue.section(':', 4, 4).toInt();
 
             // [readonly|readwrite|alarm]
-            QString parameterMode = parameterValue.section(':', 0, 0);
-            if (parameterMode == "alarm")
-                q.eventType = "alarm";
+            q.eventType = parameterValue.section(':', 0, 0);
 
             // [holding_register|input_register]
             QString parameterType = parameterValue.section(':', 1, 1);
@@ -153,8 +147,6 @@ int Modbus::connect()
     response_timeout.tv_usec = 0;
     modbus_set_response_timeout(m_modbus, &response_timeout);
 
-    modbus_set_slave(m_modbus, modbusSlave);
-
     if(m_modbus && modbus_connect(m_modbus) == -1) {
         QERROR << "Connection failed - could not connect to serial port " << portName;
         m_connected = false;
@@ -180,6 +172,11 @@ void Modbus::sendAndReceiveData()
     for (int i= 0; i < queries.count(); i++)
     {
         Query &q = queries[i];
+
+        if (q.eventType == "constant")
+            continue;
+
+        modbus_set_slave(m_modbus, q.slave);
         QVector<uint> result = modbusReadData(q.read_function, q.address, q.count);
 
         // dont create new messages if value hasnt changed from last sample
@@ -212,7 +209,12 @@ void Modbus::sendAndReceiveData()
 
             // emit new message
             if (q.eventType == "alarm")
-                emit received(QSharedPointer<Message>(new MessageEvent(q.name, "alarm_on", value)));
+            {
+                if (value > 0)
+                    emit received(QSharedPointer<Message>(new MessageEvent(q.name, "alarm_on", value)));
+                else
+                    emit received(QSharedPointer<Message>(new MessageEvent(q.name, "alarm_off", value)));
+            }
             else
                 emit received(QSharedPointer<Message>(new MessageSample(q.name, QString::number(value))));
         }
