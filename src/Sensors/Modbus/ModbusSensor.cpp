@@ -208,15 +208,21 @@ void Modbus::sendAndReceiveData()
             QDEBUG << "NEW:" << q.toString() << ": " << QString::number(value);
 
             // emit new message
-            if (q.eventType == "alarm")
+            if (q.eventType == "readonly" || q.eventType == "readwrite")
+            {
+                emit received(QSharedPointer<Message>(new MessageSample(q.name, QString::number(value))));
+            }
+            else if (q.eventType == "alarm")
             {
                 if (value > 0)
                     emit received(QSharedPointer<Message>(new MessageEvent(q.name, "alarm_on", value)));
                 else
                     emit received(QSharedPointer<Message>(new MessageEvent(q.name, "alarm_off", value)));
+            } else
+            {
+                // "system_error", "system_warning"
+                emit received(QSharedPointer<Message>(new MessageEvent(q.name, q.eventType, value)));
             }
-            else
-                emit received(QSharedPointer<Message>(new MessageSample(q.name, QString::number(value))));
         }
     }
 }
