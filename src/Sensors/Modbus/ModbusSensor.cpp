@@ -49,9 +49,14 @@ Modbus::Modbus(KeyValueMap &config, QObject *parent):
         timeout = 5;
 
     if (config.contains("modbusDebug"))
-        modbusDebug = (config["modbusDebug"].toString().toLower() == "true");
+        modbusDebug = config["modbusDebug"].toString().toLower() == "true";
     else
         modbusDebug = false;
+
+    if (config.contains("modbusEndianness"))
+        bigEndian = config["modbusEndianness"].toString().toLower() == "big";
+    else
+        bigEndian = true;
 
     if (config.contains("interval"))
         timer.setInterval(config["interval"].toUInt() * 1000);
@@ -72,6 +77,7 @@ Modbus::Modbus(KeyValueMap &config, QObject *parent):
             q.slave = parameterValue.section(':', 2, 2).toInt();
             q.address = parameterValue.section(':', 3, 3).toInt();
             q.count = parameterValue.section(':', 4, 4).toInt();
+            q.bigEndian = bigEndian;
 
             // [readonly|readwrite|alarm]
             q.eventType = parameterValue.section(':', 0, 0);
@@ -107,7 +113,7 @@ Modbus::Query::Query(QString name, int address, int count, bool bigEndian):
 }
 
 Modbus::Query::Query():
-    address(0), count(0), read_function(0), write_function(0)
+    address(0), count(0), bigEndian(true), read_function(0), write_function(0)
 {
 }
 
@@ -163,8 +169,65 @@ int Modbus::connect()
 
 void Modbus::send(QSharedPointer<Message> payload)
 {
+    toSend.enqueue(payload);
+    QList< QSharedPointer<Message> > allSamples;
+    Message::getUnlockedMessages(toSend, Message::MsgSample, true, allSamples);
 
-    //TODO
+    if (payload->getType() == Message::MsgSample)
+    {
+        QSharedPointer<MessageSample> sample = payload.staticCast<MessageSample>();
+        Query q;
+        bool found = false;
+        for (int i=0; i<queries.count(); i++)
+        {
+            if (queries.at(i).name == sample->key)
+            {
+                q = queries.at(i);
+                found = true;
+                break;
+            }
+        }
+
+        if (found)
+        {
+            //send it to modbus
+            modbus_set_slave(m_modbus, q.slave);
+
+            // convert string to vector of uint
+            QVector<uint> vector;
+            ulong value = QString::toLong(sample->value);
+            switch(q.count)
+            {
+            case 2:
+                if (q.bigEndian)
+                {
+                    vector.append((value >> 8) & 0xFFFF); // high
+                    vector.append(value & 0xFFFF); // low
+                }
+                else
+                {
+                    vector.append(value & 0xFFFF); // low
+                    vector.append((value >> 8) & 0xFFFF); // high
+                }
+                break;
+            case 1:
+            default:
+                vector.append(value & 0xFFFF);
+            }
+
+            modbusWriteData(q.read_function, q.address, vector);
+
+        }
+        else
+        {
+            QWARNING << "Unknown messsage key: " << payload->toString();
+        }
+
+    }
+    else
+    {
+        QWARNING << "Cannot handle this message: " << payload->toString();
+    }
 }
 
 void Modbus::sendAndReceiveData()
@@ -225,6 +288,11 @@ void Modbus::sendAndReceiveData()
             }
         }
     }
+}
+
+bool Modbus::modbusWriteData(int functionCode, int address, QVector<uint> vector)
+{
+    // TODO
 }
 
 QVector<uint> Modbus::modbusReadData(int functionCode, int startAddress, int noOfItems)

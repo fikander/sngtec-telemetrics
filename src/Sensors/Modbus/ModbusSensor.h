@@ -36,6 +36,7 @@ private slots:
 private:
     void modbusDisconnect();
     QVector<uint> modbusReadData(int functionCode, int startAddress, int noOfItems);
+    bool modbusWriteData(int functionCode, int address, QVector<uint> vector);
 
     QString portName;
     char parity;
@@ -43,6 +44,7 @@ private:
     int dataBits, stopBits;
     int timeout;
     bool modbusDebug;
+    bool bigEndian;
     QTimer timer;
 
     modbus_t *m_modbus;
