@@ -36,7 +36,7 @@ private slots:
 private:
     void modbusDisconnect();
     QVector<uint> modbusReadData(int functionCode, int startAddress, int noOfItems);
-    bool modbusWriteData(int functionCode, int address, QVector<uint> vector);
+    bool modbusWriteData(int functionCode, int startAddress, QVector<uint> vector);
 
     QString portName;
     char parity;
@@ -62,6 +62,7 @@ private:
         QString eventType;
         char read_function, write_function;
 
+        bool queried;
         QVector<uint> lastResult;
 
         QString toString()

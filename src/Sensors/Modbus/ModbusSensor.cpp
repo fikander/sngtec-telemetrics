@@ -108,12 +108,12 @@ Modbus::Modbus(KeyValueMap &config, QObject *parent):
 
 
 Modbus::Query::Query(QString name, int address, int count, bool bigEndian):
-    name(name), address(address), count(count), bigEndian(bigEndian), read_function(0), write_function(0)
+    name(name), address(address), count(count), bigEndian(bigEndian), read_function(0), write_function(0), queried(false)
 {
 }
 
 Modbus::Query::Query():
-    address(0), count(0), bigEndian(true), read_function(0), write_function(0)
+    address(0), count(0), bigEndian(true), read_function(0), write_function(0), queried(false)
 {
 }
 
@@ -169,10 +169,6 @@ int Modbus::connect()
 
 void Modbus::send(QSharedPointer<Message> payload)
 {
-    toSend.enqueue(payload);
-    QList< QSharedPointer<Message> > allSamples;
-    Message::getUnlockedMessages(toSend, Message::MsgSample, true, allSamples);
-
     if (payload->getType() == Message::MsgSample)
     {
         QSharedPointer<MessageSample> sample = payload.staticCast<MessageSample>();
@@ -190,12 +186,9 @@ void Modbus::send(QSharedPointer<Message> payload)
 
         if (found)
         {
-            //send it to modbus
-            modbus_set_slave(m_modbus, q.slave);
-
             // convert string to vector of uint
             QVector<uint> vector;
-            ulong value = QString::toLong(sample->value);
+            ulong value = sample->value.toLong();
             switch(q.count)
             {
             case 2:
@@ -215,6 +208,8 @@ void Modbus::send(QSharedPointer<Message> payload)
                 vector.append(value & 0xFFFF);
             }
 
+            //send it to modbus
+            modbus_set_slave(m_modbus, q.slave);
             modbusWriteData(q.read_function, q.address, vector);
 
         }
@@ -236,8 +231,14 @@ void Modbus::sendAndReceiveData()
     {
         Query &q = queries[i];
 
+        // query constants only once at the beginning
         if (q.eventType == "constant")
-            continue;
+        {
+            if (q.queried)
+                continue;
+            else
+                q.queried = true;
+        }
 
         modbus_set_slave(m_modbus, q.slave);
         QVector<uint> result = modbusReadData(q.read_function, q.address, q.count);
@@ -290,9 +291,13 @@ void Modbus::sendAndReceiveData()
     }
 }
 
-bool Modbus::modbusWriteData(int functionCode, int address, QVector<uint> vector)
+bool Modbus::modbusWriteData(int functionCode, int startAddress, QVector<uint> vector)
 {
+    if (m_modbus == NULL) return false;
+    if (!m_connected) return false;
+
     // TODO
+    return false;
 }
 
 QVector<uint> Modbus::modbusReadData(int functionCode, int startAddress, int noOfItems)
