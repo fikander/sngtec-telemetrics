@@ -210,7 +210,9 @@ void Modbus::send(QSharedPointer<Message> payload)
 
             //send it to modbus
             modbus_set_slave(m_modbus, q.slave);
-            modbusWriteData(q.read_function, q.address, vector);
+            if (!modbusWriteData(q.write_function, q.address, vector)) {
+                QWARNING << "Couldn't write" << sample->value << "for key" << sample->key;
+            }
 
         }
         else
@@ -296,8 +298,58 @@ bool Modbus::modbusWriteData(int functionCode, int startAddress, QVector<uint> v
     if (m_modbus == NULL) return false;
     if (!m_connected) return false;
 
-    // TODO
-    return false;
+    const int BuffSize = 1024;
+    uint8_t src[BuffSize]; //setup memory for data
+    uint16_t * src16 = (uint16_t *) src;
+    memset(src, 0, BuffSize);
+    int ret = -1; //return value from write functions
+
+    const bool is8bit = (_FC_WRITE_MULTIPLE_COILS == functionCode);//_FC_WRITE_SINGLE_COIL not included, since modbus_write_bit expects int
+
+    const int BuffElementsCount = is8bit ? BuffSize : BuffSize / 2;
+
+    //we make sure we won't write behind the buffer
+    const int elementsCount = (vector.count() <= BuffElementsCount) ? vector.count() : BuffElementsCount;
+
+    for (int i = 0; i < elementsCount; i++)
+    {
+        if (is8bit)
+            src[i] = vector[i];
+        else
+            src16[i] = vector[i];
+    }
+
+    switch (functionCode) {
+    case (_FC_WRITE_SINGLE_COIL): {
+        //int modbus_write_bit(modbus_t *ctx, int coil_addr, int status);
+        ret = modbus_write_bit(m_modbus, startAddress, src16[0]);
+        if (1 != elementsCount)
+            QDEBUG << "Not all the data bits got written to the coils (expected:" << elementsCount << ", written 1)";
+        break;
+    }
+    case (_FC_WRITE_SINGLE_REGISTER): {
+        //int modbus_write_register(modbus_t *ctx, int reg_addr, int value);
+        //! \note the value is cast to int, what about the negative ones? Is this a server task to convert it accordingly?
+        ret = modbus_write_register(m_modbus, startAddress, src16[0]);
+        if (1 != elementsCount)
+            QDEBUG << "Not all the data got written to the register (expected:" << elementsCount << ", written 1)";
+        break;
+    }
+    case (_FC_WRITE_MULTIPLE_COILS): {
+        //int modbus_write_bits(modbus_t *ctx, int addr, int nb, const uint8_t *data);
+        ret = modbus_write_bits(m_modbus, startAddress, elementsCount, src);
+        break;
+    }
+    case (_FC_WRITE_MULTIPLE_REGISTERS): {
+        //int modbus_write_registers(modbus_t *ctx, int addr, int nb, const uint16_t *data);
+        ret = modbus_write_registers(m_modbus, startAddress, elementsCount, src16);
+        break;
+    }
+    default:
+        break;
+    }
+
+    return (elementsCount == ret);
 }
 
 QVector<uint> Modbus::modbusReadData(int functionCode, int startAddress, int noOfItems)
@@ -310,6 +362,15 @@ QVector<uint> Modbus::modbusReadData(int functionCode, int startAddress, int noO
     memset(dest, 0, 1024);
     int ret = -1; //return value from read functions
     bool is16Bit = false;
+
+    /** \note : shouldn't we check for the num of items?
+      const int BuffSize = 1024;
+      const int MultFactor = (_FC_READ_INPUT_REGISTERS == functionCode || _FC_READ_INPUT_REGISTERS == functionCode) ? 2 : 1;
+      const int NoOfBytesNeeded = MultFactor * noOfItems;
+      if (NoOfBytesNeeded > BuffSize) {
+        noOfItems = BuffSize / MultFactor;
+      }
+      */
 
     //request data from modbus
     switch(functionCode)
