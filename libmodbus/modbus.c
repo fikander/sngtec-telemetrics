@@ -325,7 +325,7 @@ static int compute_data_length_after_meta(modbus_t *ctx, uint8_t *msg,
    - read() or recv() error codes
 */
 
-int _modbus_receive_msg(modbus_t *ctx, uint8_t *msg, msg_type_t msg_type)
+int _modbus_receive_msg(modbus_t *ctx, uint8_t *msg, msg_type_t msg_type, uint8_t *responded_request, int request_size)
 {
     int rc;
     fd_set rset;
@@ -334,6 +334,7 @@ int _modbus_receive_msg(modbus_t *ctx, uint8_t *msg, msg_type_t msg_type)
     int length_to_read;
     int msg_length = 0;
     _step_t step;
+    int nibe_correction_done = 0;
 
     if (ctx->debug) {
         if (msg_type == MSG_INDICATION) {
@@ -364,6 +365,7 @@ int _modbus_receive_msg(modbus_t *ctx, uint8_t *msg, msg_type_t msg_type)
     }
 
     while (length_to_read != 0) {
+        printf("Select: %d bytes to read, for %d s and %d us\r\n", length_to_read, p_tv->tv_sec, p_tv->tv_usec);
         rc = ctx->backend->select(ctx, &rset, p_tv, length_to_read);
         if (rc == -1) {
             _error_print(ctx, "select");
@@ -382,6 +384,8 @@ int _modbus_receive_msg(modbus_t *ctx, uint8_t *msg, msg_type_t msg_type)
         }
 
         rc = ctx->backend->recv(ctx, msg + msg_length, length_to_read);
+        printf("Select: read %d bytes, time left %d s and %d us\r\n", rc, p_tv->tv_sec, p_tv->tv_usec);
+
         if (rc == 0) {
             errno = ECONNRESET;
             rc = -1;
@@ -412,6 +416,29 @@ int _modbus_receive_msg(modbus_t *ctx, uint8_t *msg, msg_type_t msg_type)
         msg_length += rc;
         /* Computes remaining bytes */
         length_to_read -= rc;
+
+        /* Correction for NIBE pumps - TODO: Shouldn't be here eventually */
+        if ( (0 == nibe_correction_done) && //only if the correction hasn't been performed during this reception yet
+             (0 != responded_request) && (0 != request_size)) { //we have to have both information provided
+            //so far we take care only of the issue that the first response character is a copy (wrongly) as a last request character
+
+            printf("\r\nChecking the NIBE correction issue...\r\n");
+            //so far in case of our requests, the response should start with the first byte equal to the first byte of the request.
+            if (responded_request[0] != msg[0]) {
+                printf("\r\nMost probably NIBE correction has to be applied... Expected 0x%02x, got 0x%02x\r\n", responded_request[0], msg[0]);
+                //shift bytes by one to the left
+                int i = 1;
+                for (; i < msg_length; ++i) {
+                    msg[i - 1] = msg[i];
+                }
+                //correct reception control values
+                --msg_length;
+                ++length_to_read;
+            }
+
+            //mark this reception as NIBE-correction checked, we won't get here anymore
+            nibe_correction_done = 1;
+        }
 
         if (length_to_read == 0) {
             switch (step) {
@@ -471,7 +498,7 @@ int modbus_receive(modbus_t *ctx, uint8_t *req)
 */
 int modbus_receive_confirmation(modbus_t *ctx, uint8_t *rsp)
 {
-    return _modbus_receive_msg(ctx, rsp, MSG_CONFIRMATION);
+    return _modbus_receive_msg(ctx, rsp, MSG_CONFIRMATION, 0, 0);
 }
 
 static int check_confirmation(modbus_t *ctx, uint8_t *req,
@@ -961,7 +988,7 @@ static int read_io_status(modbus_t *ctx, int function,
         int offset;
         int offset_end;
 
-        rc = _modbus_receive_msg(ctx, rsp, MSG_CONFIRMATION);
+        rc = _modbus_receive_msg(ctx, rsp, MSG_CONFIRMATION, req, req_length);
         if (rc == -1)
             return -1;
 
@@ -1060,7 +1087,7 @@ static int read_registers(modbus_t *ctx, int function, int addr, int nb,
         int offset;
         int i;
 
-        rc = _modbus_receive_msg(ctx, rsp, MSG_CONFIRMATION);
+        rc = _modbus_receive_msg(ctx, rsp, MSG_CONFIRMATION, req, req_length);
         if (rc == -1)
             return -1;
 
@@ -1136,7 +1163,7 @@ static int write_single(modbus_t *ctx, int function, int addr, int value)
         /* Used by write_bit and write_register */
         uint8_t rsp[_MIN_REQ_LENGTH];
 
-        rc = _modbus_receive_msg(ctx, rsp, MSG_CONFIRMATION);
+        rc = _modbus_receive_msg(ctx, rsp, MSG_CONFIRMATION, 0, 0);
         if (rc == -1)
             return -1;
 
@@ -1207,7 +1234,7 @@ int modbus_write_bits(modbus_t *ctx, int addr, int nb, const uint8_t *src)
     if (rc > 0) {
         uint8_t rsp[MAX_MESSAGE_LENGTH];
 
-        rc = _modbus_receive_msg(ctx, rsp, MSG_CONFIRMATION);
+        rc = _modbus_receive_msg(ctx, rsp, MSG_CONFIRMATION, 0, 0);
         if (rc == -1)
             return -1;
 
@@ -1253,7 +1280,7 @@ int modbus_write_registers(modbus_t *ctx, int addr, int nb, const uint16_t *src)
     if (rc > 0) {
         uint8_t rsp[MAX_MESSAGE_LENGTH];
 
-        rc = _modbus_receive_msg(ctx, rsp, MSG_CONFIRMATION);
+        rc = _modbus_receive_msg(ctx, rsp, MSG_CONFIRMATION, 0, 0);
         if (rc == -1)
             return -1;
 
@@ -1316,7 +1343,7 @@ int modbus_write_and_read_registers(modbus_t *ctx,
     if (rc > 0) {
         int offset;
 
-        rc = _modbus_receive_msg(ctx, rsp, MSG_CONFIRMATION);
+        rc = _modbus_receive_msg(ctx, rsp, MSG_CONFIRMATION, 0, 0);
         if (rc == -1)
             return -1;
 
@@ -1357,7 +1384,7 @@ int modbus_report_slave_id(modbus_t *ctx, uint8_t *dest)
         int offset;
         uint8_t rsp[MAX_MESSAGE_LENGTH];
 
-        rc = _modbus_receive_msg(ctx, rsp, MSG_CONFIRMATION);
+        rc = _modbus_receive_msg(ctx, rsp, MSG_CONFIRMATION, 0, 0);
         if (rc == -1)
             return -1;
 

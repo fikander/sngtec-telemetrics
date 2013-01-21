@@ -58,6 +58,17 @@ Modbus::Modbus(KeyValueMap &config, QObject *parent):
     else
         bigEndian = true;
 
+    const char ByteTimeout[] = "byte_timeout";
+    const int DisabledByteTimeout = -1000;
+    if (config.contains(ByteTimeout)) {
+        bool ok;
+        byte_timeout_ms = 1000 * config[ByteTimeout].toInt(&ok);
+        if (!ok)
+            byte_timeout_ms = DisabledByteTimeout;
+    }
+    else
+        byte_timeout_ms = DisabledByteTimeout;
+
     if (config.contains("interval"))
         timer.setInterval(config["interval"].toUInt() * 1000);
     else
@@ -152,6 +163,12 @@ int Modbus::connect()
     response_timeout.tv_sec = timeout;
     response_timeout.tv_usec = 0;
     modbus_set_response_timeout(m_modbus, &response_timeout);
+
+    //set byte response timeout
+    struct timeval response_byte_timeout;
+    response_byte_timeout.tv_sec = byte_timeout_ms / 1000;
+    response_byte_timeout.tv_usec = 1000 * (1000 * byte_timeout_ms - response_byte_timeout.tv_sec);
+    modbus_set_byte_timeout(m_modbus, &response_byte_timeout);
 
     if(m_modbus && modbus_connect(m_modbus) == -1) {
         QERROR << "Connection failed - could not connect to serial port " << portName;

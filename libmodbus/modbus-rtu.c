@@ -315,7 +315,7 @@ int _modbus_rtu_receive(modbus_t *ctx, uint8_t *req)
     modbus_rtu_t *ctx_rtu = ctx->backend_data;
 
     if (ctx_rtu->confirmation_to_ignore) {
-        _modbus_receive_msg(ctx, req, MSG_CONFIRMATION);
+        _modbus_receive_msg(ctx, req, MSG_CONFIRMATION, 0, 0);
         /* Ignore errors and reset the flag */
         ctx_rtu->confirmation_to_ignore = FALSE;
         rc = 0;
@@ -323,7 +323,7 @@ int _modbus_rtu_receive(modbus_t *ctx, uint8_t *req)
             printf("Confirmation to ignore\n");
         }
     } else {
-        rc = _modbus_receive_msg(ctx, req, MSG_INDICATION);
+        rc = _modbus_receive_msg(ctx, req, MSG_INDICATION, 0, 0);
         if (rc == 0) {
             /* The next expected message is a confirmation to ignore */
             ctx_rtu->confirmation_to_ignore = TRUE;

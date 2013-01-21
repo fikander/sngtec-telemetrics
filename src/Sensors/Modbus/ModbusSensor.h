@@ -45,6 +45,7 @@ private:
     int timeout;
     bool modbusDebug;
     bool bigEndian;
+    int byte_timeout_ms;
     QTimer timer;
 
     modbus_t *m_modbus;
