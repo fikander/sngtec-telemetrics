@@ -5,11 +5,13 @@
 #include <QSocketNotifier>
 #include <QTimer>
 #include <QVector>
+#include <QHash>
 
 #include "Sensors/Sensor.h"
 #include "KeyValueMap.h"
 
 #include "modbus.h"
+#include "converter.h"
 
 class Modbus : public Sensor
 {
@@ -35,8 +37,8 @@ private slots:
 
 private:
     void modbusDisconnect();
-    QVector<uint> modbusReadData(int functionCode, int startAddress, int noOfItems);
-    bool modbusWriteData(int functionCode, int startAddress, QVector<uint> vector);
+    QVector<quint16> modbusReadData(int functionCode, int startAddress, int noOfItems);
+    bool modbusWriteData(int functionCode, int startAddress, QVector<quint16> vector);
 
     QString portName;
     char parity;
@@ -50,10 +52,12 @@ private:
 
     modbus_t *m_modbus;
 
+
     class Query
     {
     public:
         Query();
+        ~Query();
         Query(QString name, int address, int count, bool bigEndian = true);
         QString name;
         int slave;
@@ -64,7 +68,9 @@ private:
         char read_function, write_function;
 
         bool queried;
-        QVector<uint> lastResult;
+        QVector<quint16> lastResult;
+        Converter *converter;
+        static QHash<int, Converter*> *_static_converters;
 
         QString toString()
         {
@@ -73,8 +79,35 @@ private:
                     ",addr:" + QString::number(address) +
                     ",cnt:" + QString::number(count) +
                     ",read:0x" + QString::number(read_function, 16) +
-                    ",write:0x" + QString::number(write_function, 16);
+                    ",write:0x" + QString::number(write_function, 16) +
+                    "," + ((0 == converter) ? "missing_converter" : converter->description());
         }
+
+        QVector<quint16> revConvert(const QString &sample) {
+            if (0 != converter) {
+                return converter->revConvert(sample, bigEndian, count);
+            }
+            else {
+                qDebug() << "WARNING : converter not set (revConvert)!";
+                return QVector<quint16>();
+            }
+        }
+
+        QString convert(const QVector<quint16> &vector) {
+            if (0 != converter) {
+                return converter->convertToString(vector, bigEndian);
+            }
+            else {
+                qDebug() << "WARNING : converter not set (convert)!";
+                return "nan";
+            }
+        }
+
+        static QHash<int, Converter*> *converters();
+
+    private:
+        static QHash<int, Converter*> *_converters;
+
     };
     QVector<Query> queries;
 };

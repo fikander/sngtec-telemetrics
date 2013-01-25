@@ -7,6 +7,8 @@
 
 #include "debug.h"
 
+#include "convertersfactory.h"
+
 Modbus::Modbus(KeyValueMap &config, QObject *parent):
     Sensor(parent), m_modbus(NULL)
 {
@@ -108,6 +110,21 @@ Modbus::Modbus(KeyValueMap &config, QObject *parent):
             else
                 QWARNING << "Unknown parameter type: " << parameterType;
 
+            //read converter parameters
+            QString converterType = parameterValue.section(':', 5, 5);
+            QString converterParams = parameterValue.section(':', 6, 6);
+            bool isNone(false);
+            q.converter = ConvertersFactory::create(converterType, converterParams, &isNone);
+            if (0 == q.converter) {
+                //set default converter
+                if (!Query::converters()->contains(q.count) || !isNone) {
+                    QWARNING << q.name << "Converter params:" << converterType << converterParams << "are incorrect and cannot set the default converter";
+                }
+                else {
+                    q.converter = (*Query::converters())[q.count];
+                }
+            }
+
             queries.append(q);
         }
     }
@@ -117,15 +134,35 @@ Modbus::Modbus(KeyValueMap &config, QObject *parent):
         QDEBUG << " - " << queries[i].toString();
 }
 
-
 Modbus::Query::Query(QString name, int address, int count, bool bigEndian):
     name(name), address(address), count(count), bigEndian(bigEndian), read_function(0), write_function(0), queried(false)
 {
 }
 
-Modbus::Query::Query():
-    address(0), count(0), bigEndian(true), read_function(0), write_function(0), queried(false)
+QHash<int, Converter*> *Modbus::Query::_converters = 0;
+QHash<int, Converter *> *Modbus::Query::converters()
 {
+    if (0 == _converters) {
+        _converters = new QHash<int, Converter*>();
+
+        //create default converter for 1-word registers
+        _converters->insert(1, ConvertersFactory::create("linear", "uint16_uint16_1_0"));
+        //create default converter for 2-word registers
+        _converters->insert(2, ConvertersFactory::create("linear", "uint32_uint32_1_0"));
+    }
+    return _converters;
+}
+
+Modbus::Query::Query():
+    address(0), count(0), bigEndian(true), read_function(0), write_function(0), queried(false), converter(0)
+{
+}
+
+Modbus::Query::~Query()
+{
+    //delete converter only if it's not shared among the others
+//    if (!Query::static_converters.values().contains(converter))
+//        delete converter;
 }
 
 Modbus::~Modbus()
@@ -204,26 +241,7 @@ void Modbus::send(QSharedPointer<Message> payload)
         if (found)
         {
             // convert string to vector of uint
-            QVector<uint> vector;
-            ulong value = sample->value.toLong();
-            switch(q.count)
-            {
-            case 2:
-                if (q.bigEndian)
-                {
-                    vector.append((value >> 8) & 0xFFFF); // high
-                    vector.append(value & 0xFFFF); // low
-                }
-                else
-                {
-                    vector.append(value & 0xFFFF); // low
-                    vector.append((value >> 8) & 0xFFFF); // high
-                }
-                break;
-            case 1:
-            default:
-                vector.append(value & 0xFFFF);
-            }
+            QVector<quint16> vector = q.revConvert(sample->value);
 
             //send it to modbus
             modbus_set_slave(m_modbus, q.slave);
@@ -260,7 +278,7 @@ void Modbus::sendAndReceiveData()
         }
 
         modbus_set_slave(m_modbus, q.slave);
-        QVector<uint> result = modbusReadData(q.read_function, q.address, q.count);
+        QVector<quint16> result = modbusReadData(q.read_function, q.address, q.count);
 
         // dont create new messages if value hasnt changed from last sample
         if (q.lastResult == result)
@@ -272,45 +290,34 @@ void Modbus::sendAndReceiveData()
             q.lastResult = result;
 
         if (result.count() == q.count)
-        {
-            ulong value;
-            // turn array of ints into string, based on endianness
-            switch(q.count)
-            {
-            case 2:
-                if (q.bigEndian)
-                    value = result[0] * 0x10000 + result[1];
-                else
-                    value = result[1] * 0x10000 + result[0];
-                break;
-            case 1:
-            default:
-                value = result[0];
-            }
+        {   
+            QString value = q.convert(result);
 
-            QDEBUG << "NEW:" << q.toString() << ": " << QString::number(value);
+            QDEBUG << "NEW:" << q.toString() << ": " << value;
 
             // emit new message
             if (q.eventType == "readonly" || q.eventType == "readwrite")
             {
-                emit received(QSharedPointer<Message>(new MessageSample(q.name, QString::number(value))));
+                emit received(QSharedPointer<Message>(new MessageSample(q.name, value)));
             }
             else if (q.eventType == "alarm")
             {
-                if (value > 0)
-                    emit received(QSharedPointer<Message>(new MessageEvent(q.name, "alarm_on", value)));
+                int alarmValue = value.toInt();
+                if (alarmValue > 0)
+                    emit received(QSharedPointer<Message>(new MessageEvent(q.name, "alarm_on", alarmValue)));
                 else
-                    emit received(QSharedPointer<Message>(new MessageEvent(q.name, "alarm_off", value)));
+                    emit received(QSharedPointer<Message>(new MessageEvent(q.name, "alarm_off", alarmValue)));
             } else
             {
                 // "system_error", "system_warning"
-                emit received(QSharedPointer<Message>(new MessageEvent(q.name, q.eventType, value)));
+                int errWarValue = value.toInt();
+                emit received(QSharedPointer<Message>(new MessageEvent(q.name, q.eventType, errWarValue)));
             }
         }
     }
 }
 
-bool Modbus::modbusWriteData(int functionCode, int startAddress, QVector<uint> vector)
+bool Modbus::modbusWriteData(int functionCode, int startAddress, QVector<quint16> vector)
 {
     if (m_modbus == NULL) return false;
     if (!m_connected) return false;
@@ -369,10 +376,10 @@ bool Modbus::modbusWriteData(int functionCode, int startAddress, QVector<uint> v
     return (elementsCount == ret);
 }
 
-QVector<uint> Modbus::modbusReadData(int functionCode, int startAddress, int noOfItems)
+QVector<quint16> Modbus::modbusReadData(int functionCode, int startAddress, int noOfItems)
 {
-    if (m_modbus == NULL) return QVector<uint>();
-    if (!m_connected) return QVector<uint>();
+    if (m_modbus == NULL) return QVector<quint16>();
+    if (!m_connected) return QVector<quint16>();
 
     uint8_t dest[1024]; //setup memory for data
     uint16_t * dest16 = (uint16_t *) dest;
@@ -416,7 +423,7 @@ QVector<uint> Modbus::modbusReadData(int functionCode, int startAddress, int noO
 
     if(ret == noOfItems)
     {
-        QVector<uint> result;
+        QVector<quint16> result;
         QString string;
         for (int i = 0; i < noOfItems; i++)
         {
@@ -439,5 +446,5 @@ QVector<uint> Modbus::modbusReadData(int functionCode, int startAddress, int noO
         }
      }
 
-    return QVector<uint>();
+    return QVector<quint16>();
 }

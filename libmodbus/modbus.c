@@ -46,6 +46,12 @@ const unsigned int libmodbus_version_micro = LIBMODBUS_VERSION_MICRO;
 /* Max between RTU and TCP max adu length (so TCP) */
 #define MAX_MESSAGE_LENGTH 260
 
+#define ENABLE_NIBE_HACK
+#ifdef ENABLE_NIBE_HACK
+#warning "NIBE heat pump hack is enabled"
+#endif //ENABLE_NIBE_HACK
+
+
 /* 3 steps are used to parse the query */
 typedef enum {
     _STEP_FUNCTION,
@@ -334,8 +340,9 @@ int _modbus_receive_msg(modbus_t *ctx, uint8_t *msg, msg_type_t msg_type, uint8_
     int length_to_read;
     int msg_length = 0;
     _step_t step;
+#ifdef ENABLE_NIBE_HACK
     int nibe_correction_done = 0;
-
+#endif //ENABLE_NIBE_HACK
     if (ctx->debug) {
         if (msg_type == MSG_INDICATION) {
             printf("Waiting for a indication...\n");
@@ -365,7 +372,7 @@ int _modbus_receive_msg(modbus_t *ctx, uint8_t *msg, msg_type_t msg_type, uint8_
     }
 
     while (length_to_read != 0) {
-        printf("Select: %d bytes to read, for %d s and %d us\r\n", length_to_read, p_tv->tv_sec, p_tv->tv_usec);
+        //printf("Select: %d bytes to read, for %d s and %d us\r\n", length_to_read, p_tv->tv_sec, p_tv->tv_usec);
         rc = ctx->backend->select(ctx, &rset, p_tv, length_to_read);
         if (rc == -1) {
             _error_print(ctx, "select");
@@ -384,7 +391,7 @@ int _modbus_receive_msg(modbus_t *ctx, uint8_t *msg, msg_type_t msg_type, uint8_
         }
 
         rc = ctx->backend->recv(ctx, msg + msg_length, length_to_read);
-        printf("Select: read %d bytes, time left %d s and %d us\r\n", rc, p_tv->tv_sec, p_tv->tv_usec);
+        //printf("Select: read %d bytes, time left %d s and %d us\r\n", rc, p_tv->tv_sec, p_tv->tv_usec);
 
         if (rc == 0) {
             errno = ECONNRESET;
@@ -417,15 +424,16 @@ int _modbus_receive_msg(modbus_t *ctx, uint8_t *msg, msg_type_t msg_type, uint8_
         /* Computes remaining bytes */
         length_to_read -= rc;
 
+#ifdef ENABLE_NIBE_HACK
         /* Correction for NIBE pumps - TODO: Shouldn't be here eventually */
         if ( (0 == nibe_correction_done) && //only if the correction hasn't been performed during this reception yet
              (0 != responded_request) && (0 != request_size)) { //we have to have both information provided
             //so far we take care only of the issue that the first response character is a copy (wrongly) as a last request character
-
-            printf("\r\nChecking the NIBE correction issue...\r\n");
             //so far in case of our requests, the response should start with the first byte equal to the first byte of the request.
             if (responded_request[0] != msg[0]) {
-                printf("\r\nMost probably NIBE correction has to be applied... Expected 0x%02x, got 0x%02x\r\n", responded_request[0], msg[0]);
+                if (ctx->debug) {
+                    printf("\r\nNIBE correction is being applied... Expected 0x%02x, got 0x%02x\r\n", responded_request[0], msg[0]);
+                }
                 //shift bytes by one to the left
                 int i = 1;
                 for (; i < msg_length; ++i) {
@@ -439,6 +447,7 @@ int _modbus_receive_msg(modbus_t *ctx, uint8_t *msg, msg_type_t msg_type, uint8_
             //mark this reception as NIBE-correction checked, we won't get here anymore
             nibe_correction_done = 1;
         }
+#endif //ENABLE_NIBE_HACK
 
         if (length_to_read == 0) {
             switch (step) {
@@ -1473,6 +1482,12 @@ int modbus_get_header_length(modbus_t *ctx)
 
 int modbus_connect(modbus_t *ctx)
 {
+#ifdef ENABLE_NIBE_HACK
+    printf("\r\n*******************************************\r\n");
+    printf("\r\n!!!!!!!!!!!! NIBE hack enabled !!!!!!!!!!!!\r\n");
+    printf("\r\n*******************************************\r\n");
+#endif //ENABLE_NIBE_HACK
+
     return ctx->backend->connect(ctx);
 }
 

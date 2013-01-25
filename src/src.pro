@@ -12,6 +12,8 @@ CONFIG -= app_bundle
 
 INCLUDEPATH += .
 INCLUDEPATH += ../libmodbus
+INCLUDEPATH += ./Sensors
+INCLUDEPATH += ../
 
 LIBS += -L../lib -llibmodbus
 
@@ -33,7 +35,11 @@ HEADERS = Message/message.h \
     Cloud/sngconnect/SNGConnectAPI.h \
     Sensors/CommandProcessor.h \
     Sensors/Modbus/ModbusSensor.h \
-    sha2/sha2.h
+    sha2/sha2.h \
+    Sensors/linearconverter.h \
+    Sensors/convertersfactory.h \
+    Sensors/converter.h \
+    ../staticassert.h
 
 SOURCES =  main.cpp \
     Message/message.cpp \
@@ -50,7 +56,9 @@ SOURCES =  main.cpp \
     Cloud/sngconnect/SNGConnectAPI.cpp \
     Sensors/CommandProcessor.cpp \
     Sensors/Modbus/ModbusSensor.cpp \
-    sha2/sha2.cpp
+    sha2/sha2.cpp \
+    Sensors/linearconverter.cpp \
+    Sensors/convertersfactory.cpp
 
     
 
