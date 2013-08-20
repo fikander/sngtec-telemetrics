@@ -100,7 +100,7 @@ bool APICall::makeHttpRequest(QString method, QString api, QString contents)
 {
     QDEBUG << "Request: " << context->baseUrl.scheme() << context->baseUrl.host() << context->baseUrl.port() << method << api << contents;
 
-    QHttpRequestHeader header(method, QUrl::toPercentEncoding(api, "?&="));
+    QHttpRequestHeader header(method, QUrl::toPercentEncoding(api, "/?&="));
     QByteArray contentsUtf8 = contents.toUtf8();
 
     header.setValue("Host", context->baseUrl.host());
