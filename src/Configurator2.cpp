@@ -70,11 +70,12 @@ void Configurator2::configureCloudsAndSensors()
     {
         m_settings->setArrayIndex(i);
         config = getKeyValueMap(*m_settings);
-        Cloud *cloud = m_cloudFactory->newObject((*config)["type"].toString(), *config);
-        if (cloud != NULL)
+        Cloud *cloud = m_cloudFactory->newObject(
+            (*config)["type"].toString(), *config
+        );
+        if (cloud != NULL) {
             m_clouds.push_back( cloud );
-        else
-        {
+        } else {
             QWARNING << "Unrecognised cloud type: " << (*config)["type"].toString();
         }
         delete config;
@@ -88,11 +89,12 @@ void Configurator2::configureCloudsAndSensors()
     {
         m_settings->setArrayIndex(i);
         config = getKeyValueMap(*m_settings);
-        Sensor *sensor = m_sensorFactory->newObject((*config)["type"].toString(), *config);
-        if (sensor != NULL)
+        Sensor *sensor = m_sensorFactory->newObject(
+            (*config)["type"].toString(), *config
+        );
+        if (sensor != NULL) {
             m_sensors.push_back( sensor );
-        else
-        {
+        } else {
             QWARNING << "Unrecognised sensor type: " << (*config)["type"].toString();
         }
         delete config;
@@ -105,8 +107,12 @@ void Configurator2::configureCloudsAndSensors()
     {
         foreach(Cloud *cloud, m_clouds)
         {
-            QObject::connect(sensor, SIGNAL(received(QSharedPointer<Message>)), cloud, SLOT(send(QSharedPointer<Message>)));
-            QDEBUG << "Sensor received signal: " << sensor->metaObject()->className() << " with cloud send: " << cloud->metaObject()->className();
+            QObject::connect(
+                sensor, SIGNAL(received(QSharedPointer<Message>)),
+                cloud, SLOT(send(QSharedPointer<Message>))
+            );
+            QDEBUG << "Sensor received signal: " <<sensor->metaObject()->className() <<
+                    " with cloud send: " << cloud->metaObject()->className();
         }
     }
 
@@ -116,8 +122,11 @@ void Configurator2::configureCloudsAndSensors()
     {
         foreach(Sensor *sensor, m_sensors)
         {
-            QObject::connect(cloud, SIGNAL(received(QSharedPointer<Message>)), sensor, SLOT(send(QSharedPointer<Message>)));
-            QDEBUG << "Cloud received signal: " << cloud->metaObject()->className() << " with sensor send: " << sensor->metaObject()->className();
+            QObject::connect(
+                cloud, SIGNAL(received(QSharedPointer<Message>)),
+                sensor, SLOT(send(QSharedPointer<Message>)));
+            QDEBUG << "Cloud received signal: " << cloud->metaObject()->className() <<
+                    " with sensor send: " << sensor->metaObject()->className();
         }
     }
 

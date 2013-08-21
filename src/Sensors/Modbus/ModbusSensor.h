@@ -37,8 +37,10 @@ private slots:
 
 private:
     void modbusDisconnect();
-    QVector<quint16> modbusReadData(int functionCode, int startAddress, int noOfItems);
-    bool modbusWriteData(int functionCode, int startAddress, QVector<quint16> vector);
+    QVector<quint16> modbusReadData(
+        int functionCode, int startAddress, int noOfItems);
+    bool modbusWriteData(
+        int functionCode, int startAddress, QVector<quint16> vector);
 
     QString portName;
     char parity;
@@ -49,6 +51,7 @@ private:
     bool bigEndian;
     int byte_timeout_ms;
     QTimer timer;
+    qint64 max_interval;
 
     modbus_t *m_modbus;
 
@@ -69,6 +72,7 @@ private:
 
         bool queried;
         QVector<quint16> lastResult;
+        int last_result_sent_timestamp;
         Converter *converter;
         static QHash<int, Converter*> *_static_converters;
 
@@ -86,8 +90,7 @@ private:
         QVector<quint16> revConvert(const QString &sample) {
             if (0 != converter) {
                 return converter->revConvert(sample, bigEndian, count);
-            }
-            else {
+            } else {
                 qDebug() << "WARNING : converter not set (revConvert)!";
                 return QVector<quint16>();
             }
@@ -96,8 +99,7 @@ private:
         QString convert(const QVector<quint16> &vector) {
             if (0 != converter) {
                 return converter->convertToString(vector, bigEndian);
-            }
-            else {
+            } else {
                 qDebug() << "WARNING : converter not set (convert)!";
                 return "nan";
             }

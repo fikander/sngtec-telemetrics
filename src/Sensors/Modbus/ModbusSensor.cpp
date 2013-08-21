@@ -67,17 +67,24 @@ Modbus::Modbus(KeyValueMap &config, QObject *parent):
         byte_timeout_ms = 1000 * config[ByteTimeout].toInt(&ok);
         if (!ok)
             byte_timeout_ms = DisabledByteTimeout;
-    }
-    else
+    } else {
         byte_timeout_ms = DisabledByteTimeout;
-
-    if (config.contains("interval"))
+    }
+    if (config.contains("interval")) {
         timer.setInterval(config["interval"].toUInt() * 1000);
-    else
+    } else {
         timer.setInterval(60 * 1000);
+    }
+
+    // maximum interval between value refreshes [in seconds]
+    if (config.contains("max_interval")) {
+        max_interval_s = config["max_interval"].toUInt() * 1000;
+    } else {
+        max_interval_s = 60 * 60 * 1000;
+    }
 
     // find all parameters in the form:
-    //    parameter_NAME=[readonly|readwrite|alarm]:[holding_register|input_register]:ADDRESS:COUNT
+    // parameter_NAME=[readonly|readwrite|alarm]:[holding_register|input_register]:ADDRESS:COUNT
     foreach (QString key, config.keys())
     {
         if (key.startsWith("parameter_", Qt::CaseInsensitive))
@@ -100,27 +107,30 @@ Modbus::Modbus(KeyValueMap &config, QObject *parent):
             if (parameterType == "holding_register")
             {
                 q.read_function = _FC_READ_HOLDING_REGISTERS;
-                q.write_function = q.count > 1 ? _FC_WRITE_MULTIPLE_REGISTERS : _FC_WRITE_SINGLE_REGISTER;
-            }
-            else if (parameterType == "input_register")
-            {
+                q.write_function = q.count > 1 ?
+                    _FC_WRITE_MULTIPLE_REGISTERS : _FC_WRITE_SINGLE_REGISTER;
+            } else if (parameterType == "input_register") {
                 q.read_function = _FC_READ_INPUT_REGISTERS;
-                q.write_function = q.count > 1 ? _FC_WRITE_MULTIPLE_REGISTERS : _FC_WRITE_SINGLE_REGISTER;
-            }
-            else
+                q.write_function = q.count > 1 ?
+                    _FC_WRITE_MULTIPLE_REGISTERS : _FC_WRITE_SINGLE_REGISTER;
+            } else {
                 QWARNING << "Unknown parameter type: " << parameterType;
+            }
 
             //read converter parameters
             QString converterType = parameterValue.section(':', 5, 5);
             QString converterParams = parameterValue.section(':', 6, 6);
             bool isNone(false);
-            q.converter = ConvertersFactory::create(converterType, converterParams, &isNone);
+            q.converter = ConvertersFactory::create(
+                converterType, converterParams, &isNone
+            );
             if (0 == q.converter) {
                 //set default converter
                 if (!Query::converters()->contains(q.count) || !isNone) {
-                    QWARNING << q.name << "Converter params:" << converterType << converterParams << "are incorrect and cannot set the default converter";
-                }
-                else {
+                    QWARNING << q.name << "Converter params:" <<
+                        converterType << converterParams <<
+                        "are incorrect and cannot set the default converter";
+                } else {
                     q.converter = (*Query::converters())[q.count];
                 }
             }
@@ -130,16 +140,19 @@ Modbus::Modbus(KeyValueMap &config, QObject *parent):
     }
 
     QDEBUG << "Found following parameters to track:";
-    for (int i = 0; i < queries.count(); i++)
+    for (int i = 0; i < queries.count(); i++) {
         QDEBUG << " - " << queries[i].toString();
+    }
 }
 
 Modbus::Query::Query(QString name, int address, int count, bool bigEndian):
-    name(name), address(address), count(count), bigEndian(bigEndian), read_function(0), write_function(0), queried(false)
+    name(name), address(address), count(count), bigEndian(bigEndian),
+    read_function(0), write_function(0), queried(false),
+    last_result_sent_timestamp(0), converter(0)
 {
 }
 
-QHash<int, Converter*> *Modbus::Query::_converters = 0;
+QHash<int, Converter *> *Modbus::Query::_converters = 0;
 QHash<int, Converter *> *Modbus::Query::converters()
 {
     if (0 == _converters) {
@@ -154,7 +167,9 @@ QHash<int, Converter *> *Modbus::Query::converters()
 }
 
 Modbus::Query::Query():
-    address(0), count(0), bigEndian(true), read_function(0), write_function(0), queried(false), converter(0)
+    address(0), count(0), bigEndian(true),
+    read_function(0), write_function(0), queried(false),
+    last_result_sent_timestamp(0), converter(0)
 {
 }
 
@@ -188,12 +203,18 @@ int Modbus::connect()
 {
     modbusDisconnect();
 
-    m_modbus = modbus_new_rtu(portName.toAscii().constData(), bandwidth, parity, dataBits, stopBits);
+    m_modbus = modbus_new_rtu(
+        portName.toAscii().constData(), bandwidth, parity, dataBits, stopBits
+    );
 
     //Debug messages from libmodbus
     modbus_set_debug(m_modbus, modbusDebug);
 
-    modbus_set_error_recovery(m_modbus, (modbus_error_recovery_mode)(MODBUS_ERROR_RECOVERY_LINK || MODBUS_ERROR_RECOVERY_PROTOCOL));
+    modbus_set_error_recovery(
+        m_modbus,
+        (modbus_error_recovery_mode)(MODBUS_ERROR_RECOVERY_LINK ||
+                                     MODBUS_ERROR_RECOVERY_PROTOCOL)
+    );
 
     //Response timeout
     struct timeval response_timeout;
@@ -204,11 +225,13 @@ int Modbus::connect()
     //set byte response timeout
     struct timeval response_byte_timeout;
     response_byte_timeout.tv_sec = byte_timeout_ms / 1000;
-    response_byte_timeout.tv_usec = 1000 * (1000 * byte_timeout_ms - response_byte_timeout.tv_sec);
+    response_byte_timeout.tv_usec =
+        1000 * (1000 * byte_timeout_ms - response_byte_timeout.tv_sec);
     modbus_set_byte_timeout(m_modbus, &response_byte_timeout);
 
     if(m_modbus && modbus_connect(m_modbus) == -1) {
-        QERROR << "Connection failed - could not connect to serial port " << portName;
+        QERROR << "Connection failed - could not connect to serial port " <<
+            portName;
         m_connected = false;
         return 1;
     }
@@ -216,11 +239,19 @@ int Modbus::connect()
         m_connected = true;
 
     timer.start();
-    QObject::connect(&timer, SIGNAL(timeout()), this, SLOT(sendAndReceiveData()));
+    QObject::connect(
+        &timer, SIGNAL(timeout()),
+        this, SLOT(sendAndReceiveData())
+    );
 
     return 0;
 }
 
+/**
+ * @brief Modbus::send
+ * Send message to modbus device.
+ * @param payload
+ */
 void Modbus::send(QSharedPointer<Message> payload)
 {
     if (payload->getType() == Message::MsgSample)
@@ -246,18 +277,13 @@ void Modbus::send(QSharedPointer<Message> payload)
             //send it to modbus
             modbus_set_slave(m_modbus, q.slave);
             if (!modbusWriteData(q.write_function, q.address, vector)) {
-                QWARNING << "Couldn't write" << sample->value << "for key" << sample->key;
+                QWARNING << "Couldn't write " << sample->value <<
+                    " for key" << sample->key;
             }
-
-        }
-        else
-        {
+        { else {
             QWARNING << "Unknown messsage key: " << payload->toString();
         }
-
-    }
-    else
-    {
+    } else {
         QWARNING << "Cannot handle this message: " << payload->toString();
     }
 }
@@ -271,23 +297,27 @@ void Modbus::sendAndReceiveData()
         // query constants only once at the beginning
         if (q.eventType == "constant")
         {
-            if (q.queried)
+            if (q.queried) {
                 continue;
-            else
-                q.queried = true;
+            }
+            q.queried = true;
         }
 
         modbus_set_slave(m_modbus, q.slave);
-        QVector<quint16> result = modbusReadData(q.read_function, q.address, q.count);
+        QVector<quint16> result = modbusReadData(
+            q.read_function, q.address, q.count
+        );
 
         // dont create new messages if value hasnt changed from last sample
+        timestamp = QDateTime::currentMSecsSinceEpoch();
         if (q.lastResult == result)
         {
             QDEBUG << "OLD:" << q.toString();
-            continue;
+            if (timestamp - q.last_result_sent_timestamp < max_interval)
+                continue;
         }
-        else
-            q.lastResult = result;
+        q.lastResult = result;
+        q.last_result_sent_timestamp = timestamp;
 
         if (result.count() == q.count)
         {   
@@ -298,26 +328,32 @@ void Modbus::sendAndReceiveData()
             // emit new message
             if (q.eventType == "readonly" || q.eventType == "readwrite")
             {
-                emit received(QSharedPointer<Message>(new MessageSample(q.name, value)));
-            }
-            else if (q.eventType == "alarm")
-            {
+                emit received(
+                    QSharedPointer<Message>(new MessageSample(q.name, value))
+                );
+            } else if (q.eventType == "alarm") {
                 int alarmValue = value.toInt();
                 if (alarmValue > 0)
-                    emit received(QSharedPointer<Message>(new MessageEvent(q.name, "alarm_on", alarmValue)));
+                    emit received(QSharedPointer<Message>(
+                        new MessageEvent(q.name, "alarm_on", alarmValue))
+                    );
                 else
-                    emit received(QSharedPointer<Message>(new MessageEvent(q.name, "alarm_off", alarmValue)));
-            } else
-            {
+                    emit received(QSharedPointer<Message>(
+                        new MessageEvent(q.name, "alarm_off", alarmValue))
+                    );
+            } else {
                 // "system_error", "system_warning"
                 int errWarValue = value.toInt();
-                emit received(QSharedPointer<Message>(new MessageEvent(q.name, q.eventType, errWarValue)));
+                emit received(QSharedPointer<Message>(
+                    new MessageEvent(q.name, q.eventType, errWarValue))
+                );
             }
         }
     }
 }
 
-bool Modbus::modbusWriteData(int functionCode, int startAddress, QVector<quint16> vector)
+bool Modbus::modbusWriteData(
+    int functionCode, int startAddress, QVector<quint16> vector)
 {
     if (m_modbus == NULL) return false;
     if (!m_connected) return false;
@@ -328,12 +364,14 @@ bool Modbus::modbusWriteData(int functionCode, int startAddress, QVector<quint16
     memset(src, 0, BuffSize);
     int ret = -1; //return value from write functions
 
-    const bool is8bit = (_FC_WRITE_MULTIPLE_COILS == functionCode);//_FC_WRITE_SINGLE_COIL not included, since modbus_write_bit expects int
+    //_FC_WRITE_SINGLE_COIL not included, since modbus_write_bit expects int
+    const bool is8bit = (_FC_WRITE_MULTIPLE_COILS == functionCode);
 
     const int BuffElementsCount = is8bit ? BuffSize : BuffSize / 2;
 
-    //we make sure we won't write behind the buffer
-    const int elementsCount = (vector.count() <= BuffElementsCount) ? vector.count() : BuffElementsCount;
+    //make sure we won't write behind the buffer
+    const int elementsCount =
+        (vector.count() <= BuffElementsCount) ? vector.count() : BuffElementsCount;
 
     for (int i = 0; i < elementsCount; i++)
     {
@@ -348,7 +386,8 @@ bool Modbus::modbusWriteData(int functionCode, int startAddress, QVector<quint16
         //int modbus_write_bit(modbus_t *ctx, int coil_addr, int status);
         ret = modbus_write_bit(m_modbus, startAddress, src16[0]);
         if (1 != elementsCount)
-            QDEBUG << "Not all the data bits got written to the coils (expected:" << elementsCount << ", written 1)";
+            QDEBUG << "Not all the data bits got written to the coils (expected:" <<
+                elementsCount << ", written 1)";
         break;
     }
     case (_FC_WRITE_SINGLE_REGISTER): {
@@ -356,7 +395,8 @@ bool Modbus::modbusWriteData(int functionCode, int startAddress, QVector<quint16
         //! \note the value is cast to int, what about the negative ones? Is this a server task to convert it accordingly?
         ret = modbus_write_register(m_modbus, startAddress, src16[0]);
         if (1 != elementsCount)
-            QDEBUG << "Not all the data got written to the register (expected:" << elementsCount << ", written 1)";
+            QDEBUG << "Not all the data got written to the register (expected:" <<
+                elementsCount << ", written 1)";
         break;
     }
     case (_FC_WRITE_MULTIPLE_COILS): {
@@ -376,7 +416,8 @@ bool Modbus::modbusWriteData(int functionCode, int startAddress, QVector<quint16
     return (elementsCount == ret);
 }
 
-QVector<quint16> Modbus::modbusReadData(int functionCode, int startAddress, int noOfItems)
+QVector<quint16> Modbus::modbusReadData(
+    int functionCode, int startAddress, int noOfItems)
 {
     if (m_modbus == NULL) return QVector<quint16>();
     if (!m_connected) return QVector<quint16>();
@@ -400,20 +441,28 @@ QVector<quint16> Modbus::modbusReadData(int functionCode, int startAddress, int 
     switch(functionCode)
     {
             case _FC_READ_COILS:
-                    ret = modbus_read_bits(m_modbus, startAddress, noOfItems, dest);
+                    ret = modbus_read_bits(
+                        m_modbus, startAddress, noOfItems, dest
+                    );
                     break;
 
             case _FC_READ_DISCRETE_INPUTS:
-                    ret = modbus_read_input_bits(m_modbus, startAddress, noOfItems, dest);
+                    ret = modbus_read_input_bits(
+                        m_modbus, startAddress, noOfItems, dest
+                    );
                     break;
 
             case _FC_READ_HOLDING_REGISTERS:
-                    ret = modbus_read_registers(m_modbus, startAddress, noOfItems, dest16);
+                    ret = modbus_read_registers(
+                        m_modbus, startAddress, noOfItems, dest16
+                    );
                     is16Bit = true;
                     break;
 
             case _FC_READ_INPUT_REGISTERS:
-                    ret = modbus_read_input_registers(m_modbus, startAddress, noOfItems, dest16);
+                    ret = modbus_read_input_registers(
+                        m_modbus, startAddress, noOfItems, dest16
+                    );
                     is16Bit = true;
                     break;
 
@@ -436,13 +485,15 @@ QVector<quint16> Modbus::modbusReadData(int functionCode, int startAddress, int 
     else
     {
         if(ret < 0) {
-                QWARNING << "Slave threw exception  >  " << ret << modbus_strerror(errno);
+                QWARNING << "Slave threw exception  >  " <<
+                    ret << modbus_strerror(errno);
 
                 // TODO: prepare event message with error
 
         }
         else {
-                QWARNING << "Number of registers returned does not match number of registers requested!. ["  << modbus_strerror(errno) << "]";
+                QWARNING << "Number of registers returned does not match number of registers requested!. ["  <<
+                    modbus_strerror(errno) << "]";
         }
      }
 

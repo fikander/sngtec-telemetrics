@@ -43,10 +43,11 @@ APICall::~APICall()
 
 QString APICall::hmacSha256(QByteArray baseString)
 {
-    int blockSize = 64; // HMAC-SHA-1 block size, defined in SHA-1 standard
-    if (context->apiKey.length() > blockSize) { // if key is longer than block size (64), reduce key length with SHA-1 compression
-
-        //context->apiKey = QCryptographicHash::hash(context->apiKey, QCryptographicHash::Sha1);
+    // HMAC-SHA-1 block size, defined in SHA-1 standard
+    int blockSize = 64;
+    if (context->apiKey.length() > blockSize) {
+        // if key is longer than block size (64),
+        // reduce key length with SHA-1 compression
 
         SHA256_CTX      tctx;
         QByteArray tk;
@@ -65,8 +66,10 @@ QString APICall::hmacSha256(QByteArray baseString)
     // Hamming distance (http://en.wikipedia.org/wiki/Hamming_distance)
 
     for (int i = 0; i < context->apiKey.length(); i++) {
-        innerPadding[i] = innerPadding[i] ^ context->apiKey.at(i); // XOR operation between every byte in key and innerpadding, of key length
-        outerPadding[i] = outerPadding[i] ^ context->apiKey.at(i); // XOR operation between every byte in key and outerpadding, of key length
+        // XOR operation between every byte in key and innerpadding, of key length
+        innerPadding[i] = innerPadding[i] ^ context->apiKey.at(i);
+        // XOR operation between every byte in key and outerpadding, of key length
+        outerPadding[i] = outerPadding[i] ^ context->apiKey.at(i);
     }
 
     // result = hash ( outerPadding CONCAT hash ( innerPadding CONCAT baseString ) ).toBase64
@@ -98,8 +101,11 @@ QString APICall::hmacSha256(QByteArray baseString)
 
 bool APICall::makeHttpRequest(QString method, QString api, QString contents)
 {
-    QDEBUG << "Request: " << context->baseUrl.scheme() << context->baseUrl.host() << context->baseUrl.port() << method << api << contents;
+    QDEBUG << "Request: " << context->baseUrl.scheme() <<
+        context->baseUrl.host() << context->baseUrl.port() <<
+        method << api << contents;
 
+    //TODO: only percent encode the part of the URL after first '?' 
     QHttpRequestHeader header(method, QUrl::toPercentEncoding(api, "/?&="));
     QByteArray contentsUtf8 = contents.toUtf8();
 
@@ -108,7 +114,8 @@ bool APICall::makeHttpRequest(QString method, QString api, QString contents)
     header.setValue("Signature", hmacSha256(api.toAscii() + ":" + contentsUtf8));
 
     http.setHost(context->baseUrl.host(),
-        context->baseUrl.scheme() == "https" ? QHttp::ConnectionModeHttps : QHttp::ConnectionModeHttp,
+        context->baseUrl.scheme() == ("https" ?
+            QHttp::ConnectionModeHttps : QHttp::ConnectionModeHttp),
         context->baseUrl.port());
     requestId = http.request(header, contentsUtf8);
 
@@ -134,7 +141,7 @@ void APICall::done(bool error)
     if (error)
     {
         QWARNING << "HTTP connection ERROR (request " << requestId << "): " <<
-                    context->baseUrl.toString() << http.error() << http.errorString();
+            context->baseUrl.toString() << http.error() << http.errorString();
     }
     else
     {
@@ -142,13 +149,14 @@ void APICall::done(bool error)
         if (response.statusCode() >= 400)
         {
             QWARNING << "HTTP ERROR (request " << requestId << "):" <<
-                        QVariant(response.statusCode()).toString() <<
-                        context->baseUrl.toString() << getMethod() << getAPI() << getContent() << "server said: " << http.readAll();
+                QVariant(response.statusCode()).toString() <<
+                context->baseUrl.toString() << getMethod() <<
+                getAPI() << getContent() << "server said: " << http.readAll();
         }
         else
         {
             QDEBUG << "HTTP call SUCCESS (request " << requestId << "): " <<
-                      QVariant(response.statusCode()).toString();
+                QVariant(response.statusCode()).toString();
         }
     }
 }
@@ -250,7 +258,8 @@ APICallGetDataStreams::APICallGetDataStreams(
         QSharedPointer<Message> semaphore,
         QString filter,
         QQueue<QSharedPointer<Message> > *receivedMessages) :
-    APICall(context), semaphore(semaphore), filter(filter), receivedMessages(receivedMessages)
+    APICall(context), semaphore(semaphore), filter(filter),
+    receivedMessages(receivedMessages)
 {
     semaphore->setLocked(true);
 }
@@ -261,9 +270,9 @@ APICallGetDataStreams::APICallGetDataStreams(
  * @param response
  * @param result
  */
-void APICallGetDataStreams::parseJSONResponse(QString response, QQueue< QSharedPointer<Message> > &result)
+void APICallGetDataStreams::parseJSONResponse(
+        QString response, QQueue< QSharedPointer<Message> > &result)
 {
-
     QScriptValue sc, datastreams;
     QScriptEngine engine;
     sc = engine.evaluate("(" + response + ")");
@@ -277,14 +286,20 @@ void APICallGetDataStreams::parseJSONResponse(QString response, QQueue< QSharedP
         while (it.hasNext()) {
             it.next();
             // skip non-dictionary items in the 'datastreams' array
-            if (!it.value().isObject())
+            if (!it.value().isObject()) {
                 continue;
+            }
 
-            QScriptValue value_requested_at = it.value().property("value_requested_at");
-            QScriptValue requested_value = it.value().property("requested_value");
-            QScriptValue label = it.value().property("label");
+            QScriptValue value_requested_at =
+                it.value().property("value_requested_at");
+            QScriptValue requested_value =
+                it.value().property("requested_value");
+            QScriptValue label =
+                it.value().property("label");
 
-            if (!(value_requested_at.isValid() && requested_value.isValid() && label.isValid()))
+            if ( !( value_requested_at.isValid() &&
+                    requested_value.isValid() &&
+                    label.isValid()))
             {
                 QWARNING << "Wrong format of response: " << response;
                 return;
@@ -307,8 +322,13 @@ void APICallGetDataStreams::parseJSONResponse(QString response, QQueue< QSharedP
                 return;
             }
 
-            // TODO: f_value will be used if MessageSample gets changed to use floats instead of strings for values
-            result.append(QSharedPointer<MessageSample>(new MessageSample(label.toString(), requested_value.toString(), d_timedate)));
+            // TODO: f_value will be used if MessageSample gets changed to
+            // use floats instead of strings for values
+            result.append(QSharedPointer<MessageSample>(
+                new MessageSample(label.toString(),
+                    requested_value.toString(), d_timedate)
+                )
+            );
         }
     }
     else
@@ -323,7 +343,7 @@ void APICallGetDataStreams::done(bool error)
 
     if (!error && http.lastResponse().statusCode() == 200)
     {
-        QString test="\
+//        QString test="\
 //{\
 // \"datastreams\" : [ {\
 //     \"value_requested_at\" : \"2010-06-25T11:54:17.454020Z\",\
@@ -361,9 +381,9 @@ APICallGetCommands::APICallGetCommands(
  * @param response
  * @param result
  */
-void APICallGetCommands::parseJSONResponse(QString response, QQueue< QSharedPointer<Message> > &result)
+void APICallGetCommands::parseJSONResponse(
+    QString response, QQueue< QSharedPointer<Message> > &result)
 {
-
     QScriptValue sc, commands;
     QScriptEngine engine;
     sc = engine.evaluate("(" + response + ")");
@@ -378,11 +398,14 @@ void APICallGetCommands::parseJSONResponse(QString response, QQueue< QSharedPoin
         {
             it.next();
             // skip non-dictionary items in the 'commands' array
-            if (!it.value().isObject())
+            if (!it.value().isObject()) {
                 continue;
+            }
 
-            QScriptValue command = it.value().property("command");
-            QScriptValue arguments = it.value().property("arguments");
+            QScriptValue command =
+                it.value().property("command");
+            QScriptValue arguments =
+                it.value().property("arguments");
             QMap< QString, QVariant > argumentsMap;
 
             if (!command.isValid())
@@ -403,11 +426,14 @@ void APICallGetCommands::parseJSONResponse(QString response, QQueue< QSharedPoin
             else if (arguments.isValid())
             {
                 // 'arguments' is there but it's not an object!
-                QWARNING << "Problem parsing arguments for command " << command.toString() << ": "<< arguments.toString();
+                QWARNING << "Problem parsing arguments for command " <<
+                    command.toString() << ": "<< arguments.toString();
                 return;
             }
 
-            result.append(QSharedPointer<MessageRequest>(new MessageRequest(command.toString(), argumentsMap)));
+            result.append(QSharedPointer<MessageRequest>(
+                new MessageRequest(command.toString(), argumentsMap))
+            );
         }
     }
     else
