@@ -84,25 +84,24 @@ void SNGConnectCloud::cleanupProcessedMessages()
     foreach(QSharedPointer<Message> msg, toSend)
     {
         // remove from the queue when processed or permanently failed
-        if (msg->isProcessed())
+        if (msg->isProcessed()) {
             toRemove.append(i);
-        else if (msg->getProcessingFailed() > toSendMessageFailureCountThreshold)
-        {
-            QERROR << "Message failed to be processed >" << toSendMessageFailureCountThreshold << " times, deleting! : " << msg->toString();
+        } else if (msg->getProcessingFailed() > toSendMessageFailureCountThreshold) {
+            QERROR << "Message failed to be processed >" <<
+                toSendMessageFailureCountThreshold << " times, deleting! : "
+                << msg->toString();
             toRemove.append(i);
         }
         ++i;
     }
 
     int removed = 0;
-    foreach(int idx, toRemove)
-    {
+    foreach(int idx, toRemove) {
         toSend.removeAt(idx - removed++);
     }
 
     // too many: remove some old messages
-    if (toSend.count() > toSendMessagesErrorThreshold)
-    {
+    if (toSend.count() > toSendMessagesErrorThreshold) {
         int countToRemove = toSend.count() - toSendMessagesErrorThreshold;
         QERROR << "Too many messages in the queue, removing " << countToRemove<< " oldest!";
 
@@ -111,12 +110,9 @@ void SNGConnectCloud::cleanupProcessedMessages()
     }
 
     // close to overfilling the queue - warn about stale messages
-    if (toSend.count() > toSendMessagesWarningThreshold)
-    {
+    if (toSend.count() > toSendMessagesWarningThreshold) {
         QWARNING << toSend.count() << " messages not sent yet!";
-    }
-    else
-    {
+    } else {
         QDEBUG << "Cleaned up " << removed << " messages.";
     }
 }

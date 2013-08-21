@@ -78,9 +78,9 @@ Modbus::Modbus(KeyValueMap &config, QObject *parent):
 
     // maximum interval between value refreshes [in seconds]
     if (config.contains("max_interval")) {
-        max_interval_s = config["max_interval"].toUInt() * 1000;
+        max_interval = config["max_interval"].toUInt() * 1000;
     } else {
-        max_interval_s = 60 * 60 * 1000;
+        max_interval = 60 * 60 * 1000;
     }
 
     // find all parameters in the form:
@@ -280,7 +280,7 @@ void Modbus::send(QSharedPointer<Message> payload)
                 QWARNING << "Couldn't write " << sample->value <<
                     " for key" << sample->key;
             }
-        { else {
+        } else {
             QWARNING << "Unknown messsage key: " << payload->toString();
         }
     } else {
@@ -309,7 +309,7 @@ void Modbus::sendAndReceiveData()
         );
 
         // dont create new messages if value hasnt changed from last sample
-        timestamp = QDateTime::currentMSecsSinceEpoch();
+        qint64 timestamp = QDateTime::currentMSecsSinceEpoch();
         if (q.lastResult == result)
         {
             QDEBUG << "OLD:" << q.toString();

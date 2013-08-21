@@ -114,8 +114,8 @@ bool APICall::makeHttpRequest(QString method, QString api, QString contents)
     header.setValue("Signature", hmacSha256(api.toAscii() + ":" + contentsUtf8));
 
     http.setHost(context->baseUrl.host(),
-        context->baseUrl.scheme() == ("https" ?
-            QHttp::ConnectionModeHttps : QHttp::ConnectionModeHttp),
+        context->baseUrl.scheme() == "https" ?
+            QHttp::ConnectionModeHttps : QHttp::ConnectionModeHttp,
         context->baseUrl.port());
     requestId = http.request(header, contentsUtf8);
 
@@ -177,8 +177,7 @@ QString APICallSendDatastreamSamples::getContent()
     QString content = "{\"datapoints\":[";
     bool first = true;
 
-    foreach(QSharedPointer<MessageSample> sample, samples)
-    {
+    foreach(QSharedPointer<MessageSample> sample, samples) {
         Q_ASSERT(sample->isLocked());
 
         // {\"at\":\"2010-05-20T11:01:44Z\",\"value\":\"295\"},
@@ -197,16 +196,16 @@ void APICallSendDatastreamSamples::done(bool error)
 {
     APICall::done(error);
 
-    if (!error && http.lastResponse().statusCode() == 200)
+    if (!error && http.lastResponse().statusCode() == 200) {
         foreach(QSharedPointer<MessageSample> sample, samples)
             sample->setProcessed();
-    else
+    } else {
         // unlock so that Cloud picks them up and sends later
-        foreach(QSharedPointer<MessageSample> sample, samples)
-        {
+        foreach(QSharedPointer<MessageSample> sample, samples) {
             sample->setLocked(false);
             sample->processingFailed();
         }
+    }
 }
 
 
@@ -242,10 +241,9 @@ void APICallSendEvent::done(bool error)
 {
     APICall::done(error);
 
-    if (!error && http.lastResponse().statusCode() == 200)
+    if (!error && http.lastResponse().statusCode() == 200) {
         event->setProcessed();
-    else
-    {
+    } else {
         event->setLocked(false);
         event->processingFailed();
     }
