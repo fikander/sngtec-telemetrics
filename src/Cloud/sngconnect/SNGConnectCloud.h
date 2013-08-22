@@ -28,15 +28,18 @@ signals:
 private:
     QTimer timer;
     QQueue< QSharedPointer<Message> > toSend;
-    QQueue< QSharedPointer<Message> > receivedMessages; // dispatched as received signal (for sensors)
+    // dispatched as received signal (for sensors)
+    QQueue< QSharedPointer<Message> > receivedMessages;
 
     QSharedPointer<SNGConnectAPI> api;
 
     // queue length that produces warning
     int toSendMessagesWarningThreshold;
-    // queue of messages cannot become longer that this. oldest messages will be deleted
+    // queue of messages cannot become longer that this.
+    // oldest messages will be deleted
     int toSendMessagesErrorThreshold;
-    // how many times a single message has to fail to be processed to be removed from queue
+    // how many times a single message has to fail to be processed
+    // to be removed from queue
     int toSendMessageFailureCountThreshold;
 
     void cleanupProcessedMessages();
@@ -47,7 +50,8 @@ private slots:
     void sendAndReceiveData();
 
 private:
-    // using messages as poor man semaphores to avoid calling some APIs while others haven't finished
+    // using messages as poor man semaphores to avoid calling some APIs
+    // while others haven't finished
     QSharedPointer<Message> semaphore1, semaphore2;
 
     void processResponseMessages(QList< QSharedPointer<Message> > &responses);

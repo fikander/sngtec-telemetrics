@@ -26,7 +26,7 @@ public slots:
 
 signals:
     /**
-     * Received command or sample - update of paraemter value - from cloud
+     * Received command or sample - update of parameter value - from cloud
      * Consumed by sensors.
      */
     void received(QSharedPointer<Message> payload);

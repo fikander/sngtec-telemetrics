@@ -10,6 +10,7 @@
 
 #include "sha2/sha2.h"
 
+
 SNGConnectAPI::SNGConnectAPI(KeyValueMap &config)
 {
     if (config.contains("baseurl"))
@@ -25,9 +26,11 @@ SNGConnectAPI::SNGConnectAPI(KeyValueMap &config)
         apiKey = config["api_key"].toByteArray();
 }
 
+
 SNGConnectAPI::~SNGConnectAPI()
 {
 }
+
 
 APICall::APICall(QSharedPointer<SNGConnectAPI> context):
     context(context)
@@ -35,11 +38,13 @@ APICall::APICall(QSharedPointer<SNGConnectAPI> context):
     requestId = 0;
 }
 
+
 APICall::~APICall()
 {
     //QDEBUG << "Deleting APICall " << requestId;
     context.clear();
 }
+
 
 QString APICall::hmacSha256(QByteArray baseString)
 {
@@ -130,6 +135,7 @@ void APICall::invoke()
     //QDEBUG << "Http request done: " << requestId;
 }
 
+
 void APICall::done(bool error)
 {
     // disconnect everything from done(bool) signal
@@ -162,15 +168,14 @@ void APICall::done(bool error)
 }
 
 
-
 APICallSendDatastreamSamples::APICallSendDatastreamSamples(
         QSharedPointer<SNGConnectAPI> context,
         QString datastream,
         QList< QSharedPointer<MessageSample> > &samples) :
     APICall(context), datastream(datastream), samples(samples)
 {
-
 }
+
 
 QString APICallSendDatastreamSamples::getContent()
 {
@@ -415,14 +420,11 @@ void APICallGetCommands::parseJSONResponse(
             if (arguments.isObject())
             {
                 QScriptValueIterator it2(arguments);
-                while (it2.hasNext())
-                {
+                while (it2.hasNext()) {
                     it2.next();
                     argumentsMap[it2.name()] = it2.value().toVariant();
                 }
-            }
-            else if (arguments.isValid())
-            {
+            } else if (arguments.isValid()) {
                 // 'arguments' is there but it's not an object!
                 QWARNING << "Problem parsing arguments for command " <<
                     command.toString() << ": "<< arguments.toString();
