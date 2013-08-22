@@ -66,7 +66,13 @@ MessageSample::MessageSample(QString k, QString v) :
 
 
 MessageSample::MessageSample(QString k, QString v, QDateTime t) :
-    Message(t), key(k), value(v)
+    Message(t), key(k), value(v) { }
+
+
+MessageSample* MessageSample::clone() const
+{
+    return new MessageSample(*this);
+}
 
 
 QString MessageSample::toString() const
@@ -80,6 +86,12 @@ MessageEvent::MessageEvent(QString message, QString type, int id) :
     message(message), type(type), id(id) { }
 
 
+MessageEvent* MessageEvent::clone() const
+{
+    return new MessageEvent(*this);
+}
+
+
 QString MessageEvent::toString() const
 {
     return "[" + type + ":"+ QString::number(id) +"] " + message;
@@ -88,7 +100,13 @@ QString MessageEvent::toString() const
 
 MessageRequest::MessageRequest(QString command, QMap<QString, QVariant> arguments) :
     Message(QDateTime::currentDateTime()),
-    command(command), arguments(arguments) {}
+    command(command), arguments(arguments) { }
+
+
+MessageRequest* MessageRequest::clone() const
+{
+    return new MessageRequest(*this);
+}
 
 
 QString MessageRequest::toString() const
@@ -104,6 +122,12 @@ QString MessageRequest::toString() const
 MessageResponse::MessageResponse(QString command, QMap<QString, QVariant> arguments) :
     Message(QDateTime::currentDateTime()),
     command(command), arguments(arguments) {}
+
+
+MessageResponse* MessageResponse::clone() const
+{
+    return new MessageResponse(*this);
+}
 
 
 QString MessageResponse::toString() const

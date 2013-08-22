@@ -54,7 +54,7 @@ public:
     MessageSample();
     MessageSample(QString key, QString val);
     MessageSample(QString key, QString val, QDateTime timestamp);
-    virtual MessageSample* clone() const { return new MessageSample(*this); }
+    virtual MessageSample* clone() const;
     virtual MessageType getType() const { return MsgSample; }
 
     QString key;
@@ -76,7 +76,7 @@ class MessageEvent : public Message
 {
 public:
     MessageEvent(QString message, QString type, int id);
-    virtual MessageEvent* clone() const { return new MessageEvent(*this); }
+    virtual MessageEvent* clone() const;
     virtual MessageType getType() const { return MsgEvent; }
     virtual QString toString() const;
 
@@ -94,7 +94,7 @@ class MessageRequest : public Message
 {
 public:
     MessageRequest(QString command, QMap<QString, QVariant> arguments);
-    virtual MessageRequest* clone() const { return new MessageRequest(*this); }
+    virtual MessageRequest* clone() const;
     virtual MessageType getType() const { return MsgRequest; }
     virtual QString toString() const;
 
@@ -110,7 +110,7 @@ class MessageResponse: public Message
 {
 public:
     MessageResponse(QString command, QMap<QString, QVariant> arguments);
-    virtual MessageResponse* clone() const { return new MessageResponse(*this); }
+    virtual MessageResponse* clone() const;
     virtual MessageType getType() const { return MsgResponse; }
     virtual QString toString() const;
 

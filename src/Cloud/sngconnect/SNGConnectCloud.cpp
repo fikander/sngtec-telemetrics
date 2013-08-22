@@ -71,7 +71,7 @@ void SNGConnectCloud::connect()
 void SNGConnectCloud::send(QSharedPointer<Message> payload)
 {
     QSharedPointer<Message> payloadCopy =
-        QSharedPointer<Message>(payload->copy());
+        QSharedPointer<Message>(payload->clone());
 
     // events or requests are considered more important than samples,
     // therefore put them in front
