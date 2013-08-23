@@ -34,7 +34,7 @@ SNGConnectAPI::~SNGConnectAPI()
 
 
 APICall::APICall(QSharedPointer<SNGConnectAPI> context):
-    context(context), requestId(0), bytesReceived(0), bytesSent(0);
+    context(context), requestId(0), bytesReceived(0), bytesSent(0)
  { }
 
 
@@ -105,10 +105,6 @@ QString APICall::hmacSha256(QByteArray baseString)
 
 bool APICall::makeHttpRequest(QString method, QString api, QString contents)
 {
-    QDEBUG << "Request: " << context->baseUrl.scheme() <<
-        context->baseUrl.host() << context->baseUrl.port() <<
-        method << api << contents;
-
     //TODO: only percent encode the part of the URL after first '?' 
     QHttpRequestHeader header(method, QUrl::toPercentEncoding(api, "/?&="));
     QByteArray contentsUtf8 = contents.toUtf8();
@@ -124,6 +120,10 @@ bool APICall::makeHttpRequest(QString method, QString api, QString contents)
             QHttp::ConnectionModeHttps : QHttp::ConnectionModeHttp,
         context->baseUrl.port());
     requestId = http.request(header, contentsUtf8);
+
+    QDEBUG << "NEW HTTP request (id:" << requestId << "): " << context->baseUrl.scheme() <<
+        context->baseUrl.host() << context->baseUrl.port() <<
+        method << api << contents;
 
     return true;
 }
@@ -144,24 +144,18 @@ void APICall::done(bool error)
     // schedule this API call for deletion
     this->deleteLater();
 
-    if (error)
-    {
-        QWARNING << "HTTP connection ERROR (request " << requestId << "): " <<
+    if (error) {
+        QWARNING << "HTTP CONNECTION ERROR (id:" << requestId << "): " <<
             context->baseUrl.toString() << http.error() << http.errorString();
-    }
-    else
-    {
+    } else {
         QHttpResponseHeader response = http.lastResponse();
-        if (response.statusCode() >= 400)
-        {
-            QWARNING << "HTTP ERROR (request " << requestId << "):" <<
+        if (response.statusCode() >= 400) {
+            QWARNING << "HTTP ERROR (id:" << requestId << "):" <<
                 QVariant(response.statusCode()).toString() <<
                 context->baseUrl.toString() << getMethod() <<
-                getAPI() << getContent() << "server said: " << http.readAll();
-        }
-        else
-        {
-            QDEBUG << "HTTP call SUCCESS (request " << requestId << "): " <<
+                getAPI() << "server said: " << http.readAll();
+        } else {
+            QDEBUG << "HTTP SUCCESS (id:" << requestId << "): " <<
                 QVariant(response.statusCode()).toString();
         }
         bytesReceived = http.bytesAvailable();
@@ -221,8 +215,8 @@ void APICallSendDatastreamSamples::processResponse(bool error)
 
 APICallSendMultipleDatastreamSamples::APICallSendMultipleDatastreamSamples(
             QSharedPointer<SNGConnectAPI> context,
-            QList< QSharedPointer<MessageSample> > &samples) :
-    APICall(context), samples(samples) { }
+            QList<QSharedPointer<Message> > &messages) :
+    APICall(context), messages(messages) { }
 
 
 QString APICallSendMultipleDatastreamSamples::getContent()
@@ -231,10 +225,10 @@ QString APICallSendMultipleDatastreamSamples::getContent()
     QString content = "{\"datastreams\":[";
 
     //sort datastreams into buckets by stream label
-    QHash<QString, QList<QSharedPointer<MessageSample>>> hash;
+    QHash<QString, QList<QSharedPointer<Message> > > hash;
 
-    foreach(QSharedPointer<MessageSample> sample, samples) {
-        hash[sample->key] += sample;
+    foreach(QSharedPointer<Message> message, messages) {
+        hash[message.staticCast<MessageSample>()->key] += message;
     }
 
     foreach(QString key, hash.uniqueKeys()) {
@@ -244,35 +238,34 @@ QString APICallSendMultipleDatastreamSamples::getContent()
             firstDataStream = false;
         }
         content += "{\"label\":\""+key+"\",\"datapoints\":[";
-        foreach(QSharedPointer<MessageSample> sample, hash[key]) {
-            Q_ASSERT(sample->isLocked());
-            // {\"at\":\"2010-05-20T11:01:44Z\",\"value\":\"295\"},
+        foreach(QSharedPointer<Message> message, hash[key]) {
+            Q_ASSERT(message->isLocked());
             if (!firstSample) {
                 content += ",";
                 firstSample = false;
             }
+            QSharedPointer<MessageSample> sample = message.staticCast<MessageSample>();
             content += "{\"at\":\"" + sample->timestamp.toString(Qt::ISODate) + "\",";
             content += "\"value\":\"" + sample->value + "\"}";
         }
-        content += "]}"
+        content += "]}";
     }
 
     content += "]}";
     return content;
 }
 
-void APICallSendMultipleDatastreamSamples::done(bool error)
+void APICallSendMultipleDatastreamSamples::processResponse(bool error)
 {
-    APICall::done(error);
-
     if (!error && http.lastResponse().statusCode() == 200) {
-        foreach(QSharedPointer<MessageSample> sample, samples)
-            sample->setProcessed();
+        foreach(QSharedPointer<Message> message, messages) {
+            message->setProcessed();
+        }
     } else {
         // unlock so that Cloud picks them up and sends later
-        foreach(QSharedPointer<MessageSample> sample, samples) {
-            sample->setLocked(false);
-            sample->processingFailed();
+        foreach(QSharedPointer<Message> message, messages) {
+            message->setLocked(false);
+            message->processingFailed();
         }
     }
 }
@@ -304,10 +297,8 @@ QString APICallSendEvent::getContent()
 }
 
 
-void APICallSendEvent::done(bool error)
+void APICallSendEvent::processResponse(bool error)
 {
-    APICall::done(error);
-
     if (!error && http.lastResponse().statusCode() == 200) {
         event->setProcessed();
     } else {
@@ -315,7 +306,6 @@ void APICallSendEvent::done(bool error)
         event->processingFailed();
     }
 }
-
 
 
 APICallGetDataStreams::APICallGetDataStreams(
@@ -328,6 +318,7 @@ APICallGetDataStreams::APICallGetDataStreams(
 {
     semaphore->setLocked(true);
 }
+
 
 /**
  * @brief APICallGetDataStreams::parseJSONResponse
@@ -373,16 +364,14 @@ void APICallGetDataStreams::parseJSONResponse(
             QVariant value(requested_value.toString());
             bool ok;
             float f_value = value.toFloat(&ok);
-            if (!ok)
-            {
+            if (!ok) {
                 QWARNING << "Wrong format of value: " << value.toString();
                 return;
             }
 
             QVariant timestamp(value_requested_at.toString());
             QDateTime d_timedate = timestamp.toDateTime();
-            if (!d_timedate.isValid())
-            {
+            if (!d_timedate.isValid()) {
                 QWARNING << "Wrong format of timestamp: " << timestamp.toString();
                 return;
             }
@@ -402,10 +391,8 @@ void APICallGetDataStreams::parseJSONResponse(
     }
 }
 
-void APICallGetDataStreams::done(bool error)
+void APICallGetDataStreams::processResponse(bool error)
 {
-    APICall::done(error);
-
     if (!error && http.lastResponse().statusCode() == 200)
     {
 //        QString test="\
@@ -497,17 +484,13 @@ void APICallGetCommands::parseJSONResponse(
                 new MessageRequest(command.toString(), argumentsMap))
             );
         }
-    }
-    else
-    {
+    } else {
         QWARNING << "Wrong format of response: " << response;
     }
 }
 
-void APICallGetCommands::done(bool error)
+void APICallGetCommands::processResponse(bool error)
 {
-    APICall::done(error);
-
     if (!error /*&& http.lastResponse().statusCode() == 200*/)
     {
 //        QString test="\
@@ -537,14 +520,11 @@ APICallSendLog::APICallSendLog(
     log_request_hash = response->arguments["log_request_hash"].toString();
 }
 
-void APICallSendLog::done(bool error)
+void APICallSendLog::processResponse(bool error)
 {
-    APICall::done(error);
-
-    if (!error && http.lastResponse().statusCode() == 200)
+    if (!error && http.lastResponse().statusCode() == 200) {
         response->setProcessed();
-    else
-    {
+    } else {
         response->setLocked(false);
         response->processingFailed();
     }

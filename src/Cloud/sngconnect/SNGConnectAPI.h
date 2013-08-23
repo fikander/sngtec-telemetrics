@@ -97,13 +97,11 @@ public:
             QString datastream,
             QList< QSharedPointer<MessageSample> > &samples);
 
-protected slots:
-    virtual void done(bool error);
-
 protected:
     virtual QString getMethod() { return "PUT"; }
     virtual QString getAPI() { return "/api/v1/feeds/" + feed() + "/datastreams/" + datastream + ".json"; }
     virtual QString getContent();
+    virtual void processResponse(bool error);
 
     QString datastream;
     QList< QSharedPointer<MessageSample> > samples;
@@ -137,17 +135,15 @@ class APICallSendMultipleDatastreamSamples : public APICall
 public:
     APICallSendMultipleDatastreamSamples(
             QSharedPointer<SNGConnectAPI> context,
-            QList< QSharedPointer<MessageSample> > &samples);
-
-protected slots:
-    virtual void done(bool error);
+            QList< QSharedPointer<Message> > &messages);
 
 protected:
     virtual QString getMethod() { return "PUT"; }
     virtual QString getAPI() { return "/api/v1/feeds/" + feed() + "/datastreams.json"; }
     virtual QString getContent();
+    virtual void processResponse(bool error);
 
-    QList< QSharedPointer<MessageSample> > samples;
+    QList< QSharedPointer<Message> > messages;
 };
 
 
@@ -170,13 +166,11 @@ public:
             QSharedPointer<SNGConnectAPI> context,
             QSharedPointer<Message> &event);
 
-protected slots:
-    virtual void done(bool error);
-
 protected:
     virtual QString getMethod() { return "POST"; }
     virtual QString getAPI() { return "/api/v1/feeds/" + feed() + "/events.json"; }
     virtual QString getContent();
+    virtual void processResponse(bool error);
 
     QSharedPointer<MessageEvent> event;
 };
@@ -207,13 +201,11 @@ public:
             QString filter,
             QQueue< QSharedPointer<Message> > *receivedMessages);
 
-protected slots:
-    virtual void done(bool error);
-
 protected:
     virtual QString getMethod() { return "GET"; }
     virtual QString getAPI() { return "/api/v1/feeds/" + feed() + "/datastreams.json?filter=" + filter; }
     virtual QString getContent() { return ""; }
+    virtual void processResponse(bool error);
 
     QSharedPointer<Message> semaphore;
     QString filter;
@@ -246,13 +238,11 @@ public:
             QSharedPointer<Message> semaphore,
             QQueue< QSharedPointer<Message> > *receivedMessages);
 
-protected slots:
-    virtual void done(bool error);
-
 protected:
     virtual QString getMethod() { return "GET"; }
     virtual QString getAPI() { return "/api/v1/feeds/" + feed() + "/commands.json"; }
     virtual QString getContent() { return ""; }
+    virtual void processResponse(bool error);
 
     QSharedPointer<Message> semaphore;
     QQueue< QSharedPointer<Message> > *receivedMessages;
@@ -271,13 +261,11 @@ public:
             QSharedPointer<SNGConnectAPI> context,
             QSharedPointer<MessageResponse> &response);
 
-protected slots:
-    virtual void done(bool error);
-
 protected:
     virtual QString getMethod() { return "POST"; }
     virtual QString getAPI() { return "/api/v1/upload-log/" + log_request_id + "/" + log_request_hash + ".json"; }
     virtual QString getContent();
+    virtual void processResponse(bool error);
 
     QSharedPointer<MessageResponse> response;
     QString log_request_id, log_request_hash;
