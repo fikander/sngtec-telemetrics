@@ -102,6 +102,47 @@ protected:
 
 /*
  *
+ *
+ *   PUT api/v1/feeds/{id}/datastreams.json
+ *   {
+ *     "datastreams": [{
+ *         "label": "data_stream", 
+ *         "datapoints": [
+ *           {"at":"2010-05-20T11:01:43Z","value":"294"},
+ *           {"at":"2010-05-20T11:01:44Z","value":"295"},
+ *           {"at":"2010-05-20T11:01:45Z","value":"296"},
+ *           {"at":"2010-05-20T11:01:46Z","value":"297"}
+ *         ]
+ *     }, {
+ *         "label": "data_stream2",
+ *         "datapoints": [
+ *           {"at":"2010-05-20T11:01:46Z","value":"297"}
+ *         ]
+ *     }]
+ *   }
+ */
+class APICallSendMultipleDatastreamSamples : public APICall
+{
+    Q_OBJECT
+public:
+    APICallSendMultipleDatastreamSamples(
+            QSharedPointer<SNGConnectAPI> context,
+            QList< QSharedPointer<MessageSample> > &samples);
+
+protected slots:
+    virtual void done(bool error);
+
+protected:
+    virtual QString getMethod() { return "PUT"; }
+    virtual QString getAPI() { return "/api/v1/feeds/" + feed() + "/datastreams.json"; }
+    virtual QString getContent();
+
+    QList< QSharedPointer<MessageSample> > samples;
+};
+
+
+/*
+ *
  *       POST api/v1/feeds/{id}/events.json
  *       {
  *           "type": "alarm_on|alarm_off|information|system_error|system_warning",

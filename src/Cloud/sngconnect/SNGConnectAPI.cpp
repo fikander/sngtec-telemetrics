@@ -214,6 +214,63 @@ void APICallSendDatastreamSamples::done(bool error)
 }
 
 
+APICallSendMultipleDatastreamSamples::APICallSendMultipleDatastreamSamples(
+            QSharedPointer<SNGConnectAPI> context,
+            QList< QSharedPointer<MessageSample> > &samples) :
+    APICall(context), samples(samples) { }
+
+
+QString APICallSendMultipleDatastreamSamples::getContent()
+{
+    bool firstDataStream = true;
+    QString content = "{\"datastreams\":[";
+
+    //sort datastreams into buckets by stream label
+    QHash<QString, QList<QSharedPointer<MessageSample>>> hash;
+
+    foreach(QSharedPointer<MessageSample> sample, samples) {
+        hash[sample->key] += sample;
+    }
+
+    foreach(QString key, hash.uniqueKeys()) {
+        bool firstSample = true;
+        if (!firstDataStream) {
+            content += ",";
+            firstDataStream = false;
+        }
+        content += "{\"label\":\""+key+"\",\"datapoints\":[";
+        foreach(QSharedPointer<MessageSample> sample, hash[key]) {
+            Q_ASSERT(sample->isLocked());
+            // {\"at\":\"2010-05-20T11:01:44Z\",\"value\":\"295\"},
+            if (!firstSample) {
+                content += ",";
+                firstSample = false;
+            }
+            content += "{\"at\":\"" + sample->timestamp.toString(Qt::ISODate) + "\",";
+            content += "\"value\":\"" + sample->value + "\"}";
+        }
+        content += "]}"
+    }
+
+    content += "]}";
+    return content;
+}
+
+void APICallSendMultipleDatastreamSamples::done(bool error)
+{
+    APICall::done(error);
+
+    if (!error && http.lastResponse().statusCode() == 200) {
+        foreach(QSharedPointer<MessageSample> sample, samples)
+            sample->setProcessed();
+    } else {
+        // unlock so that Cloud picks them up and sends later
+        foreach(QSharedPointer<MessageSample> sample, samples) {
+            sample->setLocked(false);
+            sample->processingFailed();
+        }
+    }
+}
 
 APICallSendEvent::APICallSendEvent(
         QSharedPointer<SNGConnectAPI> context,

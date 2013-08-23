@@ -23,30 +23,6 @@ void Message::getUnlockedMessages(
 }
 
 
-void  MessageSample::takeMessagesByDatastream(
-        QList< QSharedPointer<Message> > &messages,
-        QString datastream,
-        QList< QSharedPointer<MessageSample> > &result)
-{
-    QList<int> toTake;
-
-    int i=0;
-    foreach(QSharedPointer<Message> msg, messages) {
-        if (msg->getType() == MsgSample) {
-            QSharedPointer<MessageSample> s = msg.staticCast<MessageSample>();
-            if (s->key == datastream)
-                toTake.append(i);
-        }
-        ++i;
-    }
-
-    int taken = 0;
-    foreach(int t, toTake) {
-        result.append(messages.takeAt(t - taken++).staticCast<MessageSample>());
-    }
-}
-
-
 Message::Message(QDateTime timestamp) :
     timestamp(timestamp), processed(false), locked(false), failCount(0) { }
 
