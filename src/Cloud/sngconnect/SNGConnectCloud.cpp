@@ -179,7 +179,6 @@ void SNGConnectCloud::sendAndReceiveData()
     //
     // send data to the cloud: samples and events
     //
-
     QList< QSharedPointer<Message> > allEvents;
     Message::getUnlockedMessages(toSend, Message::MsgEvent, true, allEvents);
 
@@ -229,5 +228,7 @@ void SNGConnectCloud::sendAndReceiveData()
         QDEBUG << "Message received from cloud and sent to sensors: " +
             message->toString();
     }
-}
 
+    QDEBUG << "Bytes sent:" << api.getBytesSent() <<
+        << "Bytes received: " << api.bytesReceived();
+}

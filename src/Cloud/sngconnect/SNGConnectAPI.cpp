@@ -11,7 +11,8 @@
 #include "sha2/sha2.h"
 
 
-SNGConnectAPI::SNGConnectAPI(KeyValueMap &config)
+SNGConnectAPI::SNGConnectAPI(KeyValueMap &config) :
+    bytesReceived(0), bytesSent(0)
 {
     if (config.contains("baseurl"))
         baseUrl.setUrl(config["baseurl"].toString(), QUrl::StrictMode);
@@ -33,10 +34,8 @@ SNGConnectAPI::~SNGConnectAPI()
 
 
 APICall::APICall(QSharedPointer<SNGConnectAPI> context):
-    context(context)
-{
-    requestId = 0;
-}
+    context(context), requestId(0), bytesReceived(0), bytesSent(0);
+ { }
 
 
 APICall::~APICall()
@@ -113,10 +112,12 @@ bool APICall::makeHttpRequest(QString method, QString api, QString contents)
     //TODO: only percent encode the part of the URL after first '?' 
     QHttpRequestHeader header(method, QUrl::toPercentEncoding(api, "/?&="));
     QByteArray contentsUtf8 = contents.toUtf8();
+    bytesSent = contentsUtf8.size();
 
     header.setValue("Host", context->baseUrl.host());
     header.setContentType("application/json");
     header.setValue("Signature", hmacSha256(api.toAscii() + ":" + contentsUtf8));
+    bytesSent += header.toString().size();
 
     http.setHost(context->baseUrl.host(),
         context->baseUrl.scheme() == "https" ?
@@ -132,7 +133,6 @@ void APICall::invoke()
 {
     QObject::connect(&http, SIGNAL(done(bool)), this, SLOT(done(bool)));
     makeHttpRequest(getMethod(), getAPI(), getContent());
-    //QDEBUG << "Http request done: " << requestId;
 }
 
 
@@ -164,7 +164,13 @@ void APICall::done(bool error)
             QDEBUG << "HTTP call SUCCESS (request " << requestId << "): " <<
                 QVariant(response.statusCode()).toString();
         }
+        bytesReceived = http.bytesAvailable();
     }
+
+    this->processResponse(error);
+
+    context->bytesSent += bytesSent;
+    context->bytesReceived += bytesReceived;
 }
 
 
@@ -197,10 +203,9 @@ QString APICallSendDatastreamSamples::getContent()
     return content;
 }
 
-void APICallSendDatastreamSamples::done(bool error)
-{
-    APICall::done(error);
 
+void APICallSendDatastreamSamples::processResponse(bool error)
+{
     if (!error && http.lastResponse().statusCode() == 200) {
         foreach(QSharedPointer<MessageSample> sample, samples)
             sample->setProcessed();

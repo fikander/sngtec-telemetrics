@@ -21,10 +21,16 @@ public:
     SNGConnectAPI(KeyValueMap &config);
     ~SNGConnectAPI();
 
+    quint64 getBytesSent() { return bytesSent; }
+    quint64 getBytesReceived() { return bytesReceived; }
+
 protected:
     QUrl baseUrl;
     QString feed;
     QByteArray apiKey;
+
+    quint64 bytesReceived;
+    quint64 bytesSent;
 
 friend class APICall;
 };
@@ -45,7 +51,7 @@ public:
 
 protected slots:
 
-    virtual void done(bool error);
+    void done(bool error);
 
 protected:
 
@@ -55,12 +61,16 @@ protected:
     virtual QString getMethod() = 0;
     virtual QString getAPI() = 0;
     virtual QString getContent() = 0;
+    virtual void processResponse(bool error) = 0;
 
     QString &feed() { return context->feed; }
 
     QHttp http;
     // each http.request returns id to track it
     int requestId;
+
+    int bytesReceived;
+    int bytesSent;
 
     QSharedPointer<SNGConnectAPI> context;
 };
