@@ -21,10 +21,16 @@ public:
     SNGConnectAPI(KeyValueMap &config);
     ~SNGConnectAPI();
 
+    quint64 getBytesSent() { return bytesSent; }
+    quint64 getBytesReceived() { return bytesReceived; }
+
 protected:
     QUrl baseUrl;
     QString feed;
     QByteArray apiKey;
+
+    quint64 bytesReceived;
+    quint64 bytesSent;
 
 friend class APICall;
 };
@@ -45,7 +51,7 @@ public:
 
 protected slots:
 
-    virtual void done(bool error);
+    void done(bool error);
 
 protected:
 
@@ -55,12 +61,16 @@ protected:
     virtual QString getMethod() = 0;
     virtual QString getAPI() = 0;
     virtual QString getContent() = 0;
+    virtual void processResponse(bool error) = 0;
 
     QString &feed() { return context->feed; }
 
     QHttp http;
     // each http.request returns id to track it
     int requestId;
+
+    int bytesReceived;
+    int bytesSent;
 
     QSharedPointer<SNGConnectAPI> context;
 };
@@ -96,6 +106,47 @@ protected:
     virtual QString getContent();
 
     QString datastream;
+    QList< QSharedPointer<MessageSample> > samples;
+};
+
+
+/*
+ *
+ *
+ *   PUT api/v1/feeds/{id}/datastreams.json
+ *   {
+ *     "datastreams": [{
+ *         "label": "data_stream", 
+ *         "datapoints": [
+ *           {"at":"2010-05-20T11:01:43Z","value":"294"},
+ *           {"at":"2010-05-20T11:01:44Z","value":"295"},
+ *           {"at":"2010-05-20T11:01:45Z","value":"296"},
+ *           {"at":"2010-05-20T11:01:46Z","value":"297"}
+ *         ]
+ *     }, {
+ *         "label": "data_stream2",
+ *         "datapoints": [
+ *           {"at":"2010-05-20T11:01:46Z","value":"297"}
+ *         ]
+ *     }]
+ *   }
+ */
+class APICallSendMultipleDatastreamSamples : public APICall
+{
+    Q_OBJECT
+public:
+    APICallSendMultipleDatastreamSamples(
+            QSharedPointer<SNGConnectAPI> context,
+            QList< QSharedPointer<MessageSample> > &samples);
+
+protected slots:
+    virtual void done(bool error);
+
+protected:
+    virtual QString getMethod() { return "PUT"; }
+    virtual QString getAPI() { return "/api/v1/feeds/" + feed() + "/datastreams.json"; }
+    virtual QString getContent();
+
     QList< QSharedPointer<MessageSample> > samples;
 };
 

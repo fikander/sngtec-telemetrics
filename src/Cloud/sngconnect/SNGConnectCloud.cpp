@@ -179,7 +179,6 @@ void SNGConnectCloud::sendAndReceiveData()
     //
     // send data to the cloud: samples and events
     //
-
     QList< QSharedPointer<Message> > allEvents;
     Message::getUnlockedMessages(toSend, Message::MsgEvent, true, allEvents);
 
@@ -193,17 +192,9 @@ void SNGConnectCloud::sendAndReceiveData()
     QList< QSharedPointer<Message> > allSamples;
     Message::getUnlockedMessages(toSend, Message::MsgSample, true, allSamples);
 
-    while (!allSamples.isEmpty()) {
-        // get first sample to learn what datasource should be reported
-        QSharedPointer<MessageSample> firstSample =
-            allSamples[0].staticCast<MessageSample>();
-        QList< QSharedPointer<MessageSample> > samples;
-
-        MessageSample::takeMessagesByDatastream(
-            allSamples, firstSample->key, samples);
-
-        APICallSendDatastreamSamples *call =
-            new APICallSendDatastreamSamples(api, firstSample->key, samples);
+    if (!allSamples.isEmpty()) {
+        APICallSendMultipleDatastreamSamples *call =
+            new APICallSendMultipleDatastreamSamples(api, allSamples);
         // note: call will get self destroyed after execution
         call->invoke();
     }
@@ -237,5 +228,7 @@ void SNGConnectCloud::sendAndReceiveData()
         QDEBUG << "Message received from cloud and sent to sensors: " +
             message->toString();
     }
-}
 
+    QDEBUG << "Bytes sent:" << api->getBytesSent() <<
+        "Bytes received: " << api->getBytesReceived();
+}

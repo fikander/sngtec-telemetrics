@@ -61,11 +61,6 @@ public:
     QString value;
 
     virtual QString toString() const;
-
-    static void takeMessagesByDatastream(
-            QList< QSharedPointer<Message> > &messages,
-            QString datastream,
-            QList< QSharedPointer<MessageSample> > &result);
 };
 
 /**
