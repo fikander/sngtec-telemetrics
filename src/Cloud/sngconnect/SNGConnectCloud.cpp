@@ -204,7 +204,7 @@ void SNGConnectCloud::sendAndReceiveData()
 
         APICallSendDatastreamSamples *call =
             new APICallSendDatastreamSamples(api, firstSample->key, samples);
-        // note: call will get self destroy after execution
+        // note: call will get self destroyed after execution
         call->invoke();
     }
 
