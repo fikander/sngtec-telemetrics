@@ -6,7 +6,7 @@
 
 
 DummySensor::DummySensor(KeyValueMap &config):
-    Sensor()
+    Sensor(config)
 {
     if (config.contains("interval"))
         timer.setInterval(config["interval"].toUInt() * 1000);

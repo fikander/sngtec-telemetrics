@@ -3,19 +3,25 @@
 
 #include <QObject>
 
+#include "KeyValueMap.h"
 #include "Message/message.h"
 
 class Sensor : public QObject
 {
     Q_OBJECT
 public:
-    Sensor(QObject *parent = 0);
+    Sensor(KeyValueMap &config, QObject *parent = 0);
 
     virtual ~Sensor();
 
     virtual int connect() = 0;
 
-    bool connected() { return m_connected; }
+    bool connected() const
+        { return m_connected; }
+    bool initialised() const
+        { return m_initialised; }
+    QString getName() const
+        { return name; }
 
 public slots:
     /*
@@ -31,6 +37,8 @@ signals:
 
 protected:
     bool m_connected;
+    bool m_initialised;
+    QString name;
 };
 
 #endif // SENSOR_H

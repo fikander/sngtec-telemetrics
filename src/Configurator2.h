@@ -23,7 +23,7 @@ public:
     ~Configurator2();
 
     KeyValueMap *getKeyValueMapForGroup(QString group);
-    void configureCloudsAndSensors();
+    int configureCloudsAndSensors();
 
 private:
     static KeyValueMap* getKeyValueMap(const QSettings &settings);
@@ -32,8 +32,8 @@ private:
     AbstractCloudFactory *m_cloudFactory;
     AbstractSensorFactory *m_sensorFactory;
 
-    QList<Cloud*> m_clouds;
-    QList<Sensor*> m_sensors;
+    QHash<QString, Cloud*> m_clouds;
+    QHash<QString, Sensor*> m_sensors;
 };
 
 #endif // CONFIGURATOR2_H

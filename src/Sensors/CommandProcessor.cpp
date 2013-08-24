@@ -5,7 +5,7 @@
 #include "Logger/logger.h"
 
 CommandProcessor::CommandProcessor(KeyValueMap &config, QObject *parent) :
-    Sensor(parent)
+    Sensor(config, parent)
 {
 }
 

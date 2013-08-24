@@ -39,7 +39,7 @@ Message::Message(QDateTime timestamp) :
 
 Message::~Message()
 {
-    //std::cerr << "~Message" << std::endl;
+    std::cerr << "~Message" << std::endl;
 }
 
 

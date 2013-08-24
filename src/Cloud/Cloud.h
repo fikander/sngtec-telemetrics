@@ -3,6 +3,7 @@
 
 #include <QObject>
 
+#include "KeyValueMap.h"
 #include "Message/message.h"
 
 class Cloud : public QObject
@@ -10,12 +11,17 @@ class Cloud : public QObject
     Q_OBJECT
 
 public:
-    Cloud();
+    Cloud(KeyValueMap &config);
     virtual ~Cloud();
 
     virtual void connect() = 0;
 
-    bool connected() { return m_connected; }
+    bool connected() const
+        { return m_connected; }
+    bool initialised() const
+        { return m_initialised; }
+    QString getName() const
+        { return name; }
 
 public slots:
     /**
@@ -33,7 +39,8 @@ signals:
 
 protected:
     bool m_connected;
-
+    bool m_initialised;
+    QString name;
 };
 
 #endif // CLOUD_H

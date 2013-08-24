@@ -10,7 +10,7 @@
 #include "convertersfactory.h"
 
 Modbus::Modbus(KeyValueMap &config, QObject *parent):
-    Sensor(parent), m_modbus(NULL)
+    Sensor(config, parent), m_modbus(NULL)
 {
     if (config.contains("bandwidth"))
         bandwidth = config["bandwidth"].toUInt();
@@ -235,8 +235,9 @@ int Modbus::connect()
         m_connected = false;
         return 1;
     }
-    else
+    else {
         m_connected = true;
+    }
 
     timer.start();
     QObject::connect(

@@ -20,8 +20,6 @@ Configurator2::Configurator2(QString configFileName,
 
 Configurator2::~Configurator2()
 {
-    // delete lists of pointers
-
     if(!m_clouds.isEmpty())
     {
         qDeleteAll(m_clouds);
@@ -33,7 +31,6 @@ Configurator2::~Configurator2()
         qDeleteAll(m_sensors);
         m_sensors.clear();
     }
-
 }
 
 
@@ -59,24 +56,28 @@ KeyValueMap *Configurator2::getKeyValueMapForGroup(QString group)
     return map;
 }
 
-void Configurator2::configureCloudsAndSensors()
+int Configurator2::configureCloudsAndSensors()
 {
     KeyValueMap *config = NULL;
-
+    int connectedEntities=0;
 
     // create clouds based on settings
     int size = m_settings->beginReadArray("clouds");
-    for (int i = 0; i < size; i++)
-    {
+    for (int i = 0; i < size; i++) {
         m_settings->setArrayIndex(i);
         config = getKeyValueMap(*m_settings);
         Cloud *cloud = m_cloudFactory->newObject(
             (*config)["type"].toString(), *config
         );
         if (cloud != NULL) {
-            m_clouds.push_back( cloud );
+            if (m_clouds.contains(cloud->getName())) {
+                QWARNING << "Duplicate Cloud name, ignoring: " << cloud->getName();
+            } else {
+                m_clouds[cloud->getName()] = cloud;
+            }
         } else {
-            QWARNING << "Unrecognised cloud type: " << (*config)["type"].toString();
+            QWARNING << "Unrecognised or misconfigured cloud of type: " <<
+                (*config)["type"].toString();
         }
         delete config;
     }
@@ -85,61 +86,63 @@ void Configurator2::configureCloudsAndSensors()
 
     // create sensors based on settings
     size = m_settings->beginReadArray("sensors");
-    for (int i = 0; i < size; i++)
-    {
+    for (int i = 0; i < size; i++) {
         m_settings->setArrayIndex(i);
         config = getKeyValueMap(*m_settings);
         Sensor *sensor = m_sensorFactory->newObject(
             (*config)["type"].toString(), *config
         );
         if (sensor != NULL) {
-            m_sensors.push_back( sensor );
+            if (m_sensors.contains(sensor->getName())) {
+                QWARNING << "Duplicate Sensor name, ignoring: " << sensor->getName();
+            } else {
+                m_sensors[sensor->getName()] = sensor;
+            }
         } else {
-            QWARNING << "Unrecognised sensor type: " << (*config)["type"].toString();
+            QWARNING << "Unrecognised of misconfigured sensor of type: " <<
+                (*config)["type"].toString();
         }
         delete config;
     }
     m_settings->endArray();
 
+    //analyse mapping of sensors to clouds
+    size = m_settings->beginReadArray("mapping");
+    for (int i = 0; i < size; i++) {
+        m_settings->setArrayIndex(i);
+        config = getKeyValueMap(*m_settings);
+        QString mapping = config->value("mapping").toString();
 
-    // connect sensors to clouds: messages sensor -> cloud
-    foreach(Sensor *sensor, m_sensors)
-    {
-        foreach(Cloud *cloud, m_clouds)
-        {
+        QString sensorName = mapping.section(':', 0, 0);
+        QString cloudName = mapping.section(':', 1, 1);
+        if (m_sensors.contains(sensorName) && m_clouds.contains(cloudName)) {
+            Sensor *sensor = m_sensors[sensorName];
+            Cloud *cloud = m_clouds[cloudName];
             QObject::connect(
                 sensor, SIGNAL(received(QSharedPointer<Message>)),
-                cloud, SLOT(send(QSharedPointer<Message>))
-            );
-            QDEBUG << "Sensor received signal: " <<sensor->metaObject()->className() <<
-                    " with cloud send: " << cloud->metaObject()->className();
-        }
-    }
-
-    // connect clouds to sensors: messages cloud -> sensor
-    // connect clouds to command processor
-    foreach(Cloud *cloud, m_clouds)
-    {
-        foreach(Sensor *sensor, m_sensors)
-        {
+                cloud, SLOT(send(QSharedPointer<Message>)));
             QObject::connect(
                 cloud, SIGNAL(received(QSharedPointer<Message>)),
                 sensor, SLOT(send(QSharedPointer<Message>)));
-            QDEBUG << "Cloud received signal: " << cloud->metaObject()->className() <<
-                    " with sensor send: " << sensor->metaObject()->className();
+
+            if (!sensor->connected()) {
+                sensor->connect();
+            }
+            if (!cloud->connected()) {
+                cloud->connect();
+            }
+            QDEBUG << "Connected sensor " << sensor->getName() <<
+                      " to cloud " << cloud->getName();
+        } else {
+            QWARNING << "Sensor or cloud not defined: " << mapping;
         }
     }
-
-    // connect sensors first
-    foreach (Sensor *sensor, m_sensors)
-    {
-        sensor->connect();
+    foreach(Sensor *sensor, m_sensors) {
+        connectedEntities += sensor->connected() ? 1 : 0;
+    }
+    foreach(Cloud *cloud, m_clouds) {
+        connectedEntities += cloud->connected() ? 1 : 0;
     }
 
-    // get ready with the cloud
-    foreach (Cloud *cloud, m_clouds)
-    {
-        cloud->connect();
-    }
-
+    return connectedEntities;
 }

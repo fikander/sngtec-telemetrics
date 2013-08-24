@@ -6,7 +6,7 @@
 
 
 SNGConnectCloud::SNGConnectCloud(KeyValueMap &config):
-    Cloud()
+    Cloud(config)
 {
     if (config.contains("interval")) {
         timer.setInterval(config["interval"].toUInt() * 1000);
@@ -45,10 +45,10 @@ SNGConnectCloud::SNGConnectCloud(KeyValueMap &config):
 SNGConnectCloud::~SNGConnectCloud()
 {
     api.clear();
-    foreach (MessageProxy *proxy, toSend) {
-        delete proxy;
+    if (!toSend.isEmpty()) {
+        qDeleteAll(toSend);
+        toSend.clear();
     }
-    toSend.clear();
     receivedMessages.clear();
     delete semaphore1;
     delete semaphore2;

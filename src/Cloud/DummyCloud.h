@@ -5,7 +5,6 @@
 #include <QQueue>
 
 #include "Cloud.h"
-#include "KeyValueMap.h"
 #include "Message/message.h"
 
 class DummyCloud : public Cloud

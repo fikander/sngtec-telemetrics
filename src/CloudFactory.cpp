@@ -18,10 +18,19 @@ CloudFactory* CloudFactory::instance()
 
 Cloud* CloudFactory::newObject (QString cloudType, KeyValueMap &config)
 {
-    if (cloudType == "dummy")
-        return new DummyCloud(config);
-    else if (cloudType == "sngconnect")
-        return new SNGConnectCloud(config);
+    Cloud *cloud = NULL;
 
-    return NULL;
+    if (cloudType == "dummy") {
+        cloud = new DummyCloud(config);
+    }
+    else if (cloudType == "sngconnect") {
+        cloud = new SNGConnectCloud(config);
+    }
+
+    if (cloud && !cloud->initialised()) {
+        delete cloud;
+        cloud = NULL;
+    }
+
+    return cloud;
 }
