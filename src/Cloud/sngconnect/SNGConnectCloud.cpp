@@ -78,7 +78,7 @@ void SNGConnectCloud::send(QSharedPointer<Message> payload)
         toSend.prepend(new MessageProxy(payload));
         sendAndReceiveData();
     } else {
-        toSend.enqueue(new MessageProxy(payload);
+        toSend.enqueue(new MessageProxy(payload));
     }
 }
 
@@ -182,7 +182,7 @@ void SNGConnectCloud::sendAndReceiveData()
     // send data to the cloud: samples and events
     //
     QList< MessageProxy* > allEvents;
-    Message::getUnlockedMessages(
+    MessageProxy::getUnlockedMessages(
         toSend, Message::MsgEvent, allEvents);
 
     //TODO : Send events in batch, just like datapoints for different datastreams
@@ -194,7 +194,7 @@ void SNGConnectCloud::sendAndReceiveData()
     }
 
     QList< MessageProxy* > allSamples;
-    Message::getUnlockedMessages(
+    MessageProxy::getUnlockedMessages(
         toSend, Message::MsgSample, allSamples);
 
     if (!allSamples.isEmpty()) {

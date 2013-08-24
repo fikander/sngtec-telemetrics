@@ -181,7 +181,7 @@ QString APICallSendDatastreamSamples::getContent()
 
     foreach(MessageProxy* proxy, messages) {
         QSharedPointer<MessageSample> sample =
-            (*proxy)->object().staticCast<MessageSample>();
+            proxy->object().staticCast<MessageSample>();
         hash[sample->key] += proxy;
     }
 
@@ -199,7 +199,7 @@ QString APICallSendDatastreamSamples::getContent()
                 firstSample = false;
             }
             QSharedPointer<MessageSample> sample =
-                (*proxy)->object().staticCast<MessageSample>();
+                proxy->object().staticCast<MessageSample>();
             content += "{\"at\":\"" + sample->timestamp.toString(Qt::ISODate) + "\",";
             content += "\"value\":\"" + sample->value + "\"}";
         }
@@ -242,7 +242,7 @@ QString APICallSendEvent::getContent()
      *       }
      */
     QSharedPointer<MessageEvent> event =
-        (*proxy)->object().staticCast<MessageEvent>();
+        proxy->object().staticCast<MessageEvent>();
 
     QString content  = "{\"type\":\"" + event->type + "\",";
     content += "\"id\":\"" + QString::number(event->id) + "\",";
@@ -466,10 +466,10 @@ APICallSendLog::APICallSendLog(
             MessageProxy *proxy):
     APICall(context), proxy(proxy)
 {
-    Q_ASSERT(response->isLocked());
+    Q_ASSERT(proxy->isLocked());
 
     QSharedPointer<MessageResponse> response =
-        (*proxy)->object().staticCast<MessageResponse>();
+        proxy->object().staticCast<MessageResponse>();
 
     log_request_id = response->arguments["log_request_id"].toString();
     log_request_hash = response->arguments["log_request_hash"].toString();
@@ -478,7 +478,7 @@ APICallSendLog::APICallSendLog(
 QString APICallSendLog::getContent()
 {
     QSharedPointer<MessageResponse> response =
-        (*proxy)->object().staticCast<MessageResponse>();
+        proxy->object().staticCast<MessageResponse>();
 
     return response->arguments["log"].toString();
 }

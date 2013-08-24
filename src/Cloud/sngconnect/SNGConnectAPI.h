@@ -6,6 +6,7 @@
 #include <QHttp>
 #include <QUrl>
 #include <QQueue>
+#include <QSemaphore>
 
 #include <debug.h>
 #include "KeyValueMap.h"
