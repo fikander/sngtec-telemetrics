@@ -8,33 +8,92 @@
 #include "CloudFactory.h"
 #include "SensorFactory.h"
 
-//class A
-//{
-//public:
-//    ~A() {qDebug() << "delete";}
-//};
+class A
+{
+public:
+    ~A() {qDebug() << "delete";}
+    void aMethod() { qDebug() << "a method"; }
+};
 
-//void test()
-//{
-//    QSharedPointer<A> y;
-//    QList< QSharedPointer<A> > list;
+class AProxy
+{
+public:
+    AProxy(QSharedPointer<A> a): a(a) {}
+    ~AProxy() {qDebug() << "proxy delete";}
+    void proxyMethod() { qDebug() << "proxy method"; }
+    QSharedPointer<A> operator->() const
+        { return a; }
+    QSharedPointer<A> &object()
+        { return a; }
 
-//    {
-//        QSharedPointer<A> x = QSharedPointer<A>(new A());
-//        y = x;
-//        list.append(x);
+protected:
+    QSharedPointer<A> a;
+};
 
-//        x.clear();
-//        qDebug()<<"1";
-//    }
-//    y.clear();
-//    qDebug()<<"2";
+void test()
+{
+    QSharedPointer<A> y;
+    QList< QSharedPointer<A> > list;
 
-//    list.clear();
-//    qDebug()<<"3";
-//}
+    {
+        QSharedPointer<A> x = QSharedPointer<A>(new A());
+        y = x;
+        list.append(x);
+
+        x.clear();
+        qDebug()<<"1";
+    }
+    y.clear();
+    qDebug()<<"2";
+
+    list.clear();
+
+    qDebug()<<"3 -----";
+    // proxy in a list
+    {
+        AProxy proxy(QSharedPointer<A>(new A()));
+        QList<AProxy> list2;
+        proxy.proxyMethod();
+        proxy->aMethod();
+        qDebug() << "3a";
+        list2.append(proxy); //new proxy object created - copied from proxy
+        list2.clear(); // copy of proxy delete, original proxy and object A stay
+        qDebug() << "3b";
+    }
+    // proxy pointer in a list
+    qDebug() << "4 -----";
+    {
+        AProxy *proxyPtr = new AProxy(QSharedPointer<A>(new A()));
+        QList<AProxy*> list2;
+        proxyPtr->proxyMethod();
+        (*proxyPtr)->aMethod();
+        proxyPtr->object().staticCast<A>();
+        qDebug() << "4a";
+        list2.append(proxyPtr);
+        delete list2.first();
+        qDebug() << "4b";
+        list2.clear();
+        qDebug() << "4c";
+    }
+    // proxy shared pointer in a list
+    qDebug() << "5 -----";
+    {
+        QSharedPointer<AProxy> proxy = QSharedPointer<AProxy>(new AProxy(QSharedPointer<A>(new A())));
+        QList<QSharedPointer<AProxy> > list2;
+        proxy->proxyMethod();
+        (*proxy)->aMethod();
+        qDebug() << "5a";
+        list2.append(proxy);
+        list2.removeFirst();
+        qDebug() << "5b";
+        list2.clear();
+        qDebug() << "5c";
+    }
+}
 
 int main(int argc, char *argv[]) {
+    test();
+    return 0;
     QCoreApplication a(argc, argv);
 
     CloudFactory *cloudFactory = CloudFactory::instance();
