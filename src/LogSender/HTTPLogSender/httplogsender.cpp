@@ -4,8 +4,10 @@
 #include <QDebug>
 
 HTTPLogSender::HTTPLogSender() {
-    QObject::connect(&http, SIGNAL(sslErrors(const QList<QSslError> &)),  &http, SLOT(ignoreSslErrors()));
-    QObject::connect(&http, SIGNAL(done(bool)), this, SLOT(done(bool)));
+    QObject::connect(&http, SIGNAL(sslErrors(const QList<QSslError> &)),
+                     &http, SLOT(ignoreSslErrors()));
+    QObject::connect(&http, SIGNAL(done(bool)),
+                     this, SLOT(done(bool)));
 }
 
 void HTTPLogSender::sendLogs(QString address, QVector<QString> log) {
@@ -39,14 +41,14 @@ void HTTPLogSender::sendLogs(QString address, QFile file) {
 }
 
 void HTTPLogSender::done(bool error) {
-    MessageSample message;
+    QString message;
     
     if(error) {
         qWarning() << "Log sending error" + http.errorString();
-        message.value = http.errorString();
+        message = http.errorString();
     }
     else {
-        message.value = "send OK";
+        message = "send OK";
     }
 
     emit statusUpdate(message);

@@ -7,7 +7,6 @@
 
 class Message
 {
-
 public:
     enum MessageType {
         MsgBase,
@@ -19,7 +18,6 @@ public:
 
     Message(QDateTime timestamp);
     virtual ~Message();
-    virtual Message* clone() const { return new Message(*this); }
     virtual MessageType getType() const { return MsgBase; }
     virtual QString toString() const { return "base"; }
 
@@ -31,6 +29,7 @@ class MessageProxy
 {
 public:
     MessageProxy(QSharedPointer<Message> &message);
+    ~MessageProxy();
 
     // message is marked as locked when cloud is attempting to process it
     // used to avoid trying to process single message more than once
@@ -65,12 +64,13 @@ protected:
     bool processed, locked;
     int failCount;
 
+public:
     static void getUnlockedMessages(
             QList< MessageProxy* > &proxies,
-            MessageType type,
+            Message::MessageType type,
             QList< MessageProxy* > &result);
 
-}
+};
 
 
 class MessageSample : public Message
@@ -79,7 +79,6 @@ public:
     MessageSample();
     MessageSample(QString key, QString val);
     MessageSample(QString key, QString val, QDateTime timestamp);
-    virtual MessageSample* clone() const;
     virtual MessageType getType() const { return MsgSample; }
 
     QString key;
@@ -96,7 +95,6 @@ class MessageEvent : public Message
 {
 public:
     MessageEvent(QString message, QString type, int id);
-    virtual MessageEvent* clone() const;
     virtual MessageType getType() const { return MsgEvent; }
     virtual QString toString() const;
 
@@ -114,7 +112,6 @@ class MessageRequest : public Message
 {
 public:
     MessageRequest(QString command, QMap<QString, QVariant> arguments);
-    virtual MessageRequest* clone() const;
     virtual MessageType getType() const { return MsgRequest; }
     virtual QString toString() const;
 
@@ -130,7 +127,6 @@ class MessageResponse: public Message
 {
 public:
     MessageResponse(QString command, QMap<QString, QVariant> arguments);
-    virtual MessageResponse* clone() const;
     virtual MessageType getType() const { return MsgResponse; }
     virtual QString toString() const;
 
