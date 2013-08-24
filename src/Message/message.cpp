@@ -8,23 +8,33 @@
 #include "message.h"
 
 
-void Message::getUnlockedMessages(
-        QList< QSharedPointer<Message> > &messages,
-        MessageType type,
-        bool lock,
-        QList< QSharedPointer<Message> > &result)
+MessageProxy::MessageProxy(QSharedPointer<Message> &message) :
+    message(message), processed(false), locked(false), failCount(0) { }
+
+
+void MessageProxy::getUnlockedMessages(
+            QList< MessageProxy* > &proxies,
+            MessageType type,
+            QList< MessageProxy* > &result)
 {
-    foreach(QSharedPointer<Message> msg, messages) {
-        if (msg->getType() == type && !msg->isLocked()) {
-            result.append(msg);
-            msg->setLocked(lock);
+    foreach(MessageProxy* proxyPtr, proxies) {
+        MessageProxy &proxy = *proxyPtr;
+        if (proxy->getType() == type && !proxy->isLocked()) {
+            result.append(proxyPtr);
+            proxyPtr->setLocked(true);
         }
     }
+    // foreach(QSharedPointer<Message> msg, messages) {
+    //     if (msg->getType() == type && !msg->isLocked()) {
+    //         result.append(msg);
+    //         msg->setLocked(lock);
+    //     }
+    // }
 }
 
 
 Message::Message(QDateTime timestamp) :
-    timestamp(timestamp), processed(false), locked(false), failCount(0) { }
+    timestamp(timestamp) { }
 
 
 Message::~Message()

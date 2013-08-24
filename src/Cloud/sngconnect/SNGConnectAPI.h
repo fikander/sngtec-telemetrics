@@ -44,7 +44,7 @@ class APICall : public QObject
     Q_OBJECT
 
 public:
-    APICall(QSharedPointer<SNGConnectAPI> context);
+    APICall(QSharedPointer<SNGConnectAPI> &context);
     virtual ~APICall();
 
     void invoke();
@@ -76,41 +76,6 @@ protected:
 };
 
 /*
- *
- *
- *   PUT api/v1/feeds/{id}/datastreams/{id}.json
- *   {
- *     "datapoints":[
- *       {"at":"2010-05-20T11:01:43Z","value":"294"},
- *       {"at":"2010-05-20T11:01:44Z","value":"295"},
- *       {"at":"2010-05-20T11:01:45Z","value":"296"},
- *       {"at":"2010-05-20T11:01:46Z","value":"297"}
- *     ]
- *   }
- */
-class APICallSendDatastreamSamples : public APICall
-{
-    Q_OBJECT
-public:
-    APICallSendDatastreamSamples(
-            QSharedPointer<SNGConnectAPI> context,
-            QString datastream,
-            QList< QSharedPointer<MessageSample> > &samples);
-
-protected:
-    virtual QString getMethod() { return "PUT"; }
-    virtual QString getAPI() { return "/api/v1/feeds/" + feed() + "/datastreams/" + datastream + ".json"; }
-    virtual QString getContent();
-    virtual void processResponse(bool error);
-
-    QString datastream;
-    QList< QSharedPointer<MessageSample> > samples;
-};
-
-
-/*
- *
- *
  *   PUT api/v1/feeds/{id}/datastreams.json
  *   {
  *     "datastreams": [{
@@ -129,26 +94,27 @@ protected:
  *     }]
  *   }
  */
-class APICallSendMultipleDatastreamSamples : public APICall
+class APICallSendDatastreamSamples : public APICall
 {
     Q_OBJECT
 public:
-    APICallSendMultipleDatastreamSamples(
-            QSharedPointer<SNGConnectAPI> context,
-            QList< QSharedPointer<Message> > &messages);
+    APICallSendDatastreamSamples(
+            QSharedPointer<SNGConnectAPI> &context,
+            QList< MessageProxy* > &messages);
 
 protected:
-    virtual QString getMethod() { return "PUT"; }
-    virtual QString getAPI() { return "/api/v1/feeds/" + feed() + "/datastreams.json"; }
+    virtual QString getMethod()
+        { return "PUT"; }
+    virtual QString getAPI()
+        { return "/api/v1/feeds/" + feed() + "/datastreams.json"; }
     virtual QString getContent();
     virtual void processResponse(bool error);
 
-    QList< QSharedPointer<Message> > messages;
+    QList< MessageProxy* > messages;
 };
 
 
 /*
- *
  *       POST api/v1/feeds/{id}/events.json
  *       {
  *           "type": "alarm_on|alarm_off|information|system_error|system_warning",
@@ -156,23 +122,24 @@ protected:
  *           "timestamp": "<timestamp>"
  *           "message": "somethings gone wrong"
  *       }
- *
  */
 class APICallSendEvent : public APICall
 {
     Q_OBJECT
 public:
     APICallSendEvent(
-            QSharedPointer<SNGConnectAPI> context,
-            QSharedPointer<Message> &event);
+            QSharedPointer<SNGConnectAPI> &context,
+            MessageProxy *proxy);
 
 protected:
-    virtual QString getMethod() { return "POST"; }
-    virtual QString getAPI() { return "/api/v1/feeds/" + feed() + "/events.json"; }
+    virtual QString getMethod()
+        { return "POST"; }
+    virtual QString getAPI()
+        { return "/api/v1/feeds/" + feed() + "/events.json"; }
     virtual QString getContent();
     virtual void processResponse(bool error);
 
-    QSharedPointer<MessageEvent> event;
+    MessageProxy *proxy;
 };
 
 /*
@@ -196,18 +163,21 @@ class APICallGetDataStreams : public APICall
     Q_OBJECT
 public:
     APICallGetDataStreams(
-            QSharedPointer<SNGConnectAPI> context,
-            QSharedPointer<Message> semaphore,
+            QSharedPointer<SNGConnectAPI> &context,
+            QSemaphore *semaphore,
             QString filter,
             QQueue< QSharedPointer<Message> > *receivedMessages);
 
 protected:
-    virtual QString getMethod() { return "GET"; }
-    virtual QString getAPI() { return "/api/v1/feeds/" + feed() + "/datastreams.json?filter=" + filter; }
-    virtual QString getContent() { return ""; }
+    virtual QString getMethod()
+        { return "GET"; }
+    virtual QString getAPI()
+        { return "/api/v1/feeds/" + feed() + "/datastreams.json?filter=" + filter; }
+    virtual QString getContent()
+        { return ""; }
     virtual void processResponse(bool error);
 
-    QSharedPointer<Message> semaphore;
+    QSemaphore *semaphore;
     QString filter;
     QQueue< QSharedPointer<Message> > *receivedMessages;
 
@@ -234,20 +204,24 @@ class APICallGetCommands : public APICall
     Q_OBJECT
 public:
     APICallGetCommands(
-            QSharedPointer<SNGConnectAPI> context,
-            QSharedPointer<Message> semaphore,
+            QSharedPointer<SNGConnectAPI> &context,
+            QSemaphore *semaphore,
             QQueue< QSharedPointer<Message> > *receivedMessages);
 
 protected:
-    virtual QString getMethod() { return "GET"; }
-    virtual QString getAPI() { return "/api/v1/feeds/" + feed() + "/commands.json"; }
-    virtual QString getContent() { return ""; }
+    virtual QString getMethod()
+        { return "GET"; }
+    virtual QString getAPI()
+        { return "/api/v1/feeds/" + feed() + "/commands.json"; }
+    virtual QString getContent()
+        { return ""; }
     virtual void processResponse(bool error);
 
-    QSharedPointer<Message> semaphore;
+    QSemaphore *semaphore;
     QQueue< QSharedPointer<Message> > *receivedMessages;
 
-    void parseJSONResponse(QString response, QQueue<QSharedPointer<Message> > &result);
+    void parseJSONResponse(
+        QString response, QQueue<QSharedPointer<Message> > &result);
 };
 
 /*
@@ -258,16 +232,19 @@ class APICallSendLog : public APICall
     Q_OBJECT
 public:
     APICallSendLog(
-            QSharedPointer<SNGConnectAPI> context,
-            QSharedPointer<MessageResponse> &response);
+            QSharedPointer<SNGConnectAPI> &context,
+            MessageProxy *proxy);
 
 protected:
-    virtual QString getMethod() { return "POST"; }
-    virtual QString getAPI() { return "/api/v1/upload-log/" + log_request_id + "/" + log_request_hash + ".json"; }
+    virtual QString getMethod()
+        { return "POST"; }
+    virtual QString getAPI()
+        { return "/api/v1/upload-log/" + log_request_id + "/" +
+            log_request_hash + ".json"; }
     virtual QString getContent();
     virtual void processResponse(bool error);
 
-    QSharedPointer<MessageResponse> response;
+    MessageProxy *proxy;
     QString log_request_id, log_request_hash;
 };
 

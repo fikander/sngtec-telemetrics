@@ -24,28 +24,53 @@ public:
     virtual QString toString() const { return "base"; }
 
     QDateTime timestamp;
+};
 
-    // message is marked as processed by cloud or device after it's been
-    // successfully sent
+
+class MessageProxy
+{
+public:
+    MessageProxy(QSharedPointer<Message> &message);
+
     // message is marked as locked when cloud is attempting to process it
     // used to avoid trying to process single message more than once
-    bool processed, locked;
-    int failCount;
-    bool isLocked() { return locked; }
-    void setLocked(bool value) { locked = value; }
-    bool isProcessed() { return processed; }
-    void setProcessed() { processed = true; }
+    bool isLocked()
+        { return locked; }
+    void setLocked(bool value)
+        { locked = value; }
+    // message is marked as processed by cloud or device after it's been
+    // successfully sent
+    bool isProcessed()
+        { return processed; }
+    void setProcessed()
+        { processed = true; }
     // messages will be discarded after several attemps to process
     // (this is configurable per Cloud)
-    void processingFailed() { failCount++; }
-    int getProcessingFailed() { return failCount; }
+    void processingFailed()
+        { failCount++; }
+    int getProcessingFailed()
+        { return failCount; }
+
+    QString toString() const
+        { return message->toString(); }
+
+    QSharedPointer<Message> operator->() const
+        { return message; }
+    QSharedPointer<Message> &object()
+        { return message; }
+
+protected:
+    QSharedPointer<Message> message;
+
+    bool processed, locked;
+    int failCount;
 
     static void getUnlockedMessages(
-            QList< QSharedPointer<Message> > &messages,
+            QList< MessageProxy* > &proxies,
             MessageType type,
-            bool lock,
-            QList< QSharedPointer<Message> > &result);
-};
+            QList< MessageProxy* > &result);
+
+}
 
 
 class MessageSample : public Message

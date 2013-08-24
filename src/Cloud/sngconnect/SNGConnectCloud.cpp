@@ -37,27 +37,27 @@ SNGConnectCloud::SNGConnectCloud(KeyValueMap &config):
 
     api = QSharedPointer<SNGConnectAPI>(new SNGConnectAPI(config));
 
-    semaphore1 = QSharedPointer<Message>(
-        new Message(QDateTime::currentDateTime())
-    );
-    semaphore2 = QSharedPointer<Message>(
-        new Message(QDateTime::currentDateTime())
-    );
+    semaphore1 = new QSemaphore(1);
+    semaphore2 = new QSemaphore(1);
 }
+
 
 SNGConnectCloud::~SNGConnectCloud()
 {
     api.clear();
+    foreach (MessageProxy *proxy, toSend) {
+        delete proxy;
+    }
     toSend.clear();
     receivedMessages.clear();
+    delete semaphore1;
+    delete semaphore2;
 }
 
 void SNGConnectCloud::connect()
 {
-    // TODO: some authentication, getting tokens etc.
     timer.start();
     QObject::connect(&timer, SIGNAL(timeout()), this, SLOT(sendAndReceiveData()));
-
     m_connected = true;
 }
 
@@ -70,18 +70,15 @@ void SNGConnectCloud::connect()
  */
 void SNGConnectCloud::send(QSharedPointer<Message> payload)
 {
-    QSharedPointer<Message> payloadCopy =
-        QSharedPointer<Message>(payload->clone());
-
     // events or requests are considered more important than samples,
     // therefore put them in front
     if (payload->getType() == Message::MsgEvent ||
         payload->getType() == Message::MsgResponse)
     {
-        toSend.prepend(payloadCopy);
+        toSend.prepend(new MessageProxy(payload));
         sendAndReceiveData();
     } else {
-        toSend.enqueue(payloadCopy);
+        toSend.enqueue(new MessageProxy(payload);
     }
 }
 
@@ -96,14 +93,14 @@ void SNGConnectCloud::cleanupProcessedMessages()
     QList<int> toRemove;
 
     int i = 0;
-    foreach(QSharedPointer<Message> msg, toSend) {
+    foreach(MessageProxy *proxy, toSend) {
         // remove from the queue when processed or permanently failed
-        if (msg->isProcessed()) {
+        if (proxy->isProcessed()) {
             toRemove.append(i);
-        } else if (msg->getProcessingFailed() > toSendMessageFailureCountThreshold) {
+        } else if (proxy->getProcessingFailed() > toSendMessageFailureCountThreshold) {
             QERROR << "Message failed to be processed >" <<
                 toSendMessageFailureCountThreshold << " times, deleting! : "
-                << msg->toString();
+                << proxy->toString();
             toRemove.append(i);
         }
         ++i;
@@ -111,7 +108,8 @@ void SNGConnectCloud::cleanupProcessedMessages()
 
     int removed = 0;
     foreach(int idx, toRemove) {
-        toSend.removeAt(idx - removed++);
+        MessageProxy* proxy = toSend.takeAt(idx - removed++);
+        delete proxy;
     }
 
     // too many: remove some old messages
@@ -120,8 +118,10 @@ void SNGConnectCloud::cleanupProcessedMessages()
         QERROR << "Too many messages in the queue, removing " <<
             countToRemove<< " oldest!";
 
-        for (int i = 0; i < countToRemove; i++)
-            toSend.removeFirst();
+        for (int i = 0; i < countToRemove; i++) {
+            MessageProxy *proxy = toSend.takeFirst();
+            delete proxy;
+        }
     }
 
     // close to overfilling the queue - warn about stale messages
@@ -136,17 +136,18 @@ void SNGConnectCloud::cleanupProcessedMessages()
  *
  */
 void SNGConnectCloud::processResponseMessages(
-    QList< QSharedPointer<Message> > &responses)
+    QList< MessageProxy* > &responses)
 {
-    foreach(QSharedPointer<Message> m, responses) {
-        if (m->getType() != Message::MsgResponse) {
+    foreach(MessageProxy* proxy, responses) {
+        if ((*proxy)->getType() != Message::MsgResponse) {
             continue;
         }
 
-        QSharedPointer<MessageResponse> response = m.staticCast<MessageResponse>();
+        QSharedPointer<MessageResponse> response =
+            proxy->object().staticCast<MessageResponse>();
 
         if (response->command == "upload_log") {
-            APICallSendLog *call = new APICallSendLog(api, response);
+            APICallSendLog *call = new APICallSendLog(api, proxy);
             // note: call will get self destroy after execution
             call->invoke();
         }
@@ -172,29 +173,33 @@ void SNGConnectCloud::sendAndReceiveData()
     //
     // send system response to the cloud first
     //
-    QList< QSharedPointer<Message> > allResponses;
-    Message::getUnlockedMessages(toSend, Message::MsgResponse, true, allResponses);
+    QList< MessageProxy* > allResponses;
+    MessageProxy::getUnlockedMessages(
+        toSend, Message::MsgResponse, allResponses);
     processResponseMessages(allResponses);
 
     //
     // send data to the cloud: samples and events
     //
-    QList< QSharedPointer<Message> > allEvents;
-    Message::getUnlockedMessages(toSend, Message::MsgEvent, true, allEvents);
+    QList< MessageProxy* > allEvents;
+    Message::getUnlockedMessages(
+        toSend, Message::MsgEvent, allEvents);
 
-    foreach(QSharedPointer<Message> event, allEvents)
+    //TODO : Send events in batch, just like datapoints for different datastreams
+    foreach(MessageProxy *proxy, allEvents)
     {
-        APICallSendEvent *call = new APICallSendEvent(api, event);
+        APICallSendEvent *call = new APICallSendEvent(api, proxy);
         // note: call will get self destroy after execution
         call->invoke();
     }
 
-    QList< QSharedPointer<Message> > allSamples;
-    Message::getUnlockedMessages(toSend, Message::MsgSample, true, allSamples);
+    QList< MessageProxy* > allSamples;
+    Message::getUnlockedMessages(
+        toSend, Message::MsgSample, allSamples);
 
     if (!allSamples.isEmpty()) {
-        APICallSendMultipleDatastreamSamples *call =
-            new APICallSendMultipleDatastreamSamples(api, allSamples);
+        APICallSendDatastreamSamples *call =
+            new APICallSendDatastreamSamples(api, allSamples);
         // note: call will get self destroyed after execution
         call->invoke();
     }
@@ -203,7 +208,7 @@ void SNGConnectCloud::sendAndReceiveData()
     // receive new data, convert to messages
     //
     // note: semaphore is locked and unlocked by API function
-    if (!semaphore1->isLocked()) {
+    if (semaphore1->tryAcquire()) {
         APICallGetDataStreams *call =
             new APICallGetDataStreams(api, semaphore1, "requested", &receivedMessages);
         // note: call will get self destroy after execution
@@ -212,7 +217,7 @@ void SNGConnectCloud::sendAndReceiveData()
 
     // receive new commands
     // note: semaphore is locked and unlocked by API function
-    if (!semaphore2->isLocked()) {
+    if (semaphore2->tryAcquire()) {
         APICallGetCommands *call2 =
             new APICallGetCommands(api, semaphore2, &receivedMessages);
         // note: call will get self destroy after execution

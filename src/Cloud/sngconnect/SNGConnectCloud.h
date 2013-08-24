@@ -27,7 +27,7 @@ signals:
 
 private:
     QTimer timer;
-    QQueue< QSharedPointer<Message> > toSend;
+    QQueue< MessageProxy* > toSend;
     // dispatched as received signal (for sensors)
     QQueue< QSharedPointer<Message> > receivedMessages;
 
@@ -50,11 +50,10 @@ private slots:
     void sendAndReceiveData();
 
 private:
-    // using messages as poor man semaphores to avoid calling some APIs
-    // while others haven't finished
-    QSharedPointer<Message> semaphore1, semaphore2;
+    // used to avoid calling some APIs while earlier calls haven't finished
+    QSemaphore *semaphore1, *semaphore2;
 
-    void processResponseMessages(QList< QSharedPointer<Message> > &responses);
+    void processResponseMessages(QList< MessageProxy* > &responses);
 
 };
 

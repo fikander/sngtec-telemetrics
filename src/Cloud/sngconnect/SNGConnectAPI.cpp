@@ -28,19 +28,16 @@ SNGConnectAPI::SNGConnectAPI(KeyValueMap &config) :
 }
 
 
-SNGConnectAPI::~SNGConnectAPI()
-{
-}
+SNGConnectAPI::~SNGConnectAPI() { }
 
 
-APICall::APICall(QSharedPointer<SNGConnectAPI> context):
+APICall::APICall(QSharedPointer<SNGConnectAPI> &context):
     context(context), requestId(0), bytesReceived(0), bytesSent(0)
  { }
 
 
 APICall::~APICall()
 {
-    //QDEBUG << "Deleting APICall " << requestId;
     context.clear();
 }
 
@@ -169,66 +166,23 @@ void APICall::done(bool error)
 
 
 APICallSendDatastreamSamples::APICallSendDatastreamSamples(
-        QSharedPointer<SNGConnectAPI> context,
-        QString datastream,
-        QList< QSharedPointer<MessageSample> > &samples) :
-    APICall(context), datastream(datastream), samples(samples)
-{
-}
-
-
-QString APICallSendDatastreamSamples::getContent()
-{
-    QString content = "{\"datapoints\":[";
-    bool first = true;
-
-    foreach(QSharedPointer<MessageSample> sample, samples) {
-        Q_ASSERT(sample->isLocked());
-
-        // {\"at\":\"2010-05-20T11:01:44Z\",\"value\":\"295\"},
-        if (!first)
-            content += ",";
-        first = false;
-        content += "{\"at\":\"" + sample->timestamp.toString(Qt::ISODate) + "\",";
-        content += "\"value\":\"" + sample->value + "\"}";
-    }
-
-    content += "]}";
-    return content;
-}
-
-
-void APICallSendDatastreamSamples::processResponse(bool error)
-{
-    if (!error && http.lastResponse().statusCode() == 200) {
-        foreach(QSharedPointer<MessageSample> sample, samples)
-            sample->setProcessed();
-    } else {
-        // unlock so that Cloud picks them up and sends later
-        foreach(QSharedPointer<MessageSample> sample, samples) {
-            sample->setLocked(false);
-            sample->processingFailed();
-        }
-    }
-}
-
-
-APICallSendMultipleDatastreamSamples::APICallSendMultipleDatastreamSamples(
-            QSharedPointer<SNGConnectAPI> context,
-            QList<QSharedPointer<Message> > &messages) :
+            QSharedPointer<SNGConnectAPI> &context,
+            QList< MessageProxy* > &messages) :
     APICall(context), messages(messages) { }
 
 
-QString APICallSendMultipleDatastreamSamples::getContent()
+QString APICallSendDatastreamSamples::getContent()
 {
     bool firstDataStream = true;
     QString content = "{\"datastreams\":[";
 
     //sort datastreams into buckets by stream label
-    QHash<QString, QList<QSharedPointer<Message> > > hash;
+    QHash<QString, QList<MessageProxy*> > hash;
 
-    foreach(QSharedPointer<Message> message, messages) {
-        hash[message.staticCast<MessageSample>()->key] += message;
+    foreach(MessageProxy* proxy, messages) {
+        QSharedPointer<MessageSample> sample =
+            (*proxy)->object().staticCast<MessageSample>();
+        hash[sample->key] += proxy;
     }
 
     foreach(QString key, hash.uniqueKeys()) {
@@ -237,14 +191,15 @@ QString APICallSendMultipleDatastreamSamples::getContent()
             content += ",";
             firstDataStream = false;
         }
-        content += "{\"label\":\""+key+"\",\"datapoints\":[";
-        foreach(QSharedPointer<Message> message, hash[key]) {
-            Q_ASSERT(message->isLocked());
+        content += "{\"label\":\"" + key + "\",\"datapoints\":[";
+        foreach(MessageProxy *proxy, hash[key]) {
+            Q_ASSERT(proxy->isLocked());
             if (!firstSample) {
                 content += ",";
                 firstSample = false;
             }
-            QSharedPointer<MessageSample> sample = message.staticCast<MessageSample>();
+            QSharedPointer<MessageSample> sample =
+                (*proxy)->object().staticCast<MessageSample>();
             content += "{\"at\":\"" + sample->timestamp.toString(Qt::ISODate) + "\",";
             content += "\"value\":\"" + sample->value + "\"}";
         }
@@ -255,32 +210,29 @@ QString APICallSendMultipleDatastreamSamples::getContent()
     return content;
 }
 
-void APICallSendMultipleDatastreamSamples::processResponse(bool error)
+void APICallSendDatastreamSamples::processResponse(bool error)
 {
     if (!error && http.lastResponse().statusCode() == 200) {
-        foreach(QSharedPointer<Message> message, messages) {
-            message->setProcessed();
+        foreach(MessageProxy *proxy, messages) {
+            proxy->setProcessed();
         }
     } else {
         // unlock so that Cloud picks them up and sends later
-        foreach(QSharedPointer<Message> message, messages) {
-            message->setLocked(false);
-            message->processingFailed();
+        foreach(MessageProxy *proxy, messages) {
+            proxy->setLocked(false);
+            proxy->processingFailed();
         }
     }
 }
 
 APICallSendEvent::APICallSendEvent(
-        QSharedPointer<SNGConnectAPI> context,
-        QSharedPointer<Message> &event) :
-    APICall(context)
-{
-    this->event = event.staticCast<MessageEvent>();
-}
+        QSharedPointer<SNGConnectAPI> &context,
+        MessageProxy *proxy) :
+    APICall(context), proxy(proxy) { }
 
 QString APICallSendEvent::getContent()
 {
-    Q_ASSERT(event->isLocked());
+    Q_ASSERT(proxy->isLocked());
 
     /*       {
      *           "type": "alarm_on|alarm_off|information|system_error|system_warning",
@@ -289,6 +241,9 @@ QString APICallSendEvent::getContent()
      *           "message": "something’s gone wrong"
      *       }
      */
+    QSharedPointer<MessageEvent> event =
+        (*proxy)->object().staticCast<MessageEvent>();
+
     QString content  = "{\"type\":\"" + event->type + "\",";
     content += "\"id\":\"" + QString::number(event->id) + "\",";
     content += "\"timestamp\":\"" + event->timestamp.toString(Qt::ISODate) + "\",";
@@ -300,24 +255,21 @@ QString APICallSendEvent::getContent()
 void APICallSendEvent::processResponse(bool error)
 {
     if (!error && http.lastResponse().statusCode() == 200) {
-        event->setProcessed();
+        proxy->setProcessed();
     } else {
-        event->setLocked(false);
-        event->processingFailed();
+        proxy->setLocked(false);
+        proxy->processingFailed();
     }
 }
 
 
 APICallGetDataStreams::APICallGetDataStreams(
-        QSharedPointer<SNGConnectAPI> context,
-        QSharedPointer<Message> semaphore,
+        QSharedPointer<SNGConnectAPI> &context,
+        QSemaphore *semaphore,
         QString filter,
         QQueue<QSharedPointer<Message> > *receivedMessages) :
     APICall(context), semaphore(semaphore), filter(filter),
-    receivedMessages(receivedMessages)
-{
-    semaphore->setLocked(true);
-}
+    receivedMessages(receivedMessages) { }
 
 
 /**
@@ -414,18 +366,16 @@ void APICallGetDataStreams::processResponse(bool error)
         parseJSONResponse(http.readAll(), *receivedMessages);
     }
 
-    semaphore->setLocked(false);
+    semaphore->release();
 }
 
 
 APICallGetCommands::APICallGetCommands(
-        QSharedPointer<SNGConnectAPI> context,
-        QSharedPointer<Message> semaphore,
+        QSharedPointer<SNGConnectAPI> &context,
+        QSemaphore *semaphore,
         QQueue<QSharedPointer<Message> > *receivedMessages) :
-    APICall(context), semaphore(semaphore), receivedMessages(receivedMessages)
-{
-    semaphore->setLocked(true);
-}
+    APICall(context), semaphore(semaphore),
+    receivedMessages(receivedMessages) { }
 
 /**
  * @brief APICallGetCommands::parseJSONResponse
@@ -508,30 +458,37 @@ void APICallGetCommands::processResponse(bool error)
         parseJSONResponse(http.readAll(), *receivedMessages);
     }
 
-    semaphore->setLocked(false);
+    semaphore->release();
 }
 
 APICallSendLog::APICallSendLog(
-            QSharedPointer<SNGConnectAPI> context,
-            QSharedPointer<MessageResponse> &response):
-    APICall(context), response(response)
+            QSharedPointer<SNGConnectAPI> &context,
+            MessageProxy *proxy):
+    APICall(context), proxy(proxy)
 {
+    Q_ASSERT(response->isLocked());
+
+    QSharedPointer<MessageResponse> response =
+        (*proxy)->object().staticCast<MessageResponse>();
+
     log_request_id = response->arguments["log_request_id"].toString();
     log_request_hash = response->arguments["log_request_hash"].toString();
+}
+
+QString APICallSendLog::getContent()
+{
+    QSharedPointer<MessageResponse> response =
+        (*proxy)->object().staticCast<MessageResponse>();
+
+    return response->arguments["log"].toString();
 }
 
 void APICallSendLog::processResponse(bool error)
 {
     if (!error && http.lastResponse().statusCode() == 200) {
-        response->setProcessed();
+        proxy->setProcessed();
     } else {
-        response->setLocked(false);
-        response->processingFailed();
+        proxy->setLocked(false);
+        proxy->processingFailed();
     }
 }
-
-QString APICallSendLog::getContent()
-{
-    return response->arguments["log"].toString();
-}
-
