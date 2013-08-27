@@ -11,12 +11,14 @@
 
 Logger* Logger::instance = NULL;
 
+
 Logger* Logger::initialise(KeyValueMap &config)
 {
     if (!instance)
         instance = new Logger(config);
     return instance;
 }
+
 
 Logger* Logger::getInstance() {
     return instance;
@@ -33,15 +35,17 @@ Logger::Logger(KeyValueMap &config) {
 
     timer = new QTimer(this);
 
-    if (config.contains("log_flush_interval"))
+    if (config.contains("log_flush_interval")) {
         askInterval = config["log_flush_interval"].toInt() * 1000;
-    else
+    } else {
         askInterval = 60*60*1000; // flush every hour
+    }
 
-    if (config.contains("max_messages_in_file"))
+    if (config.contains("max_messages_in_file")) {
         maxMessagesInFile = config["max_messages_in_file"].toInt();
-    else
+    } else {
         maxMessagesInFile = 1000;
+    }
 
     connect(timer, SIGNAL(timeout()), this, SLOT(flushMessages()));
     timer->start(askInterval);
@@ -49,15 +53,15 @@ Logger::Logger(KeyValueMap &config) {
     // logging level
 
     loggingLevel = QtWarningMsg;
-    if (config.contains("level"))
-    {
+    if (config.contains("level")) {
         QString level = config["level"].toString();
-        if (level == "debug")
+        if (level == "debug") {
             loggingLevel = QtDebugMsg;
-        else if (level == "warning")
+        } else if (level == "warning") {
             loggingLevel = QtWarningMsg;
-        else if (level == "error")
+        } else if (level == "error") {
             loggingLevel = QtCriticalMsg;
+        }
     }
 
     queueDirty = false;
@@ -104,15 +108,16 @@ QVector<QString> Logger::giveLogs() {
     return res;
 }
 
+
 QString Logger::giveLogsAsString()
 {
 
-    return "LOGSSSSS";
+    return "NOT IMPLEMENTED";
 }
 
+
 void Logger::pushMessage(QtMsgType type, QString msg) {
-    if (type >= loggingLevel)
-    {
+    if (type >= loggingLevel) {
         queue.append(msg);
         queueDirty = true;
     }
@@ -121,8 +126,9 @@ void Logger::pushMessage(QtMsgType type, QString msg) {
 
 void Logger::flushMessages()
 {
-    if (!queueDirty)
+    if (!queueDirty) {
         return;
+    }
 
     QDEBUG << "Flushing messages to " << logFile->fileName();
 

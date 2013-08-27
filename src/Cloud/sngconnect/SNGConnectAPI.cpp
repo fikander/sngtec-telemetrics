@@ -189,6 +189,7 @@ QString APICallSendDatastreamSamples::getContent()
         bool firstSample = true;
         if (!firstDataStream) {
             content += ",";
+        } else {
             firstDataStream = false;
         }
         content += "{\"label\":\"" + key + "\",\"datapoints\":[";
@@ -196,6 +197,7 @@ QString APICallSendDatastreamSamples::getContent()
             Q_ASSERT(proxy->isLocked());
             if (!firstSample) {
                 content += ",";
+            } else {
                 firstSample = false;
             }
             QSharedPointer<MessageSample> sample =
